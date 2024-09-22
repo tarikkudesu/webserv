@@ -1,0 +1,62 @@
+/* ************ Message Format ************ */
+
+HTTP messages consist of requests from client to server and responses from server to client
+
+HTTP-message = Request | Response
+
+Both type of messages consist of :
+    - start-line
+    - zero or more header feilds
+    - CRLF indicating the end of the header feild
+    - possibly a message-body
+
+Generic-message =   start-line CRLF
+                    message-header CRLF
+                    CRLF
+                    [message-body]
+
+start-line = Request-line | Status-line
+
+Servers should egnore all CRLF
+
+HTTP header feilds include general-header, request-header, response-header, and entity-header feilds. Each header feild consists of a name followed by a ':' and the feild value.
+
+message-header = field-name ":" [ feild-value ]
+
+field-name = token (case sensitive)
+feild-value = (feild-content | LWS)
+feild-content = text or a combination of tokens, seperators and quoted strings.
+
+
+/* *************** Request *************** */
+
+The request message from a client to a server includes :
+
+1. Request-line
+    * METHOD SP Request-URI SP HTTP-Version *
+        . Method =  "OPTIONS"
+                    "GET"
+                    "HEAD"
+                    "POST"
+                    "PUT"
+                    "DELETE"
+                    "TRACE"
+                    "CONNECT"
+            The method to be performed on the URI.
+            The methods "GET" and "HEAD" must be supported by all servers, 
+            All other methods are optional.
+            The server must notify the client if a muthod is allowed on a resource or not.
+            The status code 405 (Method not allowed) should be returned if so.
+            The status code 501 (Not implemented) if the method is not implemented or unrecognized
+        
+        . URI = Uniform Resource Identifier
+            identifies the resource upon which to apply the request
+
+        . Protocole Version
+
+2. Header
+    The request header feild allows the client to pass additional information about the request and about the client itself to the server.
+
+3. body
+
+/* *************** Response *************** */
