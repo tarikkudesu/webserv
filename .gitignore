@@ -1,11 +1,19 @@
 # Prerequisites
 *.d
+.test
+.vscode
+.logs
+*.tldr
+tester
+webserv
+cgi_tester
 
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
+*.out
 
 # Precompiled Headers
 *.gch

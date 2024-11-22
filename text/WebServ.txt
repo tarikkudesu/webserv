@@ -1,4 +1,4 @@
-IRIS TO TARIKKU NO WEBSERV
+WEBSERV
 
 All team task
 * Configuration file setup : 
