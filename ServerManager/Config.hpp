@@ -1,7 +1,7 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
 
-# include "../Logs/Logs.hpp"
+# include "Server.hpp"
 
 class Config
 {

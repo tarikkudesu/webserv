@@ -118,7 +118,7 @@ void	ServerEngine::readDataFromSocket( struct pollfd &sockStruct )
 		exit(EXIT_FAILURE);
 	}
 }
-#include <string.h>
+
 void	ServerEngine::writeDataToSocket( struct pollfd &sockStruct )
 {
     const char* response = "HTTP/1.1 200 OK\n"

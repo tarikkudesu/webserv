@@ -1,7 +1,7 @@
 #ifndef __SERVER_ENGINE_HPP__
 # define __SERVER_ENGINE_HPP__
 
-# include "Server/Server.hpp"
+# include "Config.hpp"
 
 typedef std::vector< pollfd >	t_events;
 typedef std::vector< Server >	Servers;

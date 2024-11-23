@@ -1,7 +1,7 @@
 #ifndef LOGS_HPP
 # define LOGS_HPP
 
-# include "../../srcs/webserv.hpp"
+# include "../srcs/webserv.hpp"
 
 class Logs
 {

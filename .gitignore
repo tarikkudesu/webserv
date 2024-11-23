@@ -3,7 +3,6 @@
 .test
 .vscode
 .logs
-*.tldr
 tester
 webserv
 cgi_tester
