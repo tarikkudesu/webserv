@@ -6,6 +6,7 @@
 tester
 webserv
 cgi_tester
+prog
 
 # Compiled Object files
 *.slo

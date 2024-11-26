@@ -1,5 +1,5 @@
 
-#include "../ServerManager/ServerEngine.hpp"
+#include "../ServerManager/ServerManager.hpp"
 
 void	f() {
 	int fd = open(".logs/sds.log", O_WRONLY | O_CREAT | O_TRUNC, 0666);
@@ -29,14 +29,21 @@ int main( int ac, char **av )
 	 * CHECK .logs/sds.log FOR MEMORY LEAKS AND FILE DESCRIPTOR LEAKS *
 	 ******************************************************************/
 
+	/********************************
+	 * UNNECCESSARY TESTS GOES HERE *
+	 ********************************/
+
+
+	/********************************/
+
 	if (ac > 2) {
 		Logs::terr( String("wrong argument list") );
 	} else if (ac == 2) {
-		ServerEngine	webserv( *(av + 1) );
+		ServerManager	webserv( *(av + 1) );
 		webserv.setUpWebserv();
 		webserv.mainLoop();
 	} else {
-		ServerEngine	webserv( "default.conf" );
+		ServerManager	webserv( "default.conf" );
 		webserv.setUpWebserv();
 		webserv.mainLoop();
 	}

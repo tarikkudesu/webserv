@@ -1,14 +1,14 @@
-SRC		=	./ServerManager/Config.cpp ./ServerManager/Location.cpp ./ServerManager/Logs.cpp ./ServerManager/Server.cpp ./ServerManager/ServerEngine.cpp ./srcs/main.cpp 
+SRC		=	./ServerManager/Client.cpp ./ServerManager/Config.cpp ./ServerManager/Connection.cpp ./ServerManager/Location.cpp ./ServerManager/Logs.cpp ./ServerManager/Response.cpp ./ServerManager/Server.cpp ./ServerManager/ServerManager.cpp ./srcs/main.cpp 
 OBJ		=	$(SRC:.cpp=.o)
 NAME	=	webserv
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@c++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
+	@c++ -std=c++98 $(OBJ) -o $(NAME)
 
-%.o: %.cpp ./ServerManager/Config.hpp ./ServerManager/Location.hpp ./ServerManager/Logs.hpp ./ServerManager/Server.hpp ./ServerManager/ServerEngine.hpp ./srcs/webserv.hpp 
-	@c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
+%.o: %.cpp ./ServerManager/Client.hpp ./ServerManager/Config.hpp ./ServerManager/Connection.hpp ./ServerManager/Location.hpp ./ServerManager/Logs.hpp ./ServerManager/Response.hpp ./ServerManager/Server.hpp ./ServerManager/ServerManager.hpp ./srcs/webserv.hpp 
+	@c++ -std=c++98 -c $< -o $@
 
 clean:
 	@rm -f $(OBJ)

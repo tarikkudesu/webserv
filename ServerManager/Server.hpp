@@ -1,23 +1,35 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "Location.hpp"
+# include "Response.hpp"
 
 class Server
 {
-	public:
 
+	public:
 		int		__sd;
 		int		__port;
 		String	__serverName;
+		bool	__serverDown;
+		/*********************
+		 * TEMPORARLY PUBLIC *
+		 *********************/
 
 		Server();
+		Server( String serverName, int port );
 		Server( const Server &copy );
 		Server	&operator=( const Server &assign );
 		~Server();
 
-		static void		setNonBlockingMode( int sd );
+		int		getServerPort() const;
+		bool	getServerStat() const;
+		String	getServerName() const;
+		int		getServerSocket() const;
+
+		void			stopServer();
 		void			setup();
+
+		static void		setNonBlockingMode( int sd );
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
 
-# include "Server.hpp"
+# include "Connection.hpp"
 
 class Config
 {

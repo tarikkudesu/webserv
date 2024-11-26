@@ -59,3 +59,27 @@ All team task
 # Response builder + CGI + Front End
 
 	1. 
+
+
+ServerManager :
+	__sockNum; ✅
+	__sockets; ✅
+	__servers; ✅
+	__connections; ✅
+	__configFile; ✅
+
+	setUpWebserv()
+	mainLoop() ✅
+	proccessPollEvent()
+	acceptNewConnection()
+	readDataFromSocket()
+	writeDataToSocket()
+
+	addServer() ✅
+	removeServer() ✅
+	addConnection() ✅
+	removeConnection() ✅
+	removeSocket() ✅
+	addSocket() ✅
+
+	isServerSocket() ✅
