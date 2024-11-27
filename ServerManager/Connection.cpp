@@ -26,3 +26,15 @@ Connection	&Connection::operator=( const Connection &assign )
 	(void) assign;
 	return *this;
 }
+
+/*****************************************************************************
+ *                                  METHODS                                  *
+ *****************************************************************************/
+
+void	Connection::proccessInput( String input )
+{
+	std::cout << "proccessing\n";
+	std::cout << input << "\n";
+	std::cout << "done\n";
+	exit(1); // temporarly exit
+}

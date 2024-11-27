@@ -107,20 +107,16 @@ void	ServerManager::writeDataToSocket( int sd )
 	/****************************************
 	 * CHECK CONNECTION QUEUE FOR RESPONCES *
 	 ****************************************/
-	/***********************************************
-	 * SEND THE RESPONSE TO THE APPROPRIATE SERVER *
-	 ***********************************************/
 	/**********************************************************
 	 * DECIDE WITHER TO CLOSE THE CONNECTION OR KEEP IT ALIVE *
 	 **********************************************************/
-	const char* response =	"HTTP/1.1 200 OK\n"
-                        	"Content-Type: text/html\n"
-                        	"Content-Length: 16\n"
-                        	"Connection: keep-alive\r\n\r\n"
-							"<h1>Webserv</h1>";
-	ssize_t	bytesWritten = send(sd, response, strlen(response), 0);
+	if (this->__connections[sd].__responseQueue.empty())
+		return ;
+	String	response = this->__connections[sd].__responseQueue.front();
+	this->__connections[sd].__responseQueue.pop();
+	ssize_t	bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0) {
-
+		Logs::tout("write");
 	} else {
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR, \
@@ -140,9 +136,18 @@ void	ServerManager::readDataFromSocket( int sd )
 		removeConnection(sd);
 	} else if (bytesRead > 0) {
 		buff[bytesRead] = '\0';
-		/*****************
-		 * PROCCESS DATA *
-		 *****************/
+		t_Connections::iterator	iter = this->__connections.find(sd);
+		if (iter != this->__connections.end()) {
+			iter->second.proccessInput( String(buff) );
+		} else
+			return ;
+		const char* response =	"HTTP/1.1 200 OK\n"
+								"Content-Type: text/html\n"
+								"Content-Length: 17\n"
+								"Connection: keep-alive\r\n\r\n"
+								"<h1>Webserv</h1>\n";
+		this->__connections[sd].__responseQueue.push(String(response));
+		Logs::tout("read");
 	} else {
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR, \
@@ -160,6 +165,7 @@ void	ServerManager::acceptNewConnection( int sd )
 	newSock = accept(sd, NULL, NULL);
 	if (newSock >= 0) {
 		addConnection(newSock);
+		Logs::tout("accept");
 	} else {
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR, \
@@ -190,6 +196,7 @@ void	ServerManager::proccessPollEvent( int retV )
 				retV--;
 			} else if (sockStruct.revents & POLLHUP) {
 				removeConnection(sockStruct.fd);
+				Logs::tout("remove");
 				retV--;
 			}
 		} catch ( std::exception &e ) {
@@ -200,7 +207,7 @@ void	ServerManager::proccessPollEvent( int retV )
 void	ServerManager::mainLoop()
 {
 	int			retV = 0;
-	int			timeout = 500;
+	int			timeout = 1000;
 
 	try {
 		while (true)

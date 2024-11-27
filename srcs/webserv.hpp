@@ -9,6 +9,8 @@
 # include <string>
 # include <vector>
 # include <map>
+# include <queue>
+# include <list>
 # include <fcntl.h>
 # include <stdio.h>
 # include <errno.h>

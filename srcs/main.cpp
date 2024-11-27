@@ -17,8 +17,13 @@ void	f() {
 	system("leaks -list webserv");
 }
 
+void signalHandler(int signal) {
+	Logs::terr(String("SIGPIPE"));
+}
+
 int main( int ac, char **av )
 {
+    signal(SIGPIPE, signalHandler);
 	std::cout << std::unitbuf;
 	std::cerr << std::unitbuf;
 	/**********************************
@@ -33,7 +38,7 @@ int main( int ac, char **av )
 	 * UNNECCESSARY TESTS GOES HERE *
 	 ********************************/
 
-
+	// exit(1);
 	/********************************/
 
 	if (ac > 2) {
