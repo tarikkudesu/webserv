@@ -1,5 +1,5 @@
-#ifndef SERVERMANAGER_HPP
-# define SERVERMANAGER_HPP
+#ifndef __SERVERMANAGER_HPP__
+# define __SERVERMANAGER_HPP__
 
 # include "Config.hpp"
 

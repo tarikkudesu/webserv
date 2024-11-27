@@ -1,5 +1,5 @@
-#ifndef __WEBSERV__HPP__
-#define __WEBSERV__HPP__
+#ifndef __WEBSERV_HPP__
+# define __WEBSERV_HPP__
 
 # include <iostream>
 # include <sstream>

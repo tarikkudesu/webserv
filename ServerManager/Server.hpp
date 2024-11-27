@@ -1,5 +1,5 @@
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef __SERVER_HPP__
+# define __SERVER_HPP__
 
 # include "Response.hpp"
 

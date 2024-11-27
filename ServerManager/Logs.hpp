@@ -1,5 +1,5 @@
-#ifndef LOGS_HPP
-# define LOGS_HPP
+#ifndef __LOGS_HPP__
+# define __LOGS_HPP__
 
 # include "../srcs/webserv.hpp"
 

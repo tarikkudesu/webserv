@@ -31,10 +31,41 @@ Connection	&Connection::operator=( const Connection &assign )
  *                                  METHODS                                  *
  *****************************************************************************/
 
+String		Connection::identifyRequestLine( String::iterator &start, String::iterator &end )
+{
+	String	input(start, end);
+	size_t	pos = input.find("\r\n");
+	if (pos == String::npos)
+		throw std::exception();
+	String requestLine(start, start + pos);
+	start += pos + 2;
+	return requestLine;
+}
+String		Connection::identifyHeaders( String::iterator &start, String::iterator &end )
+{
+	String	input(start, end);
+	size_t	pos = input.find("\r\n\r\n");
+	if (pos == String::npos)
+		throw std::exception();
+	String requestHeaders(start, start + pos);
+	start += pos + 4;
+	return requestHeaders;
+}
 void	Connection::proccessInput( String input )
 {
-	std::cout << "proccessing\n";
-	std::cout << input << "\n";
-	std::cout << "done\n";
+
+	if (input.empty() == false)
+	{
+		try
+		{
+			String::iterator start = input.begin();
+			String::iterator end = input.end();
+			String requestLine = identifyRequestLine(start, end);
+			String requestHeaders = identifyHeaders(start, end);
+			Client	client(requestLine, requestHeaders);
+		} catch ( std::exception &e ) {
+			return ;
+		}
+	}
 	exit(1); // temporarly exit
 }

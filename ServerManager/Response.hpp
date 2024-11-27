@@ -1,5 +1,5 @@
-#ifndef RESPONSE_HPP
-# define RESPONSE_HPP
+#ifndef __RESPONSE_HPP__
+# define __RESPONSE_HPP__
 
 # include "Client.hpp"
 

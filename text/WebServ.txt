@@ -109,9 +109,14 @@ Connection :
 	__responseBuilder;
 	__responseQueue;
 
-	proccessInput()
 
 	fillClient()
 	buildResponse()
+
+	identifyBody()
+	identifyChunk()
+	identifyHeaders()
+	identifyRequestLine()
+	proccessInput()
 
 												One object per server-client connection

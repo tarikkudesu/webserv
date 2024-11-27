@@ -1,5 +1,5 @@
-#ifndef LOCATION_HPP
-# define LOCATION_HPP
+#ifndef __LOCATION_HPP__
+# define __LOCATION_HPP__
 
 # include "Logs.hpp"
 

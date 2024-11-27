@@ -1,5 +1,5 @@
-#ifndef CLIENT_HPP
-# define CLIENT_HPP
+#ifndef __CLIENT_HPP__
+# define __CLIENT_HPP__
 
 # include "Location.hpp"
 
@@ -16,6 +16,7 @@ class Client
 
 	public:
 		Client(void);
+		Client( String requestLine, String requestHeaders );
 		Client(int fd);
 		~Client();
 		Client(const Client& client);
