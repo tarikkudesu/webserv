@@ -3,12 +3,11 @@
 Connection::Connection() :
 __sd( -1 )
 {
-
+	(void)__sd;
 }
 
 Connection::Connection( int sd ) :
 __sd( sd ),
-__connectionType( KEEP_ALIVE ),
 __erase( 0 )
 {
 
@@ -34,44 +33,66 @@ Connection	&Connection::operator=( const Connection &assign )
  *                                  METHODS                                  *
  *****************************************************************************/
 
-void	Connection::identifyTransferEncoding()
+void	Connection::identifyRequestBody()
 {
-	// try {
-	// 	String value = this->__client.getHeaderFeildValue("Transfer-Encoding");
-	// 	if (value == "close")
-	// 		this->__connectionType = CLOSE;
-	// } catch ( std::exception &e ) {
-	// 	this->__connectionType = CLOSE;
-	// }
-}
-void	Connection::identifyConnectionType()
-{
-	try {
-		String value = this->__client.getHeaderFeildValue("connection");
-		if (value == "close")
-			this->__connectionType = CLOSE;
-	} catch ( std::exception &e ) {
-		this->__connectionType = CLOSE;
+	if (this->__client.hasBody())
+	{
+		String	currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
+		String	body;
+		if (this->__client.gettransferEncoding() == CHUNKED) {
+			do {
+				size_t	pos = currBuff.find("\r\n");
+				if (pos == String::npos)
+					throw std::exception();
+				size_t contentLen = 0;
+				{
+					std::stringstream	ss;
+					String	hex(currBuff.begin(), currBuff.begin() + pos);
+					ss << std::hex << hex;
+					ss >> contentLen;
+				}
+				currBuff.erase(0, pos + 2);
+				this->__erase += pos + 2;
+				if (contentLen == 0) {
+					this->__erase += 2;
+					break ;
+				}
+				if (this->__buff.length() < this->__erase + contentLen + 2)
+					throw std::exception();
+				String	chunk(String(currBuff.begin(), currBuff.begin() + contentLen));
+				currBuff.erase(0, contentLen + 2);
+				this->__erase += contentLen + 2;
+				body += chunk;
+			} while (true);
+		} else {
+			size_t	contentLen = this->__client.getContentLength();
+			if (currBuff.length() <= contentLen)
+				throw std::exception();
+			body = String(currBuff.begin(), currBuff.begin() + contentLen);
+			this->__erase += contentLen;
+		}
+		this->__client.setBody(body);
+		std::cout << MAGENTA << body << RESET << "\n";
 	}
 }
-String		Connection::identifyHeaders()
+String		Connection::identifyRequestHeaders()
 {
-	size_t	pos = this->__buff.find("\r\n\r\n", this->__erase);
+	String	currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
+	size_t	pos = currBuff.find("\r\n\r\n");
 	if (pos == String::npos)
 		throw std::exception();
-	String requestLine(this->__buff.begin() + this->__erase, this->__buff.begin() + this->__erase + pos);
+	String requestHeaders(currBuff.begin(), currBuff.begin() + pos + 2);
 	this->__erase += pos + 4;
-	// this->__buff.erase(0, pos + 4);
-	return requestLine;
+	return requestHeaders;
 }
 String		Connection::identifyRequestLine()
 {
-	size_t	pos = this->__buff.find("\r\n", this->__erase);
+	String	currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
+	size_t	pos = currBuff.find("\r\n");
 	if (pos == String::npos)
 		throw std::exception();
-	String requestLine(this->__buff.begin() + this->__erase, this->__buff.begin() + this->__erase + pos);
+	String requestLine(currBuff.begin(), currBuff.begin() + pos);
 	this->__erase += pos + 2;
-	// this->__buff.erase(0, pos + 2);
 	return requestLine;
 }
 void	Connection::proccessInput( String input )
@@ -83,14 +104,11 @@ void	Connection::proccessInput( String input )
 		try
 		{
 			String requestLine = identifyRequestLine();
-			String requestHeaders = identifyHeaders();
-			std::cout << requestLine << "\n\n" << requestHeaders << "\n\n";
-			{
-				Client	client(requestLine, requestHeaders);
-				this->__client = client;
-			}
-			this->__client.parseRequest();
-			identifyConnectionType();
+			String requestHeaders = identifyRequestHeaders();
+			std::cout << YELLOW << requestLine << RESET << "\n";
+			this->__client.parseRequest(requestLine, requestHeaders);
+			identifyRequestBody();
+			this->__buff.erase(0, this->__erase);
 		} catch ( std::exception &e ) {
 			this->__erase = 0;
 		}

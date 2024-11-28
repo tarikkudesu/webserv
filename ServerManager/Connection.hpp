@@ -11,22 +11,22 @@ class Connection
 		Client					__client;
 		String					__requestBody;
 		String					__headerFeilds;
-		t_connectionType		__connectionType;
-		t_requestPhase			__requestPhase;
 		size_t					__erase;
 
+		String		identifyRequestHeaders();
+		String		identifyRequestLine();
+		void		identifyRequestBody();
 	public:
+
 		std::queue< String >	__responseQueue;
+
 		Connection();
 		Connection( int sd );
 		Connection( const Connection &copy );
 		Connection	&operator=( const Connection &assign );
 		~Connection();
 
-		void		identifyTransferEncoding();
-		void		identifyConnectionType();
-		String		identifyHeaders();
-		String		identifyRequestLine();
+
 		void		proccessInput( String input );
 };
 

@@ -35,7 +35,7 @@ typedef std::string 	String;
 # define CYAN			"\033[1;36m"
 # define GREEN			"\033[1;32m"
 # define YELLOW 		"\033[1;33m"
-# define MGENTA 		"\033[1;35m"
+# define MAGENTA 		"\033[1;35m"
 # define RESET			"\033[1;0m"
 
 # define MAX_EVENTS 	1024
@@ -62,10 +62,10 @@ typedef enum e_connectionType {
 	KEEP_ALIVE,
 }	t_connectionType;
 
-typedef enum e_transferType {
+typedef enum e_transferEncoding {
 	GENERAL,
 	CHUNKED,
-}	t_transferType;
+}	t_transferEncoding;
 
 typedef enum e_uri {
 	DIRECTORY,

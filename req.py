@@ -5,20 +5,25 @@ port = 443
 
 # Construct the HTTP request
 request = (
-    "POST /path HTTP/1.1\r\n"
-    "Host: yourserver.com\r\n"
-    "Transfer-Encoding: chunked\r\n"
-    "Content-Type: text/plain\r\n"
+    "POST /api/login HTTP/1.1\r\n"
+    "Host: example.com\r\n"
+    "Content-Type: application/json\r\n"
+    "Content-Length: 53\r\n"
     "\r\n"
-    "4\r\n"
-    "Wiki\r\n"
-    "5\r\n"
-    "pedia\r\n"
-    "E\r\n"
-    " in\r\n"
-    "chunks.\r\n"
-    "0\r\n"
-    "\r\n"
+    "{\"username\": \"exampleUser\", \"password\": \"examplePass\"}"
+    # "PUT /upload HTTP/1.1\r\n"
+    # "Host: example.com\r\n"
+    # "Content-Type: text/plain\r\n"
+    # "Transfer-Encoding: chunked\r\n"
+    # "\r\n"
+    # "7\r\n"
+    # "Mozilla\r\n"
+    # "9\r\n"
+    # "Developer\r\n"
+    # "7\r\n"
+    # "Network\r\n"
+    # "0\r\n"
+    # "\r\n"
 )
 
 # Send the request

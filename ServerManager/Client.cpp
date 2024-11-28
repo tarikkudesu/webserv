@@ -1,13 +1,9 @@
 #include "Client.hpp"
 
-Client::Client()
-{
-
-}
-
-Client::Client( String requestLine, String requestHeaders ) :
-__requestLine( requestLine ),
-__requestHeaders( requestHeaders )
+Client::Client() :
+__transferEncoding( GENERAL ),
+__connectionType( KEEP_ALIVE ),
+__contentLength( 0 )
 {
 
 }
@@ -23,14 +19,35 @@ Client::~Client()
 
 Client	&Client::operator=( const Client &assign )
 {
-	(void) assign;
+	if (this != &assign) {
+		this->__URI = assign.__URI;
+		this->__method = assign.__method;
+		this->__protocole = assign.__protocole;
+		this->__headerFeilds = assign.__headerFeilds;
+		this->__contentLength = assign.__contentLength;
+		this->__connectionType = assign.__connectionType;
+		this->__transferEncoding = assign.__transferEncoding;
+	}
 	return *this; 
 }
 
-/*****************************************************************************
- *                                  METHODS                                  *
- *****************************************************************************/
+/****************************************************************************
+ *                               MINI METHODS                               *
+ ****************************************************************************/
 
+void	Client::clear()
+{
+	this->__URI.clear();
+	this->__protocole.clear();
+	this->__headerFeilds.clear();
+	this->__transferEncoding = GENERAL;
+}
+bool	Client::connectionTypeClose()
+{
+	if (this->__connectionType == CLOSE)
+		return true;
+	return false;
+}
 String	Client::getHeaderFeildValue( const String &key )
 {
 	std::map<String, String>::iterator iter = __headerFeilds.find(key);
@@ -38,30 +55,78 @@ String	Client::getHeaderFeildValue( const String &key )
 		throw std::exception();
 	return iter->second;
 }
-void	Client::proccessHeaders()
+size_t	Client::getContentLength()
 {
-	String	tmp(this->__requestHeaders);
+	return this->__contentLength;
+}
+t_transferEncoding	Client::gettransferEncoding()
+{
+	return this->__transferEncoding;
+}
+t_connectionType	Client::getconnectionType()
+{
+	return this->__connectionType;
+}
+bool	Client::hasBody()
+{
+	if (this->__transferEncoding == CHUNKED)
+		return true;
+	else if (this->__contentLength)
+		return true;
+	return false;
+}
+void	Client::setBody( const String &body )
+{
+	this->__requestbody = body;
+}
+/*****************************************************************************
+ *                                  METHODS                                  *
+ *****************************************************************************/
+void	Client::contentLength()
+{
+	try {
+		std::istringstream	ss(getHeaderFeildValue("Content-Length"));
+		ss >> this->__contentLength;
+	} catch ( std::exception &e ) {}
+}
+void	Client::connectionType()
+{
+	try {
+		String value = getHeaderFeildValue("connection");
+		if (value == "close")
+			this->__connectionType = KEEP_ALIVE;
+	} catch ( std::exception &e ) {}
+}
+void	Client::transferEncoding()
+{
+	try {
+		String value = getHeaderFeildValue("Transfer-Encoding");
+		if (value.find("chunked") != String::npos)
+			this->__transferEncoding = CHUNKED;
+	} catch ( std::exception &e ) {}
+}
+void	Client::proccessHeaders( String requestHeaders )
+{
 	size_t	pos = 0;
 	do {
-		pos = tmp.find("\r\n");
-		if (pos == String::npos && tmp.empty())
+		pos = requestHeaders.find("\r\n");
+		if (pos == String::npos)
 			break ;
-		else if (pos == String::npos)
-			pos = tmp.length();
 		{
-			String	hf(tmp.begin(), tmp.begin() + pos);
+			String	hf(requestHeaders.begin(), requestHeaders.begin() + pos);
 			size_t	p = hf.find(":");
 			String	key(hf.begin(), hf.begin() + p);
 			String	value(hf.begin() + p + 2, hf.end());
+			std::cout << BLUE << key << RESET << ":= " << GREEN << value << RESET << "\n";
 			this->__headerFeilds[key] = value;
-			tmp.erase(0, pos + 2);
+			requestHeaders.erase(0, pos + 2);
 		}
 		
-	} while (true);
+	} while (requestHeaders.empty() == false);
 }
-void	Client::proccessRequestLine()
+void	Client::proccessRequestLine( const String &requestLine )
 {
-	std::istringstream	iss( this->__requestLine );
+	std::istringstream	iss( requestLine );
 	String	method, URI, protocole;
 	iss >> method;
 	iss >> URI;
@@ -85,10 +150,13 @@ void	Client::proccessRequestLine()
 	}
 	this->__URI = URI;
 	this->__protocole = protocole;
-	// std::cout << RED << method << "  " << URI << "  " << protocole << RESET << "\n";
 }
-void	Client::parseRequest()
+void	Client::parseRequest( const String &requestLine, const String &requestHeaders )
 {
-	proccessRequestLine();
-	proccessHeaders();
+	clear();
+	proccessRequestLine(requestLine);
+	proccessHeaders(requestHeaders);
+	transferEncoding();
+	connectionType();
+	contentLength();
 }

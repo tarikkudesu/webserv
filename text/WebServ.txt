@@ -107,17 +107,16 @@ Connection :
 	__client;
 	__resposeQueue;
 	__connectionType;
-	__responseBuilder;
 	__responseQueue;
 
 
-	fillClient()
 	buildResponse()
 
 	identifyBody()
 	identifyChunk()
-	identifyHeaders()
-	identifyRequestLine()
+	identifyHeaders()			✅
+	identifyRequestLine()		✅
+	identifyConnectionType()
 	proccessInput()
 
 												One object per server-client connection

@@ -2,13 +2,13 @@ SRC		=	./ServerManager/Client.cpp ./ServerManager/Config.cpp ./ServerManager/Con
 OBJ		=	$(SRC:.cpp=.o)
 NAME	=	webserv
 
-all: $(NAME) clean
+all: $(NAME)
 
 $(NAME): $(OBJ)
-	@c++ -std=c++98 $(OBJ) -o $(NAME)
+	@c++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
 
 %.o: %.cpp ./ServerManager/Client.hpp ./ServerManager/Config.hpp ./ServerManager/Connection.hpp ./ServerManager/Location.hpp ./ServerManager/Logs.hpp ./ServerManager/Response.hpp ./ServerManager/Server.hpp ./ServerManager/ServerManager.hpp ./srcs/webserv.hpp 
-	@c++ -std=c++98 -c $< -o $@
+	@c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
 
 clean:
 	@rm -f $(OBJ)

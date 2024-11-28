@@ -18,6 +18,7 @@ void	f() {
 }
 
 void signalHandler(int signal) {
+	(void)signal;
 	Logs::terr(String("SIGPIPE"));
 }
 
@@ -52,6 +53,5 @@ int main( int ac, char **av )
 		webserv.setUpWebserv();
 		webserv.mainLoop();
 	}
-
 	return 0;
 }
