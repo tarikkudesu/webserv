@@ -67,6 +67,10 @@ t_connectionType	Client::getconnectionType()
 {
 	return this->__connectionType;
 }
+void	Client::setBody( const String &body )
+{
+	this->__requestbody = body;
+}
 bool	Client::hasBody()
 {
 	if (this->__transferEncoding == CHUNKED)
@@ -74,10 +78,6 @@ bool	Client::hasBody()
 	else if (this->__contentLength)
 		return true;
 	return false;
-}
-void	Client::setBody( const String &body )
-{
-	this->__requestbody = body;
 }
 /*****************************************************************************
  *                                  METHODS                                  *
@@ -117,12 +117,14 @@ void	Client::proccessHeaders( String requestHeaders )
 			size_t	p = hf.find(":");
 			String	key(hf.begin(), hf.begin() + p);
 			String	value(hf.begin() + p + 2, hf.end());
-			std::cout << BLUE << key << RESET << ":= " << GREEN << value << RESET << "\n";
 			this->__headerFeilds[key] = value;
 			requestHeaders.erase(0, pos + 2);
 		}
 		
 	} while (requestHeaders.empty() == false);
+	transferEncoding();
+	connectionType();
+	contentLength();
 }
 void	Client::proccessRequestLine( const String &requestLine )
 {
@@ -150,13 +152,4 @@ void	Client::proccessRequestLine( const String &requestLine )
 	}
 	this->__URI = URI;
 	this->__protocole = protocole;
-}
-void	Client::parseRequest( const String &requestLine, const String &requestHeaders )
-{
-	clear();
-	proccessRequestLine(requestLine);
-	proccessHeaders(requestHeaders);
-	transferEncoding();
-	connectionType();
-	contentLength();
 }

@@ -4,6 +4,7 @@
 .vscode
 .logs
 tester
+ubuntu_tester
 webserv
 cgi_tester
 prog

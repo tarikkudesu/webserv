@@ -14,6 +14,7 @@ Logs	&Logs::operator=( const Logs &assign )
 
 void	Logs::tout( String __log_message )
 {
+	return ;
 	std::cout << __log_message << GREEN << "\t\t\t" << "OK" << RESET << std::endl;
 }
 

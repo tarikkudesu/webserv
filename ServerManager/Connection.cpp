@@ -15,7 +15,7 @@ __erase( 0 )
 
 Connection::Connection( const Connection &copy )
 {
-	(void) copy;
+	*this = copy;
 }
 
 Connection::~Connection()
@@ -25,8 +25,25 @@ Connection::~Connection()
 
 Connection	&Connection::operator=( const Connection &assign )
 {
-	(void) assign;
+	if (this != &assign) {
+		this->__sd = assign.__sd;
+		this->__buff = assign.__buff;
+		this->__erase = assign.__erase;
+		this->__client = assign.__client;
+		this->__requestBody = assign.__requestBody;
+		this->__headerFeilds = assign.__headerFeilds;
+		this->__responseQueue = assign.__responseQueue;
+	}
 	return *this;
+}
+
+/****************************************************************************
+ *                               MINI METHODS                               *
+ ****************************************************************************/
+
+bool	Connection::endConnection()
+{
+	return this->__client.connectionTypeClose();
 }
 
 /*****************************************************************************
@@ -72,10 +89,9 @@ void	Connection::identifyRequestBody()
 			this->__erase += contentLen;
 		}
 		this->__client.setBody(body);
-		std::cout << MAGENTA << body << RESET << "\n";
 	}
 }
-String		Connection::identifyRequestHeaders()
+void		Connection::identifyRequestHeaders()
 {
 	String	currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
 	size_t	pos = currBuff.find("\r\n\r\n");
@@ -83,9 +99,9 @@ String		Connection::identifyRequestHeaders()
 		throw std::exception();
 	String requestHeaders(currBuff.begin(), currBuff.begin() + pos + 2);
 	this->__erase += pos + 4;
-	return requestHeaders;
+	this->__client.proccessHeaders(requestHeaders);
 }
-String		Connection::identifyRequestLine()
+void		Connection::identifyRequestLine()
 {
 	String	currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
 	size_t	pos = currBuff.find("\r\n");
@@ -93,25 +109,23 @@ String		Connection::identifyRequestLine()
 		throw std::exception();
 	String requestLine(currBuff.begin(), currBuff.begin() + pos);
 	this->__erase += pos + 2;
-	return requestLine;
+	this->__client.proccessRequestLine(requestLine);
 }
 void	Connection::proccessInput( String input )
 {
-
 	if (input.empty() == false)
 	{
 		this->__buff += input;
 		try
 		{
-			String requestLine = identifyRequestLine();
-			String requestHeaders = identifyRequestHeaders();
-			std::cout << YELLOW << requestLine << RESET << "\n";
-			this->__client.parseRequest(requestLine, requestHeaders);
+			this->__erase = 0;
+			this->__client.clear();
+			identifyRequestLine();
+			identifyRequestHeaders();
 			identifyRequestBody();
 			this->__buff.erase(0, this->__erase);
 		} catch ( std::exception &e ) {
 			this->__erase = 0;
 		}
 	}
-	// exit(1); // temporarly exit
 }

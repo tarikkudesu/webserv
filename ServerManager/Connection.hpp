@@ -8,14 +8,15 @@ class Connection
 	private :
 		int						__sd;
 		String					__buff;
+		size_t					__erase;
 		Client					__client;
 		String					__requestBody;
 		String					__headerFeilds;
-		size_t					__erase;
 
-		String		identifyRequestHeaders();
-		String		identifyRequestLine();
+		void		identifyRequestHeaders();
+		void		identifyRequestLine();
 		void		identifyRequestBody();
+
 	public:
 
 		std::queue< String >	__responseQueue;
@@ -26,7 +27,7 @@ class Connection
 		Connection	&operator=( const Connection &assign );
 		~Connection();
 
-
+		bool		endConnection();
 		void		proccessInput( String input );
 };
 

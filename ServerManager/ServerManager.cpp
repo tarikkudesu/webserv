@@ -123,7 +123,7 @@ void	ServerManager::writeDataToSocket( int sd )
 			&sockErr, sizeof(sockErr)) == 0 && sockErr == 0) {
 			return ;
 		} else {
-			removeSocket(sd);
+			removeConnection(sd);
 		}
 	}
 }
@@ -139,6 +139,8 @@ void	ServerManager::readDataFromSocket( int sd )
 		t_Connections::iterator	iter = this->__connections.find(sd);
 		if (iter != this->__connections.end()) {
 			iter->second.proccessInput( String(buff) );
+			if (iter->second.endConnection())
+				removeConnection(sd);
 		} else
 			return ;
 		const char* response =	"HTTP/1.1 200 OK\n"
@@ -154,7 +156,7 @@ void	ServerManager::readDataFromSocket( int sd )
 			&sockErr, sizeof(sockErr)) == 0 && sockErr == 0) {
 			return ;
 		} else {
-			removeSocket(sd);
+			removeConnection(sd);
 		}
 	}
 }
@@ -173,7 +175,6 @@ void	ServerManager::acceptNewConnection( int sd )
 			return ;
 		} else {
 			removeServer(sd);
-			throw std::runtime_error("server is down");
 		}
 	}
 }

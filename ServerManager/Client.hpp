@@ -15,14 +15,10 @@ class Client
 		size_t							__contentLength;
 		String							__requestbody;
 
-		void					clear();
 		void					contentLength();
 		void					connectionType();
 		void					transferEncoding();
-
 		String					getHeaderFeildValue( const String &key );
-		void					proccessHeaders( String requestHeaders );
-		void					proccessRequestLine( const String &requestLine );
 
 	public:
 		Client(void);
@@ -30,14 +26,16 @@ class Client
 		Client& operator=( const Client &assign );
 		~Client();
 
-
+		void					clear();
 		bool					hasBody();
-		void					setBody( const String &body );
 		size_t					getContentLength();
 		t_connectionType		getconnectionType();
 		t_transferEncoding		gettransferEncoding();
 		bool					connectionTypeClose();
-		void					parseRequest( const String &requestLine, const String &requestHeaders );
+		void					setBody( const String &body );
+
+		void					proccessHeaders( String requestHeaders );
+		void					proccessRequestLine( const String &requestLine );
 };
 
 #endif
