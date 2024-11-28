@@ -2,7 +2,7 @@ SRC		=	./ServerManager/Client.cpp ./ServerManager/Config.cpp ./ServerManager/Con
 OBJ		=	$(SRC:.cpp=.o)
 NAME	=	webserv
 
-all: $(NAME)
+all: $(NAME) clean
 
 $(NAME): $(OBJ)
 	@c++ -std=c++98 $(OBJ) -o $(NAME)

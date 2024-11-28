@@ -103,6 +103,7 @@ Server :
 
 Connection :
 	__sd;
+	__buff
 	__client;
 	__resposeQueue;
 	__connectionType;

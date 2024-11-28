@@ -26,6 +26,7 @@
 # include <ctype.h>
 # include <time.h>
 # include <poll.h>
+# include <signal.h>
 
 typedef std::string 	String;
 
