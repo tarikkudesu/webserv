@@ -16,6 +16,8 @@ class Connection
 		String		identifyRequestHeaders();
 		String		identifyRequestLine();
 		void		identifyRequestBody();
+		String		identifyChunks( String &currBuff );
+
 	public:
 
 		std::queue< String >	__responseQueue;
@@ -27,7 +29,9 @@ class Connection
 		~Connection();
 
 
-		void		proccessInput( String input );
+		void		responseBuilder();
+		void		requestParser();
+		void		proccessData( String input );
 };
 
 #endif

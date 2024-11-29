@@ -60,6 +60,7 @@ All team task
 
 	1. 
 
+GET, HEAD, POST, DELETE
 
 ServerManager :
 	__sockNum;
@@ -117,6 +118,12 @@ Connection :
 	identifyHeaders()			✅
 	identifyRequestLine()		✅
 	identifyConnectionType()
-	proccessInput()
+	proccessData()
 
 												One object per server-client connection
+
+
+
+Location:
+	__acceptedMethods;	GET, HEAD, POST, DELETE
+	__subLocations;	empty

@@ -20,7 +20,7 @@ __port( copy.__port ),
 __serverName( copy.__serverName ),
 __serverDown( copy.__serverDown )
 {
-
+	
 }
 
 Server::~Server() {}
@@ -52,6 +52,10 @@ int		Server::getServerPort() const
 bool	Server::getServerStat() const
 {
 	return	this->__serverDown;
+}
+String	Server::getServerIP() const
+{
+	return this->__serverIP;
 }
 String	Server::getServerName() const
 {

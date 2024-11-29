@@ -33,6 +33,35 @@ Connection	&Connection::operator=( const Connection &assign )
  *                                  METHODS                                  *
  *****************************************************************************/
 
+String		Connection::identifyChunks( String &currBuff )
+{
+	String	body;
+	do {
+		size_t	pos = currBuff.find("\r\n");
+		if (pos == String::npos)
+			throw std::exception();
+		size_t contentLen = 0;
+		{
+			std::stringstream	ss;
+			String	hex(currBuff.begin(), currBuff.begin() + pos);
+			ss << std::hex << hex;
+			ss >> contentLen;
+		}
+		currBuff.erase(0, pos + 2);
+		this->__erase += pos + 2;
+		if (contentLen == 0) {
+			this->__erase += 2;
+			break ;
+		}
+		if (this->__buff.length() < this->__erase + contentLen + 2)
+			throw std::exception();
+		String	chunk(String(currBuff.begin(), currBuff.begin() + contentLen));
+		currBuff.erase(0, contentLen + 2);
+		this->__erase += contentLen + 2;
+		body += chunk;
+	} while ( true );
+	return body;
+}
 void	Connection::identifyRequestBody()
 {
 	if (this->__client.hasBody())
@@ -40,30 +69,7 @@ void	Connection::identifyRequestBody()
 		String	currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
 		String	body;
 		if (this->__client.gettransferEncoding() == CHUNKED) {
-			do {
-				size_t	pos = currBuff.find("\r\n");
-				if (pos == String::npos)
-					throw std::exception();
-				size_t contentLen = 0;
-				{
-					std::stringstream	ss;
-					String	hex(currBuff.begin(), currBuff.begin() + pos);
-					ss << std::hex << hex;
-					ss >> contentLen;
-				}
-				currBuff.erase(0, pos + 2);
-				this->__erase += pos + 2;
-				if (contentLen == 0) {
-					this->__erase += 2;
-					break ;
-				}
-				if (this->__buff.length() < this->__erase + contentLen + 2)
-					throw std::exception();
-				String	chunk(String(currBuff.begin(), currBuff.begin() + contentLen));
-				currBuff.erase(0, contentLen + 2);
-				this->__erase += contentLen + 2;
-				body += chunk;
-			} while (true);
+			body = identifyChunks(currBuff);
 		} else {
 			size_t	contentLen = this->__client.getContentLength();
 			if (currBuff.length() <= contentLen)
@@ -95,23 +101,28 @@ String		Connection::identifyRequestLine()
 	this->__erase += pos + 2;
 	return requestLine;
 }
-void	Connection::proccessInput( String input )
+void		Connection::requestParser()
 {
-
-	if (input.empty() == false)
+	try
 	{
-		this->__buff += input;
-		try
-		{
-			String requestLine = identifyRequestLine();
-			String requestHeaders = identifyRequestHeaders();
-			std::cout << YELLOW << requestLine << RESET << "\n";
-			this->__client.parseRequest(requestLine, requestHeaders);
-			identifyRequestBody();
-			this->__buff.erase(0, this->__erase);
-		} catch ( std::exception &e ) {
-			this->__erase = 0;
-		}
+		String requestLine = identifyRequestLine();
+		String requestHeaders = identifyRequestHeaders();
+		std::cout << YELLOW << requestLine << RESET << "\n";
+		this->__client.parseRequest(requestLine, requestHeaders);
+		identifyRequestBody();
+		this->__buff.erase(0, this->__erase);
+	} catch ( std::exception &e ) {
+		this->__erase = 0;
 	}
-	// exit(1); // temporarly exit
 }
+void		Connection::responseBuilder()
+{
+	Response	res( this->__client );
+}
+void	Connection::proccessData( String input )
+{
+	this->__buff += input;
+	requestParser();
+	responseBuilder();
+}
+ 

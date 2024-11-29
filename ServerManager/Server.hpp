@@ -7,13 +7,12 @@ class Server
 {
 
 	public:
-		int		__sd;
-		int		__port;
-		String	__serverName;
-		bool	__serverDown;
-		/*********************
-		 * TEMPORARLY PUBLIC *
-		 *********************/
+		int								__sd;
+		int								__port;
+		String							__serverIP;
+		String							__serverName;
+		bool							__serverDown;
+		Location						__rootLocation;
 
 		Server();
 		Server( String serverName, int port );
@@ -21,10 +20,12 @@ class Server
 		Server	&operator=( const Server &assign );
 		~Server();
 
-		int		getServerPort() const;
-		bool	getServerStat() const;
-		String	getServerName() const;
-		int		getServerSocket() const;
+		String			getServerIP() const;
+		int				getServerPort() const;
+		bool			getServerStat() const;
+		String			getServerName() const;
+		int				getServerSocket() const;
+
 
 		void			stopServer();
 		void			setup();

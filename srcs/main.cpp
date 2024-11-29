@@ -18,12 +18,14 @@ void	f() {
 }
 
 void signalHandler(int signal) {
-	(void)signal;
+	if (signal == SIGINT)
+		exit(0);
 	Logs::terr(String("SIGPIPE"));
 }
 
 int main( int ac, char **av )
 {
+    signal(SIGINT, signalHandler);
     signal(SIGPIPE, signalHandler);
 	std::cout << std::unitbuf;
 	std::cerr << std::unitbuf;

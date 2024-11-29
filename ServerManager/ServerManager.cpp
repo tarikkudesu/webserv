@@ -138,7 +138,7 @@ void	ServerManager::readDataFromSocket( int sd )
 		buff[bytesRead] = '\0';
 		t_Connections::iterator	iter = this->__connections.find(sd);
 		if (iter != this->__connections.end()) {
-			iter->second.proccessInput( String(buff) );
+			iter->second.proccessData( String(buff) );
 		} else
 			return ;
 		const char* response =	"HTTP/1.1 200 OK\n"

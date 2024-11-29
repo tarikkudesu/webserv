@@ -5,6 +5,12 @@ Response::Response()
 
 }
 
+Response::Response( const Client &client ) :
+__client( client )
+{
+
+}
+
 Response::Response( const Response &copy )
 {
 	(void) copy;
@@ -23,6 +29,8 @@ Response	&Response::operator=( const Response &assign )
 /***********************************************************************
  *                               METHODS                               *
  ***********************************************************************/
+
+
 
 
 /***********************************************************************
