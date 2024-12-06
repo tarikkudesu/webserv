@@ -1,12 +1,15 @@
-#ifndef __CLIENT_HPP__
-# define __CLIENT_HPP__
+#ifndef __REQUEST_HPP__
+# define __REQUEST_HPP__
 
-# include "Location.hpp"
+# include "ErrorResponse.hpp"
 
-class Client
+class Request
 {
 	private:
 		String							__URI;
+		int16_t							__port;
+		String							__host;
+		String							__hostIP;
 		t_method						__method;
 		String							__protocole;
 		std::map< String, String >		__headerFeilds;
@@ -16,6 +19,7 @@ class Client
 		String							__requestbody;
 
 		void					clear();
+		void					hostAndPort();
 		void					contentLength();
 		void					connectionType();
 		void					transferEncoding();
@@ -25,10 +29,10 @@ class Client
 		void					proccessRequestLine( const String &requestLine );
 
 	public:
-		Client(void);
-		Client( const Client &copy );
-		Client& operator=( const Client &assign );
-		~Client();
+		Request(void);
+		Request( const Request &copy );
+		Request& operator=( const Request &assign );
+		~Request();
 
 
 		bool					hasBody();

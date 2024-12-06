@@ -6,20 +6,18 @@
 class Connection
 {
 	private :
+	public:
 		int						__sd;
 		String					__buff;
-		Client					__client;
-		String					__requestBody;
-		String					__headerFeilds;
 		size_t					__erase;
+		Request					__request;
 
 		String		identifyRequestHeaders();
 		String		identifyRequestLine();
 		void		identifyRequestBody();
 		String		identifyChunks( String &currBuff );
 
-	public:
-
+	// public:
 		std::queue< String >	__responseQueue;
 
 		Connection();
@@ -28,8 +26,6 @@ class Connection
 		Connection	&operator=( const Connection &assign );
 		~Connection();
 
-
-		void		responseBuilder();
 		void		requestParser();
 		void		proccessData( String input );
 };

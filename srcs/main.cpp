@@ -18,8 +18,10 @@ void	f() {
 }
 
 void signalHandler(int signal) {
-	if (signal == SIGINT)
+	if (signal == SIGINT) {
+		std::cout << "exiting\n";
 		exit(0);
+	}
 	Logs::terr(String("SIGPIPE"));
 }
 
@@ -49,10 +51,12 @@ int main( int ac, char **av )
 	} else if (ac == 2) {
 		ServerManager	webserv( *(av + 1) );
 		webserv.setUpWebserv();
-		webserv.mainLoop();
+		webserv.debug();
+		// webserv.mainLoop();
 	} else {
 		ServerManager	webserv( "default.conf" );
 		webserv.setUpWebserv();
+		// webserv.debug();
 		webserv.mainLoop();
 	}
 	return 0;

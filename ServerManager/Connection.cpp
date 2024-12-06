@@ -1,16 +1,18 @@
 #include "Connection.hpp"
 
 Connection::Connection() :
-__sd( -1 )
+__sd( -1 ),
+__erase( 0 )
 {
 	(void)__sd;
+	// std::cout << __sd << " default constructor\n";
 }
 
 Connection::Connection( int sd ) :
 __sd( sd ),
 __erase( 0 )
 {
-
+	// std::cout << __sd << " parameterized constructor\n";
 }
 
 Connection::Connection( const Connection &copy )
@@ -20,7 +22,7 @@ Connection::Connection( const Connection &copy )
 
 Connection::~Connection()
 {
-
+	// std::cout << __sd << " destructor called\n";
 }
 
 Connection	&Connection::operator=( const Connection &assign )
@@ -55,6 +57,11 @@ String		Connection::identifyChunks( String &currBuff )
 		}
 		if (this->__buff.length() < this->__erase + contentLen + 2)
 			throw std::exception();
+		pos = currBuff.find("\r\n");
+		if (pos == String::npos)
+			throw std::exception();
+		if (pos != contentLen)
+			throw ErrorResponse(400, "chunk size mismatch");
 		String	chunk(String(currBuff.begin(), currBuff.begin() + contentLen));
 		currBuff.erase(0, contentLen + 2);
 		this->__erase += contentLen + 2;
@@ -64,20 +71,20 @@ String		Connection::identifyChunks( String &currBuff )
 }
 void	Connection::identifyRequestBody()
 {
-	if (this->__client.hasBody())
+	if (this->__request.hasBody())
 	{
 		String	currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
 		String	body;
-		if (this->__client.gettransferEncoding() == CHUNKED) {
+		if (this->__request.gettransferEncoding() == CHUNKED) {
 			body = identifyChunks(currBuff);
 		} else {
-			size_t	contentLen = this->__client.getContentLength();
+			size_t	contentLen = this->__request.getContentLength();
 			if (currBuff.length() <= contentLen)
 				throw std::exception();
 			body = String(currBuff.begin(), currBuff.begin() + contentLen);
 			this->__erase += contentLen;
 		}
-		this->__client.setBody(body);
+		this->__request.setBody(body);
 		std::cout << MAGENTA << body << RESET << "\n";
 	}
 }
@@ -99,30 +106,36 @@ String		Connection::identifyRequestLine()
 		throw std::exception();
 	String requestLine(currBuff.begin(), currBuff.begin() + pos);
 	this->__erase += pos + 2;
+	if (requestLine.length() >= 4094)
+		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
 	return requestLine;
 }
 void		Connection::requestParser()
 {
-	try
-	{
 		String requestLine = identifyRequestLine();
 		String requestHeaders = identifyRequestHeaders();
-		std::cout << YELLOW << requestLine << RESET << "\n";
-		this->__client.parseRequest(requestLine, requestHeaders);
+		this->__request.parseRequest(requestLine, requestHeaders);
 		identifyRequestBody();
 		this->__buff.erase(0, this->__erase);
+		this->__erase = 0;
+}
+
+void	Connection::proccessData( String input )
+{
+	this->__buff += input;
+	try
+	{
+		requestParser();
+		const char* response =	"HTTP/1.1 200 OK\n"
+								"Content-Type: text/html\n"
+								"Content-Length: 17\n"
+								"Connection: keep-alive\r\n\r\n"
+								"<h1>Webserv</h1>\n";
+		this->__responseQueue.push(String(response));
+		Logs::tout("read");
+	} catch ( ErrorResponse &e ) {
+		this->__responseQueue.push(e.getRespose());
 	} catch ( std::exception &e ) {
 		this->__erase = 0;
 	}
 }
-void		Connection::responseBuilder()
-{
-	Response	res( this->__client );
-}
-void	Connection::proccessData( String input )
-{
-	this->__buff += input;
-	requestParser();
-	responseBuilder();
-}
- 

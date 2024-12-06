@@ -42,6 +42,7 @@ The request message from a client to a server includes :
 ## Request-line
 The request-line follows the following format
 ||| METHOD SP Request-URI SP HTTP-Version
+https://docs.gunicorn.org/en/latest/settings.html#limit-request-line
 
 Method: identifies the method to be performed on the URI. The include :
 . "OPTIONS"
@@ -72,7 +73,7 @@ After receiving and interpreting a request message, a server responds with an HT
 The first line of a Response-message is the Status-line, consisting of the protocol version followed by a numeric status code and its associated textural phrase, with each element seperated by a SP characters, and an CRLF only at the end of the line.
 
 ## Status-line
-The request line follows the following format :
+The response line follows the following format :
 ||| HTTP-Version SP Status-code SP Reason-Phrase CRTF
 
 Status-code: The status code is a 3-digit integer result code of the attempt to understand and satisfy the request.
@@ -96,3 +97,13 @@ Some examples of status-code and the corresponding reason-phrase include:
 . 500 = internal server error
 . 501 = not implemented
 
+"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&'()*+,;=-._~"
+
+HTTP/1.1 CODE REASON\r\n
+Connection: Keep-Alive\r\n
+Content-Type: text/html\r\n
+Transfer-Encoding: chunked\r\n
+Content-Length: 123\r\n
+Last-Modified: Mon, 18 Jul 2016 02:36:04 GMT\r\n
+Server: Apache\r\n
+\r\n

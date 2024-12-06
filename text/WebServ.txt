@@ -57,33 +57,38 @@ All team task
 		- forward the request data to the determined module for processing
 
 # Response builder + CGI + Front End
+	Header-feilds
+		- Connection: Keep-Alive
+		- Date: Mon, 18 Jul 2016 16:06:00 GMT
+		- Last-Modified: Mon, 18 Jul 2016 02:36:04 GMT
+		- Server: Webserv
+		- Content-Encoding: gzip
+		- Transfer-Encoding: chunked/gzip
 
-	1. 
-
-GET, HEAD, POST, DELETE
+Implemented Methods GET, HEAD, POST, DELETE
 
 ServerManager :
+	__configFile;
 	__sockNum;
 	__sockets;
 	__servers;
 	__connections;
-	__configFile;
 
-	setUpWebserv()			❌
-	mainLoop()				✅
 	proccessPollEvent()		✅
 	acceptNewConnection()	✅
 	readDataFromSocket()	✅
 	writeDataToSocket()		✅
 
-	addServer()				✅
-	removeServer()			✅
-	addConnection()			✅
-	removeConnection()		✅
+	isServerSocket()		✅
 	removeSocket()			✅
 	addSocket()				✅
+	removeConnection()		✅
+	addConnection()			✅
+	removeServer()			✅
+	addServer()				✅
 
-	isServerSocket()		✅
+	setUpWebserv()			❌
+	mainLoop()				✅
 
 												single object throught the entire program,
 												it will implement the core of the web server,
@@ -105,23 +110,29 @@ Server :
 Connection :
 	__sd;
 	__buff
+	__erase;
 	__client;
-	__resposeQueue;
-	__connectionType;
 	__responseQueue;
 
-
-	buildResponse()
-
-	identifyBody()
-	identifyChunk()
+	identifyChunks()			✅
+	identifyRequestBody()		✅
 	identifyHeaders()			✅
 	identifyRequestLine()		✅
-	identifyConnectionType()
-	proccessData()
+	responseBuilder()			❌
+	requestParser()				❌
+	proccessData()				❌
 
 												One object per server-client connection
 
+
+Response :
+	__statusLine;
+	__headerFeilds;
+	__responseBody;
+
+	buildStatusLine()
+	buildHeaderFeilds()
+	buildResponseBody()
 
 
 Location:

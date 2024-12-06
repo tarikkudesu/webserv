@@ -12,11 +12,11 @@ class Logs
 		~Logs();
 
 	public:
-
-		static void	tout( String __log_message );
-		static void	terr( char *__error_message );
-		static void	terr( String __error_message );
-		static void	file_error( String __error_message, String __file, String __line );
+		static std::string		buildIMFDate();
+		static void				tout( String __log_message );
+		static void				terr( char *__error_message );
+		static void				terr( String __error_message );
+		static void				file_error( String __error_message, String __file, String __line );
 };
 
 #endif

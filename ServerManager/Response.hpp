@@ -1,24 +1,22 @@
 #ifndef __RESPONSE_HPP__
 # define __RESPONSE_HPP__
 
-# include "Client.hpp"
+# include "Request.hpp"
 
-class Response
+class Response : public ErrorResponse
 {
 	private :
-		Client								__client;
-		static std::map< int16_t, String >	__errCode;
-		static String						__errPage;
+		std::vector< String >				__Content;
+
+		// void			buildStatusLine();
+		// void			buildHeaderFeilds();
+		// void			buildResponseBody();
 
 	public:
 		Response();
-		Response( const Client &client );
 		Response( const Response &copy );
 		Response	&operator=( const Response &assign );
 		~Response();
-
-		static	String	buildErrorPage( int16_t errCode );
-		static	void	replaceString( String &original, const String toReplace, const String replacement );
 };
 
 #endif

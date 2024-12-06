@@ -2,7 +2,7 @@
 
 Server::Server( )
 {
-
+	std::cout << "default Constructor\n";
 }
 
 Server::Server( String serverName, int port ) :
@@ -11,7 +11,7 @@ __port( port ),
 __serverName( serverName ),
 __serverDown( false )
 {
-
+	std::cout << "para Constructor\n";
 }
 
 Server::Server( const Server &copy ) :
@@ -20,10 +20,12 @@ __port( copy.__port ),
 __serverName( copy.__serverName ),
 __serverDown( copy.__serverDown )
 {
-	
 }
 
-Server::~Server() {}
+Server::~Server()
+{
+	std::cout << "destructor\n";
+}
 
 Server	&Server::operator=( const Server &assign )
 {

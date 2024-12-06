@@ -45,27 +45,31 @@ void	ServerManager::removeConnection( int sd )
 {
 	t_Connections::iterator	it = this->__connections.find(sd);
 	if (it != this->__connections.end()) {
+		Connection	*instance = it->second;
 		this->__connections.erase(it);
+		delete instance;
 		removeSocket(sd);
 	}
 }
 void	ServerManager::addConnection( int sd )
 {
-	this->__connections[sd] = Connection( sd );
+	this->__connections[sd] = new Connection( sd );
 	addSocket(sd, CONNECTION);
 }
 void	ServerManager::removeServer( int sd )
 {
 	t_Server::iterator	it = this->__servers.find(sd);
 	if (it != this->__servers.end()) {
-		it->second.stopServer();
+		Server	*instance = it->second;
+		this->__servers.erase(it);
+		delete instance;
 		removeSocket(sd);
 	}
 }
-void	ServerManager::addServer( Server &server )
+void	ServerManager::addServer( Server *server )
 {
-	this->__servers[server.getServerSocket()] = Server( server );
-	addSocket(server.getServerSocket(), SERVER);
+	this->__servers[server->getServerSocket()] = server;
+	addSocket(server->getServerSocket(), SERVER);
 }
 void	ServerManager::removeSocket( int sd )
 {
@@ -87,7 +91,7 @@ void	ServerManager::addSocket( int sd, t_endian endian )
 		sockStruct.events = POLLIN;
 	else if (endian == CONNECTION)
 		sockStruct.events = POLLIN | POLLOUT | POLLHUP;
-	Server::setNonBlockingMode( sd );
+	// Server::setNonBlockingMode( sd );
 	this->__sockets.push_back( sockStruct );
 	this->__sockNum++;
 }
@@ -110,10 +114,10 @@ void	ServerManager::writeDataToSocket( int sd )
 	/**********************************************************
 	 * DECIDE WITHER TO CLOSE THE CONNECTION OR KEEP IT ALIVE *
 	 **********************************************************/
-	if (this->__connections[sd].__responseQueue.empty())
+	if (this->__connections[sd]->__responseQueue.empty())
 		return ;
-	String	response = this->__connections[sd].__responseQueue.front();
-	this->__connections[sd].__responseQueue.pop();
+	String	response = this->__connections[sd]->__responseQueue.front();
+	this->__connections[sd]->__responseQueue.pop();
 	ssize_t	bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0) {
 		Logs::tout("write");
@@ -123,7 +127,7 @@ void	ServerManager::writeDataToSocket( int sd )
 			&sockErr, sizeof(sockErr)) == 0 && sockErr == 0) {
 			return ;
 		} else {
-			removeSocket(sd);
+			removeConnection(sd);
 		}
 	}
 }
@@ -131,30 +135,21 @@ void	ServerManager::readDataFromSocket( int sd )
 {
 	char			buff[READ_SIZE + 1];
 
-	ssize_t bytesRead = recv(sd, buff, sizeof(buff), 0);
+	ssize_t bytesRead = recv(sd, buff, READ_SIZE, 0);
 	if (bytesRead == 0) {
 		removeConnection(sd);
 	} else if (bytesRead > 0) {
 		buff[bytesRead] = '\0';
 		t_Connections::iterator	iter = this->__connections.find(sd);
-		if (iter != this->__connections.end()) {
-			iter->second.proccessData( String(buff) );
-		} else
-			return ;
-		const char* response =	"HTTP/1.1 200 OK\n"
-								"Content-Type: text/html\n"
-								"Content-Length: 17\n"
-								"Connection: keep-alive\r\n\r\n"
-								"<h1>Webserv</h1>\n";
-		this->__connections[sd].__responseQueue.push(String(response));
-		Logs::tout("read");
+		if (iter != this->__connections.end())
+			iter->second->proccessData( String(buff) );
 	} else {
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR, \
 			&sockErr, sizeof(sockErr)) == 0 && sockErr == 0) {
 			return ;
 		} else {
-			removeSocket(sd);
+			removeConnection(sd);
 		}
 	}
 }
@@ -173,7 +168,6 @@ void	ServerManager::acceptNewConnection( int sd )
 			return ;
 		} else {
 			removeServer(sd);
-			throw std::runtime_error("server is down");
 		}
 	}
 }
@@ -196,7 +190,6 @@ void	ServerManager::proccessPollEvent( int retV )
 				retV--;
 			} else if (sockStruct.revents & POLLHUP) {
 				removeConnection(sockStruct.fd);
-				Logs::tout("remove");
 				retV--;
 			}
 		} catch ( std::exception &e ) {
@@ -236,20 +229,20 @@ void	ServerManager::setUpWebserv()
 	 *******************************************************************************/
 	{
 		try {
-			Server	server("domain1.com", 443);
-			server.setup();
+			Server	*server = new Server("domain1.com", 443);
+			server->setup();
 			addServer( server );
 		} catch ( std::exception &e ) { Logs::terr( e.what() ); }
 
 		try {
-			Server	server("domain2.com", 444);
-			server.setup();
+			Server	*server = new Server("domain2.com", 444);
+			server->setup();
 			addServer( server );
 		} catch ( std::exception &e ) { Logs::terr( e.what() ); }
 
 		try {
-			Server	server("domain3.com", 445);
-			server.setup();
+			Server	*server = new Server("domain3.com", 445);
+			server->setup();
 			addServer( server );
 		} catch ( std::exception &e ) { Logs::terr( e.what() ); }
 	}
