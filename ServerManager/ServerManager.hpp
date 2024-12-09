@@ -3,9 +3,7 @@
 
 # include "Config.hpp"
 
-typedef std::vector< pollfd >			t_events;
-typedef std::map< int, Server* >			t_Server;
-typedef std::map< int, Connection* >	t_Connections;
+typedef std::map< int, Connection* >		t_Connections;
 
 class ServerManager
 {

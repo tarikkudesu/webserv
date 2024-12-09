@@ -1,11 +1,10 @@
 #ifndef __SERVER_HPP__
 # define __SERVER_HPP__
 
-# include "Response.hpp"
+# include "Location.hpp"
 
 class Server
 {
-
 	public:
 		int								__sd;
 		int								__port;

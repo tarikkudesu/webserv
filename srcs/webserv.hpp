@@ -28,7 +28,8 @@
 # include <poll.h>
 # include <signal.h>
 
-typedef std::string 	String;
+typedef std::string 					String;
+typedef std::vector< pollfd >			t_events;
 
 # define	RED					"\033[1;31m"
 # define	BLUE				"\033[1;34m"
@@ -44,6 +45,9 @@ typedef std::string 	String;
 # define	PROTOCOLE_V			"HTTP/1.1"
 # define	URI_CHAR_SET		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~"
 # define	H_KEY_CHAR_SET		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~"
+
+# define	ACCEPT_RANGE_HF__( value )		("Accept-Ranges: " + value)
+# define	CONNECTION_TYPE_HF__( value )	("Connection: " + value)
 
 typedef enum e_endian {
 	SERVER,

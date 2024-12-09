@@ -62,32 +62,14 @@ void	ErrorResponse::buildResponseBody()
 }
 void	ErrorResponse::buildHeaderFeilds()
 {
-	/*****************
-	 * ACCEPT-RANGES *
-	 *****************/
 	this->__headers += "Accept-Ranges: none\r\n";
-	/**************
-	 * CONNECTION *
-	 **************/
 	this->__headers += "Connection: keep-alive\r\n";
-	/******************
-	 * CONTENT-LENGTH *
-	 ******************/
 	size_t				conLen = this->__Body.length();
 	std::stringstream	ss;
 	ss << conLen;
 	this->__headers += "Content-Length: " + ss.str() + "\r\n";
-	/****************
-	 * CONTENT-TYPE *
-	 ****************/
 	this->__headers += "Content-Type: text/html; charset=UTF-8\r\n";
-	/**********
-	 * SERVER *
-	 **********/
 	this->__headers += "Server: Webserv\r\n";
-	/********
-	 * DATE *
-	 ********/
 	this->__headers += "Date: " + Logs::buildIMFDate() + "\r\n";
 	this->__headers += "\r\n";
 }
@@ -104,16 +86,16 @@ void	ErrorResponse::constructErrorPage()
 
 std::map< int16_t, String >	ErrorResponse::__errCode;
 
-String ErrorResponse::__errPage =	"<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
-									"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
-									"<title>Webserv</title></head><body style=\"background-color: rgb(35, 40, 47);\">"
-									"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin-top: 100px; background-color: rgb(22, 27, 34);\">"
-									"<h1 style=\"font-size: 80px; font-family: sans-serif; text-align: center; padding: 20px 0px 0px 0px; margin: 0px; color: rgb(210, 215, 223);\">"
-									"CODE"
-									"</h1><h2 style=\"font-size: 25px; font-family: sans-serif; text-align: center; padding: 0px 0px 10px 0px; margin: 0px; color: rgb(210, 215, 223);\">"
-									"REASON_PHRASE"
-									"</h2><p style=\"font-size: 16px; font-family: sans-serif; text-align: center; padding: 0px 0px 30px 0px; margin: 0px; color: rgb(90, 139, 223);\">"
-									"MESSAGE"
+String ErrorResponse::__errPage =	"<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">\n"
+									"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+									"<title>Webserv</title></head><body style=\"background-color: rgb(35, 40, 47);\">\n"
+									"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin-top: 100px; background-color: rgb(22, 27, 34);\">\n"
+									"<h1 style=\"font-size: 80px; font-family: sans-serif; text-align: center; padding: 20px 0px 0px 0px; margin: 0px; color: rgb(210, 215, 223);\">\n"
+									"CODE\n"
+									"</h1><h2 style=\"font-size: 25px; font-family: sans-serif; text-align: center; padding: 0px 0px 10px 0px; margin: 0px; color: rgb(210, 215, 223);\">\n"
+									"REASON_PHRASE\n"
+									"</h2><p style=\"font-size: 16px; font-family: sans-serif; text-align: center; padding: 0px 0px 30px 0px; margin: 0px; color: rgb(90, 139, 223);\">\n"
+									"MESSAGE\n"
 									"</p></div></body></html>";
 
 void ErrorResponse::replaceString( String &original, const String toReplace, const String replacement ) {

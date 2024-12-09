@@ -9,14 +9,15 @@ class Request
 		String							__URI;
 		int16_t							__port;
 		String							__host;
-		String							__hostIP;
 		t_method						__method;
 		String							__protocole;
+		Server							*__server;
 		std::map< String, String >		__headerFeilds;
 		t_transferEncoding				__transferEncoding;
 		t_connectionType				__connectionType;
 		size_t							__contentLength;
 		String							__requestbody;
+
 
 		void					clear();
 		void					hostAndPort();
@@ -34,6 +35,9 @@ class Request
 		Request& operator=( const Request &assign );
 		~Request();
 
+		int16_t					getPort() const;
+		String					getHost() const;
+		void					setServer( Server &server );
 
 		bool					hasBody();
 		void					setBody( const String &body );

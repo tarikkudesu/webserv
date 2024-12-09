@@ -1,7 +1,9 @@
 #ifndef __CONNECTION_HPP__
 # define __CONNECTION_HPP__
 
-# include "Server.hpp"
+# include "Response.hpp"
+
+typedef std::map< int, Server* >			t_Server;
 
 class Connection
 {
@@ -11,10 +13,14 @@ class Connection
 		String					__buff;
 		size_t					__erase;
 		Request					__request;
+		t_Server				*__serversP;
 
+
+		void		setServers( t_Server &servers );
 		String		identifyRequestHeaders();
 		String		identifyRequestLine();
 		void		identifyRequestBody();
+		Server		&identifyServer();
 		String		identifyChunks( String &currBuff );
 
 	// public:
@@ -27,6 +33,7 @@ class Connection
 		~Connection();
 
 		void		requestParser();
+		void		responseBuilder();
 		void		proccessData( String input );
 };
 
