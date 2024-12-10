@@ -30,7 +30,7 @@ class ErrorResponse
 		~ErrorResponse();
 
 		void				constructErrorPage();
-		const String		&getRespose();
+		const String		&getResponse();
 		static	void		initErrorCodes();
 		static	void		replaceString( String &original, const String toReplace, const String replacement );
 };

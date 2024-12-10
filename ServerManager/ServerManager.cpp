@@ -1,5 +1,19 @@
 #include "ServerManager.hpp"
 
+void printLocalAddress(int sockfd) {
+    struct sockaddr_in localAddr;
+    socklen_t addrLen = sizeof(localAddr);
+
+    if (getsockname(sockfd, (struct sockaddr*)&localAddr, &addrLen) == 0) {
+        char ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &(localAddr.sin_addr), ip, sizeof(ip));
+        std::cout << "Request came to IP: " << ip 
+                  << ", Port: " << ntohs(localAddr.sin_port) << std::endl;
+    } else {
+        std::cerr << "Error: Could not retrieve local address." << std::endl;
+    }
+}
+
 ServerManager::ServerManager() : __sockNum(0),
 								 __configFile("default_path.conf")
 {
@@ -124,7 +138,7 @@ void ServerManager::writeDataToSocket(int sd)
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
 	{
-		Logs::tout("write");
+		Logs::l1(); Logs::l1("send"); Logs::l1(sd); Logs::l1("\n");
 	}
 	else
 	{
@@ -137,6 +151,7 @@ void ServerManager::writeDataToSocket(int sd)
 		}
 		else
 		{
+			Logs::l1(); Logs::l1("remove"); Logs::l1(sd); Logs::l1("\n");
 			removeConnection(sd);
 		}
 	}
@@ -155,7 +170,10 @@ void ServerManager::readDataFromSocket(int sd)
 		buff[bytesRead] = '\0';
 		t_Connections::iterator iter = this->__connections.find(sd);
 		if (iter != this->__connections.end())
+		{
+			Logs::l1(); Logs::l1("recv"); Logs::l1(sd); Logs::l1("\n");
 			iter->second->proccessData(String(buff));
+		}
 	}
 	else
 	{
@@ -168,6 +186,7 @@ void ServerManager::readDataFromSocket(int sd)
 		}
 		else
 		{
+			Logs::l1(); Logs::l1("remove"); Logs::l1(sd); Logs::l1("\n");
 			removeConnection(sd);
 		}
 	}
@@ -179,8 +198,8 @@ void ServerManager::acceptNewConnection(int sd)
 	newSock = accept(sd, NULL, NULL);
 	if (newSock >= 0)
 	{
+		Logs::l1(); Logs::l1("accept"); Logs::l1(sd); Logs::l1("\n");
 		addConnection(newSock);
-		Logs::tout("accept");
 	}
 	else
 	{
@@ -273,9 +292,39 @@ void ServerManager::setUpWebserv()
 	{
 		try
 		{
-			Server *server = new Server("domain1.com", 443);
-			server->setup();
+			Server *server = new Server("domain1.com", 444);
 			addServer(server);
+			server->setup();
+		}
+		catch (std::exception &e)
+		{
+			Logs::terr(e.what());
+		}
+		try
+		{
+			Server *server = new Server("domain4.com", 444);
+			addServer(server);
+			server->setup();
+		}
+		catch (std::exception &e)
+		{
+			Logs::terr(e.what());
+		}
+		try
+		{
+			Server *server = new Server("domain5.com", 444);
+			addServer(server);
+			server->setup();
+		}
+		catch (std::exception &e)
+		{
+			Logs::terr(e.what());
+		}
+		try
+		{
+			Server *server = new Server("domain2.com", 445);
+			addServer(server);
+			server->setup();
 		}
 		catch (std::exception &e)
 		{
@@ -284,20 +333,9 @@ void ServerManager::setUpWebserv()
 
 		try
 		{
-			Server *server = new Server("domain2.com", 444);
-			server->setup();
+			Server *server = new Server("domain3.com", 446);
 			addServer(server);
-		}
-		catch (std::exception &e)
-		{
-			Logs::terr(e.what());
-		}
-
-		try
-		{
-			Server *server = new Server("domain3.com", 445);
 			server->setup();
-			addServer(server);
 		}
 		catch (std::exception &e)
 		{

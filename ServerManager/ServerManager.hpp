@@ -5,6 +5,8 @@
 
 typedef std::map< int, Connection* >		t_Connections;
 
+void printLocalAddress(int sockfd);
+
 class ServerManager
 {
 	private :
@@ -60,10 +62,11 @@ class ServerManager
 			// for (; it != this->__connections.end(); it++) {
 			// 	std::cout << "Socket: " << it->second->__sd << "\n";
 			// }
-			// t_events::iterator i = this->__sockets.begin();
-			// for (; i != this->__sockets.end(); i++) {
-			// 	std::cout << "Poll Socket: " << i->fd << "\n";
-			// }
+			t_events::iterator i = this->__sockets.begin();
+			for (; i != this->__sockets.end(); i++) {
+				std::cout << "Poll Socket: " << i->fd << "\n";
+				printLocalAddress(i->fd);
+			}
 			// this->removeConnection(6);
 			// this->removeConnection(7);
 			// i = this->__sockets.begin();

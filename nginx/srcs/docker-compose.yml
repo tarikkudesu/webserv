@@ -1,0 +1,11 @@
+
+services:
+  nginx:
+    build: nginx/
+    container_name: nginx
+    image: nginx:tar
+    ports:
+      - target: 443
+        published: 443
+    restart:
+      on-failure

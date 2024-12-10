@@ -37,7 +37,7 @@ ErrorResponse	&ErrorResponse::operator=( const ErrorResponse &assign )
  *                               MINI METHODS                               *
  ****************************************************************************/
 
-const String		&ErrorResponse::getRespose()
+const String		&ErrorResponse::getResponse()
 {
 	return this->__finalResponse;
 }

@@ -1,16 +1,24 @@
 import socket
 import sys
 
-num_args = len(sys.argv) - 1
-if num_args == 0 :
-    host = "localhost"
-else :
-    host = "10.11.100.240"
-port = 443
+host = "localhost"
+port = 444
+
+request = ( # invalid method
+    "GET / HTTP/1.1\r\n"
+    "Host: localhost:444\r\n"
+    "Content-Type: text/plain\r\n"
+    "\r\n"
+)
+with socket.create_connection((host, port)) as sock:
+    sock.sendall(request.encode())
+    response = sock.recv(4096)
+    print(response.decode())
+exit()
 
 request = ( # invalid method
     "GT /index.html HTTP/1.1\r\n"
-    "Host: localhost:443\r\n"
+    "Host: localhost:444\r\n"
     "Content-Type: text/plain\r\n"
     "\r\n"
 )
@@ -21,7 +29,7 @@ with socket.create_connection((host, port)) as sock:
 
 request = ( # invalid Request Line
     "GET  HTTP/1.1\r\n"
-    "Host: localhost:443\r\n"
+    "Host: localhost:444\r\n"
     "Content-Type: text/plain\r\n"
     "Transfer-Encoding: GENERAL\r\n"
     "\r\n"
@@ -33,7 +41,7 @@ with socket.create_connection((host, port)) as sock:
 
 request = ( # invalid URI invalid character
     "GET /<> HTTP/1.1\r\n"
-    "Host: localhost:443\r\n"
+    "Host: localhost:444\r\n"
     "Content-Type: text/plain\r\n"
     "\r\n"
 )
@@ -44,7 +52,7 @@ with socket.create_connection((host, port)) as sock:
 
 request = ( # invalid URI extra space
     "GET / HTTP/1.1\r\n"
-    "Host: localhost:443\r\n"
+    "Host: localhost:444\r\n"
     "Content-Type: text/plain\r\n"
     "\r\n"
 )
@@ -56,7 +64,7 @@ exit()
 
 request = ( # unsupported protocole
     "GET /upload HTTP/1.2\r\n"
-    "Host: localhost:443\r\n"
+    "Host: localhost:444\r\n"
     "Content-Type: text/plain\r\n"
     "Transfer-Encoding: GENERAL\r\n"
     "\r\n"
@@ -68,7 +76,7 @@ with socket.create_connection((host, port)) as sock:
 
 request = ( # oversized Header feild
     "GET /upload HTTP/1.1\r\n"
-    "Host: localhost:443\r\n"
+    "Host: localhost:444\r\n"
     "Content-Type: text/plain\r\n"
     "Transfer-Encoding: GENERAL\r\n"
     "Key: value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_val\r\n"
@@ -92,7 +100,7 @@ with socket.create_connection((host, port)) as sock:
 
 request = ( # invalid chunk size
     "PUT /upload HTTP/1.1\r\n"
-    "Host: localhost:443\r\n"
+    "Host: localhost:444\r\n"
     "Content-Type: text/plain\r\n"
     "Transfer-Encoding: chunked\r\n"
     "\r\n"

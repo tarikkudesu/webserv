@@ -7,7 +7,7 @@ class Server
 {
 	public:
 		int								__sd;
-		int								__port;
+		int16_t							__port;
 		String							__serverIP;
 		String							__serverName;
 		bool							__serverDown;
@@ -20,7 +20,7 @@ class Server
 		~Server();
 
 		String			getServerIP() const;
-		int				getServerPort() const;
+		int16_t			getServerPort() const;
 		bool			getServerStat() const;
 		String			getServerName() const;
 		int				getServerSocket() const;

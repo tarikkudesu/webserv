@@ -165,7 +165,7 @@ void Request::proccessHeaders(String requestHeaders)
 				throw ErrorResponse(400, "invalid Header feild");
 			String key(hf.begin(), hf.begin() + p);
 			String value(hf.begin() + p + 2, hf.end());
-			std::cout << BLUE << key << RESET << ": " << YELLOW << value << RESET << "\n";
+			// std::cout << BLUE << key << RESET << ": " << YELLOW << value << RESET << "\n";
 			if (key.empty() || String::npos != key.find_first_not_of(H_KEY_CHAR_SET))
 				throw ErrorResponse(400, "invalid Header feild");
 			this->__headerFeilds[key] = value;

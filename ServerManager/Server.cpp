@@ -2,7 +2,7 @@
 
 Server::Server( )
 {
-
+	throw std::runtime_error( this->__serverName + ": can not initiate server without port and server_name" );
 }
 
 Server::Server( String serverName, int port ) :
@@ -11,7 +11,9 @@ __port( port ),
 __serverName( serverName ),
 __serverDown( false )
 {
-
+	this->__sd = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->__sd == -1)
+		throw std::runtime_error( this->__serverName + ": socket syscall, failed to create socket" );
 }
 
 Server::Server( const Server &copy ) :
@@ -47,7 +49,7 @@ void	Server::stopServer()
 	this->__serverDown = true;
 	this->__sd = -1;
 }
-int		Server::getServerPort() const
+int16_t		Server::getServerPort() const
 {
 	return	this->__port;
 }
@@ -74,13 +76,13 @@ int		Server::getServerSocket() const
 void	Server::setup()
 {
 	struct sockaddr_in	addr;
-	int					reuse = 1;
+	int					ra = 1;
+	int					rp = 1;
 
-	this->__sd = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->__sd == -1)
-		throw std::runtime_error( this->__serverName + ": socket syscall, failed to create socket" );
-	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEADDR, (void *)&reuse, sizeof(reuse)))
-		throw std::runtime_error( this->__serverName + ": socket setsockopt, failed to make reusable socket" );
+	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEADDR, (void *)&ra, sizeof(ra)))
+		throw std::runtime_error( this->__serverName + ": socket setsockopt, failed to make reusable address" );
+	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEPORT, (void *)&rp, sizeof(rp)))
+		throw std::runtime_error( this->__serverName + ": socket setsockopt, failed to make reusable port" );
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_port = htons(this->__port);
