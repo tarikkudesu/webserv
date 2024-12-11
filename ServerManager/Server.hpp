@@ -14,6 +14,7 @@ class Server
 		Location						__rootLocation;
 
 		Server();
+		Server( String config );
 		Server( String serverName, int port );
 		Server( const Server &copy );
 		Server	&operator=( const Server &assign );

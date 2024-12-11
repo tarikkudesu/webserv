@@ -25,6 +25,7 @@
 # include <arpa/inet.h>
 # include <ctype.h>
 # include <time.h>
+# include <ctime>
 # include <poll.h>
 # include <signal.h>
 
@@ -45,7 +46,7 @@ typedef std::vector< pollfd >			t_events;
 # define	PROTOCOLE_V			"HTTP/1.1"
 # define	URI_CHAR_SET		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~"
 # define	H_KEY_CHAR_SET		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~"
-
+# define	PRINTABLE			" \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 # define	ACCEPT_RANGE_HF__( value )		("Accept-Ranges: " + value)
 # define	CONNECTION_TYPE_HF__( value )	("Connection: " + value)
 

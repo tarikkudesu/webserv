@@ -5,6 +5,11 @@ Server::Server( )
 	throw std::runtime_error( this->__serverName + ": can not initiate server without port and server_name" );
 }
 
+Server::Server( String config )
+{
+	std::cout << YELLOW << config << RESET << "\n";
+}
+
 Server::Server( String serverName, int port ) :
 __sd( -1 ),
 __port( port ),

@@ -5,7 +5,7 @@ services:
     container_name: nginx
     image: nginx:tar
     ports:
-      - target: 443
-        published: 443
+      - target: 8080
+        published:  8080
     restart:
       on-failure

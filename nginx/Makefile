@@ -1,4 +1,3 @@
-INCEPTION_LOGIN	=	tamehri
 NETWORKS		=	$$(docker network ls -q --filter "type=custom")
 IMAGES			=	$$(docker image ls -aq)
 VOLUMES			=	$$(docker volume ls -q)

@@ -52,11 +52,11 @@ int main( int ac, char **av )
 		ServerManager	webserv( *(av + 1) );
 		webserv.setUpWebserv();
 		webserv.debug();
-		// webserv.mainLoop();
+		webserv.mainLoop();
 	} else {
-		ServerManager	webserv( "default.conf" );
+		ServerManager	webserv;
 		webserv.setUpWebserv();
-		// webserv.debug();
+		webserv.debug();
 		webserv.mainLoop();
 	}
 	return 0;

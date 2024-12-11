@@ -10,25 +10,24 @@ void printLocalAddress(int sockfd);
 class ServerManager
 {
 	private :
-		int				__sockNum;
-		t_events		__sockets;
-		t_Server		__servers;
-		t_Connections	__connections;
-		String			__configFile;
+		static int					__sockNum;
+		static t_events				__sockets;
+		static t_Connections		__connections;
+		static t_Server				__servers;
 
-		void	writeDataToSocket( int sd );
-		void	readDataFromSocket( int sd );
-		void	acceptNewConnection( int sd );
-		void	proccessPollEvent( int retV );
+		void				writeDataToSocket( int sd );
+		void				readDataFromSocket( int sd );
+		void				acceptNewConnection( int sd );
+		void				proccessPollEvent( int retV );
 
-		void	removeConnection( int sd );
-		void	addConnection( int sd );
-		void	removeServer( int sd );
-		void	addServer( Server *server );
-		void	removeSocket( int sd );
-		void	addSocket( int sd, t_endian endian );
+		static void			removeConnection( int sd );
+		static void			addConnection( int sd );
+		static void			addSocket( int sd, t_endian endian );
+		static void			removeSocket( int sd );
+		static void			addServer( Server *server );
+		static void			removeServer( int sd );
 
-		bool	isServerSocket( int sd );
+		static bool		isServerSocket( int sd );
 
 	public:
 		ServerManager();
@@ -41,12 +40,12 @@ class ServerManager
 		void	setUpWebserv();
 
 		void	debug() {
-			// t_Server::iterator it = this->__servers.begin();
-			// for (; it != this->__servers.end(); it++) {
-			// 	std::cout << "Socket: " << it->second->__sd << "\n";
-			// 	std::cout << "Port: " << it->second->__port << "\n";
-			// 	std::cout << "Name: " << it->second->__serverName << "\n";
-			// }
+			t_Server::iterator it = ServerManager::__servers.begin();
+			for (; it != ServerManager::__servers.end(); it++) {
+				std::cout << "Socket: " << it->second->__sd << "\n";
+				std::cout << "Port: " << it->second->__port << "\n";
+				std::cout << "Name: " << it->second->__serverName << "\n";
+			}
 			// removeServer(3);
 			// it = this->__servers.begin();
 			// for (; it != this->__servers.end(); it++) {
@@ -62,11 +61,11 @@ class ServerManager
 			// for (; it != this->__connections.end(); it++) {
 			// 	std::cout << "Socket: " << it->second->__sd << "\n";
 			// }
-			t_events::iterator i = this->__sockets.begin();
-			for (; i != this->__sockets.end(); i++) {
-				std::cout << "Poll Socket: " << i->fd << "\n";
-				printLocalAddress(i->fd);
-			}
+			// t_events::iterator i = this->__sockets.begin();
+			// for (; i != this->__sockets.end(); i++) {
+			// 	std::cout << "Poll Socket: " << i->fd << "\n";
+			// 	printLocalAddress(i->fd);
+			// }
 			// this->removeConnection(6);
 			// this->removeConnection(7);
 			// i = this->__sockets.begin();

@@ -5,10 +5,10 @@ NAME	=	webserv
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@c++ -std=c++98 $(OBJ) -o $(NAME)
+	@c++ $(OBJ) -o $(NAME)
 
 %.o: %.cpp ./ServerManager/Config.hpp ./ServerManager/Connection.hpp ./ServerManager/ErrorResponse.hpp ./ServerManager/Location.hpp ./ServerManager/Logs.hpp ./ServerManager/Request.hpp ./ServerManager/Response.hpp ./ServerManager/Server.hpp ./ServerManager/ServerManager.hpp ./srcs/webserv.hpp 
-	@c++ -std=c++98 -c $< -o $@
+	@c++ -c $< -o $@
 
 clean:
 	@rm -f $(OBJ)

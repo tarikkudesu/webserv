@@ -14,16 +14,36 @@ void printLocalAddress(int sockfd) {
     }
 }
 
-ServerManager::ServerManager() : __sockNum(0),
-								 __configFile("default_path.conf")
+t_Server		ServerManager::__servers;
+t_events		ServerManager::__sockets;
+t_Connections	ServerManager::__connections;
+int				ServerManager::__sockNum = 0;
+
+ServerManager::ServerManager()
 {
-	std::cout << "config file " << __configFile << "\n";
+	Logs::l1(); Logs::l1("configuration file: conf/webserv_default.conf"); Logs::l1("\n");
+	try {
+		Config	config("conf/webserv_default.conf");
+		config.setServers(ServerManager::__servers);
+		config.setupEverything();
+	} catch ( std::exception &e ) {
+		Logs::terr(e.what());
+	}
+	exit(1);
 }
 
-ServerManager::ServerManager(const String &configutation_file) : __sockNum(0),
-																 __configFile(configutation_file)
+ServerManager::ServerManager(const String &configutation_file)
 {
-	std::cout << "config file " << __configFile << "\n";
+	Logs::l1(); Logs::l1("configuration file:" + configutation_file); Logs::l1("\n");
+
+	try {
+		Config	config(configutation_file);
+		config.setServers(ServerManager::__servers);
+		config.setupEverything();
+	} catch ( std::exception &e ) {
+		Logs::terr(e.what());
+	}
+	exit(1);
 }
 
 ServerManager::ServerManager(const ServerManager &copy)
@@ -35,10 +55,9 @@ ServerManager &ServerManager::operator=(const ServerManager &assign)
 {
 	if (this != &assign)
 	{
-		this->__configFile = assign.__configFile;
-		this->__sockets = assign.__sockets;
-		this->__servers = assign.__servers;
-		this->__sockNum = assign.__sockNum;
+		ServerManager::__sockets = assign.__sockets;
+		ServerManager::__servers = assign.ServerManager::__servers;
+		ServerManager::__sockNum = assign.__sockNum;
 	}
 	return *this;
 }
@@ -55,35 +74,35 @@ ServerManager::~ServerManager()
 
 void ServerManager::removeConnection(int sd)
 {
-	t_Connections::iterator it = this->__connections.find(sd);
-	if (it != this->__connections.end())
+	t_Connections::iterator it = ServerManager::__connections.find(sd);
+	if (it != ServerManager::__connections.end())
 	{
 		Connection *instance = it->second;
-		this->__connections.erase(it);
+		ServerManager::__connections.erase(it);
 		delete instance;
 		removeSocket(sd);
 	}
 }
 void ServerManager::addConnection(int sd)
 {
-	this->__connections[sd] = new Connection(sd);
-	this->__connections[sd]->setServers(this->__servers);
+	ServerManager::__connections[sd] = new Connection(sd);
+	ServerManager::__connections[sd]->setServers(ServerManager::__servers);
 	addSocket(sd, CONNECTION);
 }
 void ServerManager::removeServer(int sd)
 {
-	t_Server::iterator it = this->__servers.find(sd);
-	if (it != this->__servers.end())
+	t_Server::iterator it = ServerManager::__servers.find(sd);
+	if (it != ServerManager::__servers.end())
 	{
 		Server *instance = it->second;
-		this->__servers.erase(it);
+		ServerManager::__servers.erase(it);
 		delete instance;
 		removeSocket(sd);
 	}
 }
 void ServerManager::addServer(Server *server)
 {
-	this->__servers[server->getServerSocket()] = server;
+	ServerManager::__servers[server->getServerSocket()] = server;
 	addSocket(server->getServerSocket(), SERVER);
 }
 void ServerManager::removeSocket(int sd)
@@ -92,8 +111,8 @@ void ServerManager::removeSocket(int sd)
 	{
 		if (sd == it->fd)
 		{
-			this->__sockets.erase(it);
-			this->__sockNum--;
+			ServerManager::__sockets.erase(it);
+			ServerManager::__sockNum--;
 			close(sd);
 			return;
 		}
@@ -109,12 +128,12 @@ void ServerManager::addSocket(int sd, t_endian endian)
 	else if (endian == CONNECTION)
 		sockStruct.events = POLLIN | POLLOUT | POLLHUP;
 	Server::setNonBlockingMode( sd );
-	this->__sockets.push_back(sockStruct);
-	this->__sockNum++;
+	ServerManager::__sockets.push_back(sockStruct);
+	ServerManager::__sockNum++;
 }
 bool ServerManager::isServerSocket(int sd)
 {
-	if (this->__servers.find(sd) != this->__servers.end())
+	if (ServerManager::__servers.find(sd) != ServerManager::__servers.end())
 		return true;
 	return false;
 }
@@ -131,10 +150,10 @@ void ServerManager::writeDataToSocket(int sd)
 	/**********************************************************
 	 * DECIDE WITHER TO CLOSE THE CONNECTION OR KEEP IT ALIVE *
 	 **********************************************************/
-	if (this->__connections[sd]->__responseQueue.empty())
+	if (ServerManager::__connections[sd]->__responseQueue.empty())
 		return;
-	String response = this->__connections[sd]->__responseQueue.front();
-	this->__connections[sd]->__responseQueue.pop();
+	String response = ServerManager::__connections[sd]->__responseQueue.front();
+	ServerManager::__connections[sd]->__responseQueue.pop();
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
 	{
@@ -168,8 +187,8 @@ void ServerManager::readDataFromSocket(int sd)
 	else if (bytesRead > 0)
 	{
 		buff[bytesRead] = '\0';
-		t_Connections::iterator iter = this->__connections.find(sd);
-		if (iter != this->__connections.end())
+		t_Connections::iterator iter = ServerManager::__connections.find(sd);
+		if (iter != ServerManager::__connections.end())
 		{
 			Logs::l1(); Logs::l1("recv"); Logs::l1(sd); Logs::l1("\n");
 			iter->second->proccessData(String(buff));
@@ -218,9 +237,9 @@ void ServerManager::acceptNewConnection(int sd)
 }
 void ServerManager::proccessPollEvent(int retV)
 {
-	for (int sd = 0; sd < this->__sockNum && retV; sd++)
+	for (int sd = 0; sd < ServerManager::__sockNum && retV; sd++)
 	{
-		struct pollfd &sockStruct = this->__sockets.at(sd);
+		struct pollfd &sockStruct = ServerManager::__sockets.at(sd);
 		try
 		{
 			if (sockStruct.revents & POLLIN)
@@ -262,7 +281,7 @@ void ServerManager::mainLoop()
 	{
 		while (true)
 		{
-			retV = poll(this->__sockets.data(), this->__sockets.size(), timeout);
+			retV = poll(ServerManager::__sockets.data(), ServerManager::__sockets.size(), timeout);
 			if (retV == -1)
 				throw std::runtime_error("poll syscall err");
 			else if (retV == 0)
@@ -292,8 +311,8 @@ void ServerManager::setUpWebserv()
 	{
 		try
 		{
-			Server *server = new Server("domain1.com", 444);
-			addServer(server);
+			Server *server = new Server("domain1.com", 1024);
+			ServerManager::addServer(server);
 			server->setup();
 		}
 		catch (std::exception &e)
@@ -302,8 +321,8 @@ void ServerManager::setUpWebserv()
 		}
 		try
 		{
-			Server *server = new Server("domain4.com", 444);
-			addServer(server);
+			Server *server = new Server("domain4.com", 1024);
+			ServerManager::addServer(server);
 			server->setup();
 		}
 		catch (std::exception &e)
@@ -312,8 +331,8 @@ void ServerManager::setUpWebserv()
 		}
 		try
 		{
-			Server *server = new Server("domain5.com", 444);
-			addServer(server);
+			Server *server = new Server("domain5.com", 1024);
+			ServerManager::addServer(server);
 			server->setup();
 		}
 		catch (std::exception &e)
@@ -322,8 +341,8 @@ void ServerManager::setUpWebserv()
 		}
 		try
 		{
-			Server *server = new Server("domain2.com", 445);
-			addServer(server);
+			Server *server = new Server("domain2.com", 1025);
+			ServerManager::addServer(server);
 			server->setup();
 		}
 		catch (std::exception &e)
@@ -333,8 +352,8 @@ void ServerManager::setUpWebserv()
 
 		try
 		{
-			Server *server = new Server("domain3.com", 446);
-			addServer(server);
+			Server *server = new Server("domain3.com", 1026);
+			ServerManager::addServer(server);
 			server->setup();
 		}
 		catch (std::exception &e)
