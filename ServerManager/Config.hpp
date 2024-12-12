@@ -6,19 +6,19 @@
 class Config
 {
 	private :
-		t_Server				*__serversP;
+		t_Server				__serversP;
 		String					__configFile;
 		String					__lines;
 		std::fstream			__fS;
 
-		void		readFile();
-		void		firstCheck();
-		void		reduceSpaces();
-		void		checkBraces();
-		void		setUpServer(size_t start);
-		void		setUpServers();
-		void		checkOuterscope(String outerScope );
-		static void	trimSpaces( String &str );
+		void					readFile();
+		void					firstCheck();
+		void					checkBraces();
+		void					reduceSpaces();
+		void					setUpServers();
+		void					setUpServer(size_t start);
+		void					checkOuterscope(String outerScope );
+		static void				trimSpaces( String &str );
 
 	public:
 		Config( String configuration_file );
@@ -26,8 +26,7 @@ class Config
 		Config	&operator=( const Config &assign );
 		~Config();
 
-		void	setServers( t_Server &servers );
-		void	setupEverything();
+		void					setupEverything();
 };
 
 #endif

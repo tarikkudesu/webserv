@@ -1,32 +1,53 @@
-host:
+### host:
     - context: server
     - syntax: host 0.0.0.0;
     - multiple directives: no
+    - default: 0.0.0.0
+    - required: no
 
-listen:
+### listen:
     - context: server
     - syntax: listen 8080 8081 8081;
     - multiple directives: yes
+    - default: 8080
+    - required: no
 
-server_name:
+### server_name:
     - context: server
     - syntax: server_name domain1 domain2 domain2;
     - multiple directives: yes
+    - default: -
+    - required: no
 
-client_body_buffer_size:
+### client_body_buffer_size:
     - context: server
     - syntax: client_body_buffer_size size;
+    - multiple directives: no
     - default: 8k
+    - required: no
 
-root:
-    - context: server
+### root:
+    - context: server location
+    - syntax: root path
+    - multiple directives: no
+    - default: ./Content
+    - required: no
 
-allow_methods:
+### allow_methods:
     - context: server, location
+    - syntax: allow_methods METHOD METHOD METHOD
+    - multiple directives: no
+    - default: GET POST DELETE
+    - required: no
 
-error_page:
+### index:
     - context: server, location
+    - syntax: index file
+    - multiple directives: no
+    - default: index.html
+    - required: no
 
-index:
+
+### error_page:
     - context: server, location
 

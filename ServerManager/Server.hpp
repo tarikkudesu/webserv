@@ -1,7 +1,7 @@
 #ifndef __SERVER_HPP__
 # define __SERVER_HPP__
 
-# include "Location.hpp"
+# include "Template.hpp"
 
 class Server
 {

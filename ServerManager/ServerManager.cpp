@@ -14,17 +14,16 @@ void printLocalAddress(int sockfd) {
     }
 }
 
-t_Server		ServerManager::__servers;
-t_events		ServerManager::__sockets;
-t_Connections	ServerManager::__connections;
-int				ServerManager::__sockNum = 0;
+t_Server				ServerManager::__servers;
+t_events				ServerManager::__sockets;
+t_Connections			ServerManager::__connections;
+int						ServerManager::__sockNum = 0;
 
 ServerManager::ServerManager()
 {
 	Logs::l1(); Logs::l1("configuration file: conf/webserv_default.conf"); Logs::l1("\n");
 	try {
 		Config	config("conf/webserv_default.conf");
-		config.setServers(ServerManager::__servers);
 		config.setupEverything();
 	} catch ( std::exception &e ) {
 		Logs::terr(e.what());
@@ -38,7 +37,6 @@ ServerManager::ServerManager(const String &configutation_file)
 
 	try {
 		Config	config(configutation_file);
-		config.setServers(ServerManager::__servers);
 		config.setupEverything();
 	} catch ( std::exception &e ) {
 		Logs::terr(e.what());

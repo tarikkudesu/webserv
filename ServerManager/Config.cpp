@@ -40,11 +40,6 @@ void Config::trimSpaces(String &str)
 		str = str.substr(start, end - start + 1);
 }
 
-void Config::setServers(t_Server &servers)
-{
-	this->__serversP = &servers;
-}
-
 void Config::readFile()
 {
 	String line;
@@ -145,7 +140,6 @@ void Config::setUpServer(size_t start)
 		throw std::runtime_error("unclosed curly braces");
 	String serverConfig(this->__lines.begin() + start, this->__lines.begin() + end);
 	this->__lines.erase(0, end);
-	Server *server = new Server(serverConfig);
 }
 void Config::setUpServers()
 {
@@ -155,7 +149,7 @@ void Config::setUpServers()
 		if (pos == String::npos && __lines.find_first_not_of(" \t\n\r\v\f") != String::npos)
 			throw std::runtime_error("invalid config file 4");
 		else if (pos == String::npos)
-			break ;
+			break;
 		setUpServer(pos);
 	} while (!this->__lines.empty());
 }

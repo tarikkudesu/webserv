@@ -12,8 +12,9 @@ class ServerManager
 	private :
 		static int					__sockNum;
 		static t_events				__sockets;
-		static t_Connections		__connections;
 		static t_Server				__servers;
+		static t_Connections		__connections;
+
 
 		void				writeDataToSocket( int sd );
 		void				readDataFromSocket( int sd );
@@ -27,7 +28,7 @@ class ServerManager
 		static void			addServer( Server *server );
 		static void			removeServer( int sd );
 
-		static bool		isServerSocket( int sd );
+		static bool			isServerSocket( int sd );
 
 	public:
 		ServerManager();
