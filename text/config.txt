@@ -1,0 +1,32 @@
+host:
+    - context: server
+    - syntax: host 0.0.0.0;
+    - multiple directives: no
+
+listen:
+    - context: server
+    - syntax: listen 8080 8081 8081;
+    - multiple directives: yes
+
+server_name:
+    - context: server
+    - syntax: server_name domain1 domain2 domain2;
+    - multiple directives: yes
+
+client_body_buffer_size:
+    - context: server
+    - syntax: client_body_buffer_size size;
+    - default: 8k
+
+root:
+    - context: server
+
+allow_methods:
+    - context: server, location
+
+error_page:
+    - context: server, location
+
+index:
+    - context: server, location
+
