@@ -127,7 +127,6 @@ void Config::setUpServer(size_t start)
 	String serverConfig(this->__lines.begin() + start, this->__lines.begin() + end);
 	this->__lines.erase(0, end);
 	Template	*temp = new Template( serverConfig );
-	temp->parse();
 }
 void Config::setUpServers()
 {
@@ -149,4 +148,5 @@ void Config::setupEverything()
 	reduceSpaces();
 	checkBraces();
 	setUpServers();
+	exit(1);
 }

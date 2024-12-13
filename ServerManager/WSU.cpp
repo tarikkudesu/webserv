@@ -2,69 +2,71 @@
 
 WSU::WSU() {}
 
-WSU::WSU( const WSU &copy ) { (void) copy; }
+WSU::WSU(const WSU &copy) { (void)copy; }
 
 WSU::~WSU() {}
 
-WSU	&WSU::operator=( const WSU &assign )
+WSU &WSU::operator=(const WSU &assign)
 {
-	(void) assign;
+	(void)assign;
 	return *this;
 }
 
-std::string WSU::logDate() {
-	char		buffer[30];
-	std::time_t	t = std::time(nullptr); // Get the current time
-	std::tm		*tm = std::gmtime(&t);	// Convert time to GMT (UTC)
+std::string WSU::logDate()
+{
+	char buffer[30];
+	std::time_t t = std::time(nullptr); // Get the current time
+	std::tm *tm = std::gmtime(&t);		// Convert time to GMT (UTC)
 	// Format the date in IMF format: Day, DD Mon YYYY HH:MM:SS GMT
 	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
 	return std::string(buffer); // Return the date as a string
 }
 
-void	WSU::accessLog( String info )
+void WSU::accessLog(String info)
 {
 	std::cout << BLUE << WSU::logDate() << RESET << " " << info << "\n";
 }
 
-std::string WSU::buildIMFDate() {
-	char		buffer[30];
-	std::time_t	t = std::time(nullptr); // Get the current time
-	std::tm		*tm = std::gmtime(&t);	// Convert time to GMT (UTC)
+std::string WSU::buildIMFDate()
+{
+	char buffer[30];
+	std::time_t t = std::time(nullptr); // Get the current time
+	std::tm *tm = std::gmtime(&t);		// Convert time to GMT (UTC)
 	// Format the date in IMF format: Day, DD Mon YYYY HH:MM:SS GMT
 	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", tm);
 	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
 	return std::string(buffer); // Return the date as a string
 }
 
-void	WSU::tout( String __log_message )
+void WSU::tout(String __log_message)
 {
 	std::cout << __log_message << GREEN << "\t\t\t" << "OK" << RESET << std::endl;
 }
 
-void	WSU::terr( char *__error_message )
+void WSU::terr(char *__error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
 
-void	WSU::terr( String __error_message )
+void WSU::terr(String __error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
 
-void	WSU::file_error( String __error_message, String __file, String __line )
+void WSU::file_error(String __error_message, String __file, String __line)
 {
 	std::cerr << RED << __file << ":" << __line << ": error: " << RESET << __error_message << std::endl;
 }
 
-void		WSU::l1()
+void WSU::l1()
 {
 	std::cout << BLUE << WSU::logDate() << RESET << " ";
 }
-void		WSU::l1( String s )
+void WSU::l1(String s)
 {
 	std::cout << " " << s;
 }
-void		WSU::l1( int i )
+void WSU::l1(int i)
 {
 	std::cout << " " << i;
 }
@@ -81,4 +83,33 @@ void WSU::trimSpaces(String &str)
 		str.clear();
 	else
 		str = str.substr(start, end - start + 1);
+}
+
+std::vector<std::string> WSU::splitBySpaces(const std::string &input)
+{
+	std::istringstream iss(input);
+	std::string word;
+	std::vector<std::string> result;
+
+	while (iss >> word)
+	{
+		result.push_back(word);
+	}
+
+	return result;
+}
+
+std::string WSU::intToString(int number)
+{
+	std::ostringstream oss;
+	oss << number;
+	return oss.str();
+}
+
+int WSU::stringToInt(const std::string &str)
+{
+	std::istringstream iss(str);
+	int number = 0;
+	iss >> number;
+	return number;
 }

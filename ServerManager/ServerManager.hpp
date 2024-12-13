@@ -30,8 +30,9 @@ class ServerManager
 
 		static bool			isServerSocket( int sd );
 
-	public:
 		ServerManager();
+
+	public:
 		ServerManager( const String &configutation_file );
 		ServerManager( const ServerManager &copy );
 		ServerManager	&operator=( const ServerManager &assign );

@@ -27,37 +27,16 @@ void signalHandler(int signal) {
 
 int main( int ac, char **av )
 {
+	atexit(f);
     signal(SIGINT, signalHandler);
     signal(SIGPIPE, signalHandler);
 	std::cout << std::unitbuf;
 	std::cerr << std::unitbuf;
-	/**********************************
-	 * ENABLE INSTANT BUFFER FULSHING *
-	 **********************************/
-	atexit(f);
-	/******************************************************************
-	 * CHECK .WSU/sds.log FOR MEMORY LEAKS AND FILE DESCRIPTOR LEAKS *
-	 ******************************************************************/
-
-	/********************************
-	 * UNNECCESSARY TESTS GOES HERE *
-	 ********************************/
-
-	// exit(1);
-	/********************************/
-
-	if (ac > 2) {
-		WSU::terr( String("wrong argument list") );
-	} else if (ac == 2) {
-		ServerManager	webserv( *(av + 1) );
-		webserv.setUpWebserv();
-		webserv.debug();
-		webserv.mainLoop();
-	} else {
-		ServerManager	webserv;
-		webserv.setUpWebserv();
-		webserv.debug();
-		webserv.mainLoop();
-	}
+	String	config;
+	if (ac == 2)
+		config = *(av + 1);
+	else if (ac == 1)
+		config = "conf/webserv_default.conf";
+	ServerManager	webserv( config );
 	return 0;
 }

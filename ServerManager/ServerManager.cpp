@@ -21,14 +21,7 @@ int						ServerManager::__sockNum = 0;
 
 ServerManager::ServerManager()
 {
-	WSU::l1(); WSU::l1("configuration file: conf/webserv_default.conf"); WSU::l1("\n");
-	try {
-		Config	config("conf/webserv_default.conf");
-		config.setupEverything();
-	} catch ( std::exception &e ) {
-		WSU::terr(e.what());
-	}
-	exit(1);
+
 }
 
 ServerManager::ServerManager(const String &configutation_file)
@@ -38,10 +31,11 @@ ServerManager::ServerManager(const String &configutation_file)
 	try {
 		Config	config(configutation_file);
 		config.setupEverything();
+		setUpWebserv();
+		mainLoop();
 	} catch ( std::exception &e ) {
 		WSU::terr(e.what());
 	}
-	exit(1);
 }
 
 ServerManager::ServerManager(const ServerManager &copy)
@@ -299,13 +293,6 @@ void ServerManager::mainLoop()
 }
 void ServerManager::setUpWebserv()
 {
-	/*******************************************************************************
-	 *							  CREATE A CONF OBJECT, 						   *
-	 *					 READ AND PARSE THE CONFIGURATION FILE, 				   *
-	 *				SET UP EACH SERVER WITH ITS PORT, DOMAIN NAME ...			   *
-	 * EACH SERVER MUST HAVE A LOCACTION CLASS CONFIGURED FROM THE LOCATION BLOCKS *
-	 *                              HAKAROUUU, KHDMTK                              *
-	 *******************************************************************************/
 	{
 		try
 		{
