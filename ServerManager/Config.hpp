@@ -6,7 +6,8 @@
 class Config
 {
 	private :
-		t_Server				__serversP;
+		t_Server				__servers;
+		t_Template				__templates;
 		String					__configFile;
 		String					__lines;
 		std::fstream			__fS;
@@ -18,7 +19,6 @@ class Config
 		void					setUpServers();
 		void					setUpServer(size_t start);
 		void					checkOuterscope(String outerScope );
-		static void				trimSpaces( String &str );
 
 	public:
 		Config( String configuration_file );

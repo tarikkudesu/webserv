@@ -70,7 +70,7 @@ void	ErrorResponse::buildHeaderFeilds()
 	this->__headers += "Content-Length: " + ss.str() + "\r\n";
 	this->__headers += "Content-Type: text/html; charset=UTF-8\r\n";
 	this->__headers += "Server: Webserv\r\n";
-	this->__headers += "Date: " + Logs::buildIMFDate() + "\r\n";
+	this->__headers += "Date: " + WSU::buildIMFDate() + "\r\n";
 	this->__headers += "\r\n";
 }
 void	ErrorResponse::constructErrorPage()

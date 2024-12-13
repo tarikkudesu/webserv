@@ -26,20 +26,6 @@ Config &Config::operator=(const Config &assign)
 	return *this;
 }
 
-void Config::trimSpaces(String &str)
-{
-	size_t start = 0;
-	size_t end = str.length() - 1;
-	while (start <= end && std::isspace(str[start]))
-		++start;
-	while (end >= start && std::isspace(str[end]))
-		--end;
-	if (start > end)
-		str.clear();
-	else
-		str = str.substr(start, end - start + 1);
-}
-
 void Config::readFile()
 {
 	String line;
@@ -112,7 +98,7 @@ void Config::checkBraces()
 }
 void Config::checkOuterscope(String outerScope)
 {
-	Config::trimSpaces(outerScope);
+	WSU::trimSpaces(outerScope);
 	if (outerScope != "server")
 		throw std::runtime_error("invalid config file 2");
 	if (__lines.find_first_of("{}") == String::npos)
@@ -140,6 +126,8 @@ void Config::setUpServer(size_t start)
 		throw std::runtime_error("unclosed curly braces");
 	String serverConfig(this->__lines.begin() + start, this->__lines.begin() + end);
 	this->__lines.erase(0, end);
+	Template	*temp = new Template( serverConfig );
+	temp->parse();
 }
 void Config::setUpServers()
 {

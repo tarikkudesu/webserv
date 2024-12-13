@@ -21,25 +21,25 @@ int						ServerManager::__sockNum = 0;
 
 ServerManager::ServerManager()
 {
-	Logs::l1(); Logs::l1("configuration file: conf/webserv_default.conf"); Logs::l1("\n");
+	WSU::l1(); WSU::l1("configuration file: conf/webserv_default.conf"); WSU::l1("\n");
 	try {
 		Config	config("conf/webserv_default.conf");
 		config.setupEverything();
 	} catch ( std::exception &e ) {
-		Logs::terr(e.what());
+		WSU::terr(e.what());
 	}
 	exit(1);
 }
 
 ServerManager::ServerManager(const String &configutation_file)
 {
-	Logs::l1(); Logs::l1("configuration file:" + configutation_file); Logs::l1("\n");
+	WSU::l1(); WSU::l1("configuration file:" + configutation_file); WSU::l1("\n");
 
 	try {
 		Config	config(configutation_file);
 		config.setupEverything();
 	} catch ( std::exception &e ) {
-		Logs::terr(e.what());
+		WSU::terr(e.what());
 	}
 	exit(1);
 }
@@ -155,7 +155,7 @@ void ServerManager::writeDataToSocket(int sd)
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
 	{
-		Logs::l1(); Logs::l1("send"); Logs::l1(sd); Logs::l1("\n");
+		WSU::l1(); WSU::l1("send"); WSU::l1(sd); WSU::l1("\n");
 	}
 	else
 	{
@@ -168,7 +168,7 @@ void ServerManager::writeDataToSocket(int sd)
 		}
 		else
 		{
-			Logs::l1(); Logs::l1("remove"); Logs::l1(sd); Logs::l1("\n");
+			WSU::l1(); WSU::l1("remove"); WSU::l1(sd); WSU::l1("\n");
 			removeConnection(sd);
 		}
 	}
@@ -188,7 +188,7 @@ void ServerManager::readDataFromSocket(int sd)
 		t_Connections::iterator iter = ServerManager::__connections.find(sd);
 		if (iter != ServerManager::__connections.end())
 		{
-			Logs::l1(); Logs::l1("recv"); Logs::l1(sd); Logs::l1("\n");
+			WSU::l1(); WSU::l1("recv"); WSU::l1(sd); WSU::l1("\n");
 			iter->second->proccessData(String(buff));
 		}
 	}
@@ -203,7 +203,7 @@ void ServerManager::readDataFromSocket(int sd)
 		}
 		else
 		{
-			Logs::l1(); Logs::l1("remove"); Logs::l1(sd); Logs::l1("\n");
+			WSU::l1(); WSU::l1("remove"); WSU::l1(sd); WSU::l1("\n");
 			removeConnection(sd);
 		}
 	}
@@ -215,7 +215,7 @@ void ServerManager::acceptNewConnection(int sd)
 	newSock = accept(sd, NULL, NULL);
 	if (newSock >= 0)
 	{
-		Logs::l1(); Logs::l1("accept"); Logs::l1(sd); Logs::l1("\n");
+		WSU::l1(); WSU::l1("accept"); WSU::l1(sd); WSU::l1("\n");
 		addConnection(newSock);
 	}
 	else
@@ -266,7 +266,7 @@ void ServerManager::proccessPollEvent(int retV)
 		}
 		catch (std::exception &e)
 		{
-			Logs::terr(e.what());
+			WSU::terr(e.what());
 		}
 	}
 }
@@ -294,7 +294,7 @@ void ServerManager::mainLoop()
 	}
 	catch (std::exception &e)
 	{
-		Logs::terr(e.what());
+		WSU::terr(e.what());
 	}
 }
 void ServerManager::setUpWebserv()
@@ -315,7 +315,7 @@ void ServerManager::setUpWebserv()
 		}
 		catch (std::exception &e)
 		{
-			Logs::terr(e.what());
+			WSU::terr(e.what());
 		}
 		try
 		{
@@ -325,7 +325,7 @@ void ServerManager::setUpWebserv()
 		}
 		catch (std::exception &e)
 		{
-			Logs::terr(e.what());
+			WSU::terr(e.what());
 		}
 		try
 		{
@@ -335,7 +335,7 @@ void ServerManager::setUpWebserv()
 		}
 		catch (std::exception &e)
 		{
-			Logs::terr(e.what());
+			WSU::terr(e.what());
 		}
 		try
 		{
@@ -345,7 +345,7 @@ void ServerManager::setUpWebserv()
 		}
 		catch (std::exception &e)
 		{
-			Logs::terr(e.what());
+			WSU::terr(e.what());
 		}
 
 		try
@@ -356,7 +356,7 @@ void ServerManager::setUpWebserv()
 		}
 		catch (std::exception &e)
 		{
-			Logs::terr(e.what());
+			WSU::terr(e.what());
 		}
 	}
 }

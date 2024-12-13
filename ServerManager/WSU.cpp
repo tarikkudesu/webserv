@@ -1,18 +1,18 @@
-#include "Logs.hpp"
+#include "WSU.hpp"
 
-Logs::Logs() {}
+WSU::WSU() {}
 
-Logs::Logs( const Logs &copy ) { (void) copy; }
+WSU::WSU( const WSU &copy ) { (void) copy; }
 
-Logs::~Logs() {}
+WSU::~WSU() {}
 
-Logs	&Logs::operator=( const Logs &assign )
+WSU	&WSU::operator=( const WSU &assign )
 {
 	(void) assign;
 	return *this;
 }
 
-std::string Logs::logDate() {
+std::string WSU::logDate() {
 	char		buffer[30];
 	std::time_t	t = std::time(nullptr); // Get the current time
 	std::tm		*tm = std::gmtime(&t);	// Convert time to GMT (UTC)
@@ -21,12 +21,12 @@ std::string Logs::logDate() {
 	return std::string(buffer); // Return the date as a string
 }
 
-void	Logs::accessLog( String info )
+void	WSU::accessLog( String info )
 {
-	std::cout << BLUE << Logs::logDate() << RESET << " " << info << "\n";
+	std::cout << BLUE << WSU::logDate() << RESET << " " << info << "\n";
 }
 
-std::string Logs::buildIMFDate() {
+std::string WSU::buildIMFDate() {
 	char		buffer[30];
 	std::time_t	t = std::time(nullptr); // Get the current time
 	std::tm		*tm = std::gmtime(&t);	// Convert time to GMT (UTC)
@@ -36,35 +36,49 @@ std::string Logs::buildIMFDate() {
 	return std::string(buffer); // Return the date as a string
 }
 
-void	Logs::tout( String __log_message )
+void	WSU::tout( String __log_message )
 {
 	std::cout << __log_message << GREEN << "\t\t\t" << "OK" << RESET << std::endl;
 }
 
-void	Logs::terr( char *__error_message )
+void	WSU::terr( char *__error_message )
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
 
-void	Logs::terr( String __error_message )
+void	WSU::terr( String __error_message )
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
 
-void	Logs::file_error( String __error_message, String __file, String __line )
+void	WSU::file_error( String __error_message, String __file, String __line )
 {
 	std::cerr << RED << __file << ":" << __line << ": error: " << RESET << __error_message << std::endl;
 }
 
-void		Logs::l1()
+void		WSU::l1()
 {
-	std::cout << BLUE << Logs::logDate() << RESET << " ";
+	std::cout << BLUE << WSU::logDate() << RESET << " ";
 }
-void		Logs::l1( String s )
+void		WSU::l1( String s )
 {
 	std::cout << " " << s;
 }
-void		Logs::l1( int i )
+void		WSU::l1( int i )
 {
 	std::cout << " " << i;
+}
+
+void WSU::trimSpaces(String &str)
+{
+	size_t start = 0;
+	size_t end = str.length() - 1;
+	while (start <= end && std::isspace(str[start]))
+		++start;
+	while (end >= start && std::isspace(str[end]))
+		--end;
+	if (start > end)
+		str.clear();
+	else
+		str = str.substr(start, end - start + 1);
 }

@@ -1,7 +1,7 @@
 #ifndef __LOCATION_HPP__
 # define __LOCATION_HPP__
 
-# include "Logs.hpp"
+# include "WSU.hpp"
 
 class Location
 {

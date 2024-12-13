@@ -11,7 +11,6 @@ class Server
 		String							__serverIP;
 		String							__serverName;
 		bool							__serverDown;
-		Location						__rootLocation;
 
 		Server();
 		Server( String config );

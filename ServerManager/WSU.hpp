@@ -1,15 +1,15 @@
-#ifndef __LOGS_HPP__
-# define __LOGS_HPP__
+#ifndef __WSU_HPP__
+# define __WSU_HPP__
 
 # include "../srcs/webserv.hpp"
 
-class Logs
+class WSU
 {
 	private :
-		Logs();
-		Logs( const Logs &copy );
-		Logs	&operator=( const Logs &assign );
-		~Logs();
+		WSU();
+		WSU( const WSU &copy );
+		WSU	&operator=( const WSU &assign );
+		~WSU();
 
 	public:
 		static std::string		logDate();
@@ -24,6 +24,8 @@ class Logs
 		static void				l1();
 		static void				l1( String s );
 		static void				l1( int i );
+
+		static void				trimSpaces( String &str );
 };
 
 #endif

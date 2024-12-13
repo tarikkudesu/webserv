@@ -146,14 +146,14 @@ Server &Connection::identifyServer()
 void Connection::requestParser()
 {
 	String requestLine = identifyRequestLine();
-	Logs::l1(); Logs::l1(requestLine); Logs::l1("\n");
+	WSU::l1(); WSU::l1(requestLine); WSU::l1("\n");
 	String requestHeaders = identifyRequestHeaders();
 	this->__request.parseRequest(requestLine, requestHeaders);
-	Logs::l1(); Logs::l1("identify Body"); Logs::l1("\n");
+	WSU::l1(); WSU::l1("identify Body"); WSU::l1("\n");
 	identifyRequestBody();
 	this->__buff.erase(0, this->__erase);
-	Logs::l1(); Logs::l1("request proccessing complete"); Logs::l1("\n");
-	Logs::l1(); Logs::l1("identifying server to respond"); Logs::l1("\n");
+	WSU::l1(); WSU::l1("request proccessing complete"); WSU::l1("\n");
+	WSU::l1(); WSU::l1("identifying server to respond"); WSU::l1("\n");
 	this->__request.setServer(identifyServer());
 	this->__erase = 0;
 }
@@ -166,27 +166,27 @@ void Connection::proccessData(String input)
 	this->__buff += input;
 	try
 	{
-		Logs::l1(); Logs::l1("request proccessing"); Logs::l1("\n");
+		WSU::l1(); WSU::l1("request proccessing"); WSU::l1("\n");
 		requestParser();
 		responseBuilder();
-		Logs::l1(); Logs::l1("response building"); Logs::l1("\n");
+		WSU::l1(); WSU::l1("response building"); WSU::l1("\n");
 		const char *response = "HTTP/1.1 200 OK\n"
 							   "Content-Type: text/html\n"
 							   "Content-Length: 17\n"
 							   "Connection: keep-alive\r\n\r\n"
 							   "<h1>Webserv</h1>\n";
 		this->__responseQueue.push(String(response));
-		Logs::l1(); Logs::l1("response proccessed"); Logs::l1("\n");
+		WSU::l1(); WSU::l1("response proccessed"); WSU::l1("\n");
 	}
 	catch (ErrorResponse &e)
 	{
-		Logs::l1(); Logs::l1("response is an error page"); Logs::l1("\n");
+		WSU::l1(); WSU::l1("response is an error page"); WSU::l1("\n");
 		this->__responseQueue.push(e.getResponse());
 	}
 	catch (std::exception &e)
 	{
-		Logs::terr(e.what());
-		Logs::l1(); Logs::l1("request not complete"); Logs::l1("\n");
+		WSU::terr(e.what());
+		WSU::l1(); WSU::l1("request not complete"); WSU::l1("\n");
 		this->__erase = 0;
 	}
 }

@@ -5,7 +5,8 @@
 
 class Template
 {
-	protected :
+	private :
+		std::deque< String >			__directives;
 		String							__line;
 		String							__host;
 		String							__root;
@@ -16,11 +17,16 @@ class Template
 		std::map< int16_t, String >		__errorPages;
 		size_t							__clientBodyBufferSize;
 
+		void	parseDirectives();
+		void	addDirective( size_t pos );
+		void	addLocationBlock( size_t pos );
 	public:
-		Template();
+		Template( String &line );
 		Template( const Template &copy );
 		Template	&operator=( const Template &assign );
 		~Template();
+
+		void							parse();
 };
 
 #endif
