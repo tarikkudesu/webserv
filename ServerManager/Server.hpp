@@ -8,9 +8,9 @@ class Server
 	public:
 		int								__sd;
 		int16_t							__port;
-		String							__serverIP;
 		String							__serverName;
 		bool							__serverDown;
+		Location						__DefaultLocation;
 
 		Server();
 		Server( String config );
@@ -19,7 +19,6 @@ class Server
 		Server	&operator=( const Server &assign );
 		~Server();
 
-		String			getServerIP() const;
 		int16_t			getServerPort() const;
 		bool			getServerStat() const;
 		String			getServerName() const;

@@ -34,7 +34,6 @@ std::string WSU::buildIMFDate()
 	std::tm *tm = std::gmtime(&t);		// Convert time to GMT (UTC)
 	// Format the date in IMF format: Day, DD Mon YYYY HH:MM:SS GMT
 	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", tm);
-	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
 	return std::string(buffer); // Return the date as a string
 }
 
@@ -112,4 +111,14 @@ int WSU::stringToInt(const std::string &str)
 	int number = 0;
 	iss >> number;
 	return number;
+}
+
+void WSU::replaceString(String &original, const String toReplace, const String replacement)
+{
+	size_t pos = 0;
+	while ((pos = original.find(toReplace, pos)) != String::npos)
+	{
+		original.replace(pos, toReplace.length(), replacement);
+		pos += replacement.length();
+	}
 }

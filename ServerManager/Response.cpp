@@ -2,21 +2,20 @@
 
 Response::Response()
 {
-
 }
 
-Response::Response( const Response &copy )
+Response::Response(const Response &copy)
 {
-	(void) copy;
+	(void)copy;
 }
 
 Response::~Response()
 {
 }
 
-Response	&Response::operator=( const Response &assign )
+Response &Response::operator=(const Response &assign)
 {
-	(void) assign;
+	(void)assign;
 	return *this;
 }
 

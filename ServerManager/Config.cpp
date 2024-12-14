@@ -2,34 +2,10 @@
 
 Config::Config(String configuration_file) : __configFile(configuration_file)
 {
+	String line;
 	__fS.open(configuration_file);
 	if (!__fS.is_open())
 		throw std::runtime_error("coudln't open file");
-}
-
-Config::Config(const Config &copy)
-{
-	*this = copy;
-}
-
-Config::~Config()
-{
-	__fS.close();
-}
-
-Config &Config::operator=(const Config &assign)
-{
-	if (this != &assign)
-	{
-		this->__configFile = assign.__configFile;
-	}
-	return *this;
-}
-
-void Config::readFile()
-{
-	String line;
-
 	do
 	{
 		std::getline(this->__fS, line, '\n');
@@ -43,8 +19,26 @@ void Config::readFile()
 		if (this->__fS.eof())
 			break;
 	} while (true);
+	__fS.close();
 }
 
+Config::Config(const Config &copy)
+{
+	*this = copy;
+}
+
+Config::~Config()
+{
+}
+
+Config &Config::operator=(const Config &assign)
+{
+	if (this != &assign)
+	{
+		this->__configFile = assign.__configFile;
+	}
+	return *this;
+}
 void Config::firstCheck()
 {
 	if (__lines.empty())
@@ -126,7 +120,7 @@ void Config::setUpServer(size_t start)
 		throw std::runtime_error("unclosed curly braces");
 	String serverConfig(this->__lines.begin() + start, this->__lines.begin() + end);
 	this->__lines.erase(0, end);
-	Template	*temp = new Template( serverConfig );
+	Template *temp = new Template(serverConfig);
 }
 void Config::setUpServers()
 {
@@ -143,10 +137,8 @@ void Config::setUpServers()
 
 void Config::setupEverything()
 {
-	readFile();
 	firstCheck();
 	reduceSpaces();
 	checkBraces();
 	setUpServers();
-	exit(1);
 }

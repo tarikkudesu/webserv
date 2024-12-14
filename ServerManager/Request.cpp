@@ -41,7 +41,7 @@ String Request::getHost() const
 {
 	return this->__host;
 }
-void	Request::setServer( Server &server )
+void Request::setServer(Server &server)
 {
 	this->__server = &server;
 }

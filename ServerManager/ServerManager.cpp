@@ -1,39 +1,47 @@
 #include "ServerManager.hpp"
 
-void printLocalAddress(int sockfd) {
-    struct sockaddr_in localAddr;
-    socklen_t addrLen = sizeof(localAddr);
+void printLocalAddress(int sockfd)
+{
+	struct sockaddr_in localAddr;
+	socklen_t addrLen = sizeof(localAddr);
 
-    if (getsockname(sockfd, (struct sockaddr*)&localAddr, &addrLen) == 0) {
-        char ip[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &(localAddr.sin_addr), ip, sizeof(ip));
-        std::cout << "Request came to IP: " << ip 
-                  << ", Port: " << ntohs(localAddr.sin_port) << std::endl;
-    } else {
-        std::cerr << "Error: Could not retrieve local address." << std::endl;
-    }
+	if (getsockname(sockfd, (struct sockaddr *)&localAddr, &addrLen) == 0)
+	{
+		char ip[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &(localAddr.sin_addr), ip, sizeof(ip));
+		std::cout << "Request came to IP: " << ip
+				  << ", Port: " << ntohs(localAddr.sin_port) << std::endl;
+	}
+	else
+	{
+		std::cerr << "Error: Could not retrieve local address." << std::endl;
+	}
 }
 
-t_Server				ServerManager::__servers;
-t_events				ServerManager::__sockets;
-t_Connections			ServerManager::__connections;
-int						ServerManager::__sockNum = 0;
+t_Server ServerManager::__servers;
+t_events ServerManager::__sockets;
+t_Connections ServerManager::__connections;
+int ServerManager::__sockNum = 0;
 
 ServerManager::ServerManager()
 {
-
 }
 
 ServerManager::ServerManager(const String &configutation_file)
 {
-	WSU::l1(); WSU::l1("configuration file:" + configutation_file); WSU::l1("\n");
+	WSU::l1();
+	WSU::l1("configuration file:" + configutation_file);
+	WSU::l1("\n");
 
-	try {
-		Config	config(configutation_file);
+	try
+	{
+		Config config(configutation_file);
 		config.setupEverything();
 		setUpWebserv();
 		mainLoop();
-	} catch ( std::exception &e ) {
+	}
+	catch (std::exception &e)
+	{
 		WSU::terr(e.what());
 	}
 }
@@ -119,7 +127,7 @@ void ServerManager::addSocket(int sd, t_endian endian)
 		sockStruct.events = POLLIN;
 	else if (endian == CONNECTION)
 		sockStruct.events = POLLIN | POLLOUT | POLLHUP;
-	Server::setNonBlockingMode( sd );
+	Server::setNonBlockingMode(sd);
 	ServerManager::__sockets.push_back(sockStruct);
 	ServerManager::__sockNum++;
 }
@@ -149,7 +157,10 @@ void ServerManager::writeDataToSocket(int sd)
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
 	{
-		WSU::l1(); WSU::l1("send"); WSU::l1(sd); WSU::l1("\n");
+		WSU::l1();
+		WSU::l1("send");
+		WSU::l1(sd);
+		WSU::l1("\n");
 	}
 	else
 	{
@@ -162,7 +173,10 @@ void ServerManager::writeDataToSocket(int sd)
 		}
 		else
 		{
-			WSU::l1(); WSU::l1("remove"); WSU::l1(sd); WSU::l1("\n");
+			WSU::l1();
+			WSU::l1("remove");
+			WSU::l1(sd);
+			WSU::l1("\n");
 			removeConnection(sd);
 		}
 	}
@@ -182,7 +196,10 @@ void ServerManager::readDataFromSocket(int sd)
 		t_Connections::iterator iter = ServerManager::__connections.find(sd);
 		if (iter != ServerManager::__connections.end())
 		{
-			WSU::l1(); WSU::l1("recv"); WSU::l1(sd); WSU::l1("\n");
+			WSU::l1();
+			WSU::l1("recv");
+			WSU::l1(sd);
+			WSU::l1("\n");
 			iter->second->proccessData(String(buff));
 		}
 	}
@@ -197,7 +214,10 @@ void ServerManager::readDataFromSocket(int sd)
 		}
 		else
 		{
-			WSU::l1(); WSU::l1("remove"); WSU::l1(sd); WSU::l1("\n");
+			WSU::l1();
+			WSU::l1("remove");
+			WSU::l1(sd);
+			WSU::l1("\n");
 			removeConnection(sd);
 		}
 	}
@@ -209,7 +229,10 @@ void ServerManager::acceptNewConnection(int sd)
 	newSock = accept(sd, NULL, NULL);
 	if (newSock >= 0)
 	{
-		WSU::l1(); WSU::l1("accept"); WSU::l1(sd); WSU::l1("\n");
+		WSU::l1();
+		WSU::l1("accept");
+		WSU::l1(sd);
+		WSU::l1("\n");
 		addConnection(newSock);
 	}
 	else

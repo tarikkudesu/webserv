@@ -29,6 +29,7 @@ class WSU
 		static std::vector<std::string>			splitBySpaces( const std::string &input );
 		static int 								stringToInt(const std::string& str);
 		static std::string 						intToString(int number);
+		static void								replaceString(String &original, const String toReplace, const String replacement);
 };
 
 #endif

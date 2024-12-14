@@ -1,0 +1,5 @@
+
+Request, Accept-range: none
+Location, 
+
+Response, CGI, upload files, redirection

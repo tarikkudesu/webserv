@@ -27,27 +27,36 @@
     - required: no
 
 ### root:
-    - context: server location
+    - context: location
     - syntax: root path
     - multiple directives: no
     - default: ./Content
     - required: no
 
-### allow_methods:
-    - context: server, location
-    - syntax: allow_methods METHOD METHOD METHOD
-    - multiple directives: no
-    - default: GET POST DELETE
-    - required: no
-
 ### index:
-    - context: server, location
+    - context: location
     - syntax: index file
     - multiple directives: no
     - default: index.html
     - required: no
 
+### allow_methods:
+    - context: location
+    - syntax: allow_methods METHOD METHOD METHOD
+    - multiple directives: no
+    - default: GET POST DELETE
+    - required: no
 
 ### error_page:
-    - context: server, location
+    - context: location
+    - syntax: error_page code code path
+    - multiple directives: yes
+    - default: -
+    - required: no
 
+### autoindex:
+    - context: location
+    - syntax: autoindex on | off
+    - multiple directives: no
+    - default: no
+    - required: no

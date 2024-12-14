@@ -12,7 +12,6 @@ class Config
 		String					__lines;
 		std::fstream			__fS;
 
-		void					readFile();
 		void					firstCheck();
 		void					checkBraces();
 		void					reduceSpaces();

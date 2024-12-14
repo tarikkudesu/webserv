@@ -2,11 +2,11 @@ import socket
 import sys
 
 host = "localhost"
-port = 8080
+port = 9000;
 
 request = ( # invalid method
     "GET / HTTP/1.1\r\n"
-    "Host: domain0.com:443\r\n"
+    "Host: localhost\r\n"
     "Content-Type: text/plain\r\n"
     "\r\n"
 )
@@ -15,6 +15,7 @@ with socket.create_connection((host, port)) as sock:
     response = sock.recv(4096)
     print(response.decode())
 
+exit()
 request = ( # invalid method
     "GET / HTTP/1.1\r\n"
     "Host: domain1.com:80\r\n"
@@ -25,7 +26,6 @@ with socket.create_connection((host, port)) as sock:
     sock.sendall(request.encode())
     response = sock.recv(4096)
     print(response.decode())
-exit()
 
 request = ( # invalid Request Line
     "GET  HTTP/1.1\r\n"
