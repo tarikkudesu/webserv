@@ -4,17 +4,18 @@
 # include "Config.hpp"
 
 typedef std::map< int, Connection* >		t_Connections;
+typedef std::vector<Location *>				t_Locations;
 
 void printLocalAddress(int sockfd);
 
 class ServerManager
 {
 	private :
+		String						__config;
 		static int					__sockNum;
 		static t_events				__sockets;
 		static t_Server				__servers;
 		static t_Connections		__connections;
-
 
 		void				writeDataToSocket( int sd );
 		void				readDataFromSocket( int sd );
@@ -27,10 +28,10 @@ class ServerManager
 		static void			removeSocket( int sd );
 		static void			addServer( Server *server );
 		static void			removeServer( int sd );
-
 		static bool			isServerSocket( int sd );
 
 		ServerManager();
+		void	mainLoop();
 
 	public:
 		ServerManager( const String &configutation_file );
@@ -38,44 +39,11 @@ class ServerManager
 		ServerManager	&operator=( const ServerManager &assign );
 		~ServerManager();
 
-		void	mainLoop();
 		void	setUpWebserv();
 
-		void	debug() {
-			t_Server::iterator it = ServerManager::__servers.begin();
-			for (; it != ServerManager::__servers.end(); it++) {
-				std::cout << "Socket: " << it->second->__sd << "\n";
-				std::cout << "Port: " << it->second->__port << "\n";
-				std::cout << "Name: " << it->second->__serverName << "\n";
-			}
-			// removeServer(3);
-			// it = this->__servers.begin();
-			// for (; it != this->__servers.end(); it++) {
-			// 	std::cout << "Socket: " << it->second->__sd << "\n";
-			// 	std::cout << "Port: " << it->second->__port << "\n";
-			// 	std::cout << "Name: " << it->second->__serverName << "\n";
-			// }
-			// this->addConnection(6);
-			// this->addConnection(7);
-			// this->addConnection(8);
-			// this->addConnection(9);
-			// t_Connections::iterator it = this->__connections.begin();
-			// for (; it != this->__connections.end(); it++) {
-			// 	std::cout << "Socket: " << it->second->__sd << "\n";
-			// }
-			// t_events::iterator i = this->__sockets.begin();
-			// for (; i != this->__sockets.end(); i++) {
-			// 	std::cout << "Poll Socket: " << i->fd << "\n";
-			// 	printLocalAddress(i->fd);
-			// }
-			// this->removeConnection(6);
-			// this->removeConnection(7);
-			// i = this->__sockets.begin();
-			// for (; i != this->__sockets.end(); i++) {
-			// 	std::cout << "Poll Socket: " << i->fd << "\n";
-			// }
-			// this->removeConnection(8);
-			// this->removeConnection(9);
+		void	debug()
+		{
+
 		};
 };
 

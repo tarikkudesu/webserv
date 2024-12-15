@@ -1,34 +1,43 @@
 #ifndef __SERVER_HPP__
 # define __SERVER_HPP__
 
-# include "Template.hpp"
+# include "Location.hpp"
 
 class Server
 {
-	public:
 		int								__sd;
-		int16_t							__port;
-		String							__serverName;
-		bool							__serverDown;
-		Location						__DefaultLocation;
+		int								__port;
+		String							__line;
+		String							__host;
+		std::vector< int >				__ports;
+		std::vector< String >			__directives;
+		std::vector< String >			__serverNames;
+		Location						__rootLocation;
+		size_t							__clientBodyBufferSize;
+		bool							b__clientBodyBufferSize;
+		bool							b__host;
 
+		void							proccessClientBodyBufferSizeToken( std::vector<String> &tokens );
+		void							proccessServerNameToken( std::vector<String> &tokens );
+		void							proccessListenToken( std::vector<String> &tokens );
+		void							proccessHostToken( std::vector<String> &tokens );
+		void							proccessToken(std::vector<String> &tokens);
+		void							proccessDirectives();
+		void							LocationBlock( size_t pos );
+		void							addDirective( size_t pos );
+		void							parseDirectives();
+		void							parse();
 		Server();
-		Server( String config );
-		Server( String serverName, int port );
+
+	public:
+		Server( String &line );
 		Server( const Server &copy );
 		Server	&operator=( const Server &assign );
 		~Server();
 
-		int16_t			getServerPort() const;
-		bool			getServerStat() const;
-		String			getServerName() const;
-		int				getServerSocket() const;
-
-
-		void			stopServer();
-		void			setup();
-
-		static void		setNonBlockingMode( int sd );
+		int								getServerSocket() const;
+		int								getServerPort() const;
+		void							setup();
 };
 
 #endif

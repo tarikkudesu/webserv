@@ -115,5 +115,6 @@ int main(int ac, char **av)
 	else if (ac == 1)
 		config = "conf/webserv_default.conf";
 	ServerManager webserv(config);
+	webserv.setUpWebserv();
 	return 0;
 }

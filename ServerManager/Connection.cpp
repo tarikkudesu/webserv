@@ -122,10 +122,10 @@ String Connection::identifyRequestLine()
 }
 Server &Connection::identifyServer()
 {
-	t_Server	tmpMap;
-	int			id = 0;
+	t_Server tmpMap;
+	int id = 0;
 	int16_t port = this->__request.getPort();
-	String	host = this->__request.getHost();
+	String host = this->__request.getHost();
 	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
 	{
 		if (it->second->getServerPort() == port)
@@ -146,14 +146,22 @@ Server &Connection::identifyServer()
 void Connection::requestParser()
 {
 	String requestLine = identifyRequestLine();
-	WSU::l1(); WSU::l1(requestLine); WSU::l1("\n");
+	WSU::l1();
+	WSU::l1(requestLine);
+	WSU::l1("\n");
 	String requestHeaders = identifyRequestHeaders();
 	this->__request.parseRequest(requestLine, requestHeaders);
-	WSU::l1(); WSU::l1("identify Body"); WSU::l1("\n");
+	WSU::l1();
+	WSU::l1("identify Body");
+	WSU::l1("\n");
 	identifyRequestBody();
 	this->__buff.erase(0, this->__erase);
-	WSU::l1(); WSU::l1("request proccessing complete"); WSU::l1("\n");
-	WSU::l1(); WSU::l1("identifying server to respond"); WSU::l1("\n");
+	WSU::l1();
+	WSU::l1("request proccessing complete");
+	WSU::l1("\n");
+	WSU::l1();
+	WSU::l1("identifying server to respond");
+	WSU::l1("\n");
 	this->__request.setServer(identifyServer());
 	this->__erase = 0;
 }
@@ -166,27 +174,37 @@ void Connection::proccessData(String input)
 	this->__buff += input;
 	try
 	{
-		WSU::l1(); WSU::l1("request proccessing"); WSU::l1("\n");
+		WSU::l1();
+		WSU::l1("request proccessing");
+		WSU::l1("\n");
 		requestParser();
 		responseBuilder();
-		WSU::l1(); WSU::l1("response building"); WSU::l1("\n");
+		WSU::l1();
+		WSU::l1("response building");
+		WSU::l1("\n");
 		const char *response = "HTTP/1.1 200 OK\n"
 							   "Content-Type: text/html\n"
 							   "Content-Length: 17\n"
 							   "Connection: keep-alive\r\n\r\n"
 							   "<h1>Webserv</h1>\n";
 		this->__responseQueue.push(String(response));
-		WSU::l1(); WSU::l1("response proccessed"); WSU::l1("\n");
+		WSU::l1();
+		WSU::l1("response proccessed");
+		WSU::l1("\n");
 	}
 	catch (ErrorResponse &e)
 	{
-		WSU::l1(); WSU::l1("response is an error page"); WSU::l1("\n");
+		WSU::l1();
+		WSU::l1("response is an error page");
+		WSU::l1("\n");
 		this->__responseQueue.push(e.getResponse());
 	}
 	catch (std::exception &e)
 	{
 		WSU::terr(e.what());
-		WSU::l1(); WSU::l1("request not complete"); WSU::l1("\n");
+		WSU::l1();
+		WSU::l1("request not complete");
+		WSU::l1("\n");
 		this->__erase = 0;
 	}
 }

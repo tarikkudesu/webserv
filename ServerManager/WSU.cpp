@@ -70,6 +70,11 @@ void WSU::l1(int i)
 	std::cout << " " << i;
 }
 
+void WSU::log(String __log_message)
+{
+	std::cout << BLUE << WSU::logDate() << RESET << " " << __log_message << std::endl;
+}
+
 void WSU::trimSpaces(String &str)
 {
 	size_t start = 0;
@@ -121,4 +126,11 @@ void WSU::replaceString(String &original, const String toReplace, const String r
 		original.replace(pos, toReplace.length(), replacement);
 		pos += replacement.length();
 	}
+}
+
+void WSU::setNonBlockingMode(int sd)
+{
+	int flags = fcntl(sd, F_GETFL, 0);
+	if (flags < 0 || fcntl(sd, F_SETFL, flags | O_NONBLOCK) < 0)
+		throw std::runtime_error("fcntl syscall, failed to make a non blocking socket");
 }

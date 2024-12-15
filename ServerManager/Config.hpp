@@ -6,8 +6,7 @@
 class Config
 {
 	private :
-		t_Server				__servers;
-		t_Template				__templates;
+		std::vector<Server *>	__servers;
 		String					__configFile;
 		String					__lines;
 		std::fstream			__fS;
@@ -16,6 +15,7 @@ class Config
 		void					checkBraces();
 		void					reduceSpaces();
 		void					setUpServers();
+		void					setupEverything();
 		void					setUpServer(size_t start);
 		void					checkOuterscope(String outerScope );
 
@@ -24,8 +24,6 @@ class Config
 		Config( const Config &copy );
 		Config	&operator=( const Config &assign );
 		~Config();
-
-		void					setupEverything();
 };
 
 #endif

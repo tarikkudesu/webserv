@@ -1,3 +1,4 @@
+
 #include "ServerManager.hpp"
 
 void printLocalAddress(int sockfd)
@@ -27,23 +28,11 @@ ServerManager::ServerManager()
 {
 }
 
-ServerManager::ServerManager(const String &configutation_file)
+ServerManager::ServerManager(const String &configutation_file) : __config(configutation_file)
 {
 	WSU::l1();
 	WSU::l1("configuration file:" + configutation_file);
 	WSU::l1("\n");
-
-	try
-	{
-		Config config(configutation_file);
-		config.setupEverything();
-		setUpWebserv();
-		mainLoop();
-	}
-	catch (std::exception &e)
-	{
-		WSU::terr(e.what());
-	}
 }
 
 ServerManager::ServerManager(const ServerManager &copy)
@@ -55,9 +44,6 @@ ServerManager &ServerManager::operator=(const ServerManager &assign)
 {
 	if (this != &assign)
 	{
-		ServerManager::__sockets = assign.__sockets;
-		ServerManager::__servers = assign.ServerManager::__servers;
-		ServerManager::__sockNum = assign.__sockNum;
 	}
 	return *this;
 }
@@ -127,7 +113,7 @@ void ServerManager::addSocket(int sd, t_endian endian)
 		sockStruct.events = POLLIN;
 	else if (endian == CONNECTION)
 		sockStruct.events = POLLIN | POLLOUT | POLLHUP;
-	Server::setNonBlockingMode(sd);
+	WSU::setNonBlockingMode(sd);
 	ServerManager::__sockets.push_back(sockStruct);
 	ServerManager::__sockNum++;
 }
@@ -316,57 +302,13 @@ void ServerManager::mainLoop()
 }
 void ServerManager::setUpWebserv()
 {
+	try
 	{
-		try
-		{
-			Server *server = new Server("domain1.com", 1024);
-			ServerManager::addServer(server);
-			server->setup();
-		}
-		catch (std::exception &e)
-		{
-			WSU::terr(e.what());
-		}
-		try
-		{
-			Server *server = new Server("domain4.com", 1024);
-			ServerManager::addServer(server);
-			server->setup();
-		}
-		catch (std::exception &e)
-		{
-			WSU::terr(e.what());
-		}
-		try
-		{
-			Server *server = new Server("domain5.com", 1024);
-			ServerManager::addServer(server);
-			server->setup();
-		}
-		catch (std::exception &e)
-		{
-			WSU::terr(e.what());
-		}
-		try
-		{
-			Server *server = new Server("domain2.com", 1025);
-			ServerManager::addServer(server);
-			server->setup();
-		}
-		catch (std::exception &e)
-		{
-			WSU::terr(e.what());
-		}
-
-		try
-		{
-			Server *server = new Server("domain3.com", 1026);
-			ServerManager::addServer(server);
-			server->setup();
-		}
-		catch (std::exception &e)
-		{
-			WSU::terr(e.what());
-		}
+		Config config(__config);
 	}
+	catch (std::exception &e)
+	{
+		WSU::terr(e.what());
+	}
+	// mainLoop();
 }

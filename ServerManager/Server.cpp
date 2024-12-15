@@ -2,29 +2,24 @@
 
 Server::Server()
 {
-	throw std::runtime_error(this->__serverName + ": can not initiate server without port and server_name");
+	throw std::runtime_error(": can not initiate server without port and server_name");
 }
 
-Server::Server(String config)
+Server::Server(String &line) : __sd(-1),
+							   __port(-1),
+							   __line(line),
+							   __host("0.0.0.0"),
+							   __clientBodyBufferSize(8000),
+							   b__clientBodyBufferSize(false),
+							   b__host(false)
 {
-	std::cout << YELLOW << config << RESET << "\n";
+	__ports.push_back(8080);
+	parse();
 }
 
-Server::Server(String serverName, int port) : __sd(-1),
-											  __port(port),
-											  __serverName(serverName),
-											  __serverDown(false)
+Server::Server(const Server &copy)
 {
-	this->__sd = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->__sd == -1)
-		throw std::runtime_error(this->__serverName + ": socket syscall, failed to create socket");
-}
-
-Server::Server(const Server &copy) : __sd(copy.__sd),
-									 __port(copy.__port),
-									 __serverName(copy.__serverName),
-									 __serverDown(copy.__serverDown)
-{
+	*this = copy;
 }
 
 Server::~Server()
@@ -37,8 +32,15 @@ Server &Server::operator=(const Server &assign)
 	{
 		__sd = assign.__sd;
 		__port = assign.__port;
-		__serverName = assign.__serverName;
-		__serverDown = assign.__serverDown;
+		__line = assign.__line;
+		__host = assign.__host;
+		__ports = assign.__ports;
+		__directives = assign.__directives;
+		__serverNames = assign.__serverNames;
+		__rootLocation = assign.__rootLocation;
+		__clientBodyBufferSize = assign.__clientBodyBufferSize;
+		b__clientBodyBufferSize = assign.b__clientBodyBufferSize;
+		b__host = assign.b__host;
 	}
 	return *this;
 }
@@ -47,26 +49,13 @@ Server &Server::operator=(const Server &assign)
  *                               MINI METHODS                               *
  ****************************************************************************/
 
-void Server::stopServer()
-{
-	this->__serverDown = true;
-	this->__sd = -1;
-}
-int16_t Server::getServerPort() const
-{
-	return this->__port;
-}
-bool Server::getServerStat() const
-{
-	return this->__serverDown;
-}
-String Server::getServerName() const
-{
-	return this->__serverName;
-}
 int Server::getServerSocket() const
 {
 	return this->__sd;
+}
+int Server::getServerPort() const
+{
+	return this->__port;
 }
 /***********************************************************************
  *                               METHODS                               *
@@ -78,26 +67,179 @@ void Server::setup()
 	int ra = 1;
 	int rp = 1;
 
+	this->__sd = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->__sd == -1)
+		throw std::runtime_error("socket syscall, failed to create socket");
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEADDR, (void *)&ra, sizeof(ra)))
-		throw std::runtime_error(this->__serverName + ": socket setsockopt, failed to make reusable address");
+		throw std::runtime_error("socket setsockopt, failed to make reusable address");
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEPORT, (void *)&rp, sizeof(rp)))
-		throw std::runtime_error(this->__serverName + ": socket setsockopt, failed to make reusable port");
+		throw std::runtime_error("socket setsockopt, failed to make reusable port");
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_port = htons(this->__port);
 	if (-1 == bind(this->__sd, (struct sockaddr *)&addr, sizeof(addr)))
-		throw std::runtime_error(this->__serverName + ": bind syscall, failed to bind socket");
+		throw std::runtime_error("bind syscall, failed to bind socket");
 	if (-1 == listen(this->__sd, 3))
-		throw std::runtime_error(this->__serverName + ": listen syscall, failed to listen for connections");
+		throw std::runtime_error("listen syscall, failed to listen for connections");
 }
 
-/***********************************************************************
- *                            STATIC METHODS                           *
- ***********************************************************************/
-
-void Server::setNonBlockingMode(int sd)
+/**********************************************************************
+ *                            PARSE METHODS                           *
+ **********************************************************************/
+void Server::proccessHostToken(std::vector<String> &tokens)
 {
-	int flags = fcntl(sd, F_GETFL, 0);
-	if (flags < 0 || fcntl(sd, F_SETFL, flags | O_NONBLOCK) < 0)
-		throw std::runtime_error("fcntl syscall, failed to make a non blocking socket");
+	this->__host.clear();
+	if (this->b__host)
+		throw std::runtime_error(tokens.at(0) + ": multiple directives");
+	if (tokens.size() == 1)
+		throw std::runtime_error(tokens.at(0) + ": no host value");
+	if (tokens.size() > 2)
+		throw std::runtime_error(tokens.at(0) + ": multiple host values");
+	this->__host = tokens.at(1);
+	this->b__host = true;
+}
+void Server::proccessListenToken(std::vector<String> &tokens)
+{
+	this->__ports.clear();
+	if (tokens.size() > 80) // an extra leyer of protection, this value can be changed later
+	{
+		throw std::runtime_error(tokens.at(0) + ": this amount of ports is excessive");
+	}
+	else if (tokens.size() > 1)
+	{
+		for (std::vector<String>::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
+		{
+			if (String::npos != it->find_first_not_of("0123456789"))
+				throw std::runtime_error(tokens.at(0) + ": invalid port: not a number");
+			size_t port = WSU::stringToInt(*it);
+			if (port > 65535)
+				throw std::runtime_error(tokens.at(0) + ": invalid port: out of range");
+			this->__ports.push_back(port);
+		}
+	}
+	else
+	{
+		throw std::runtime_error(tokens.at(0) + ": no port value");
+	}
+}
+void Server::proccessServerNameToken(std::vector<String> &tokens)
+{
+	if (tokens.size() > 20) // an extra leyer of protection, this value can be changed later
+	{
+		throw std::runtime_error(tokens.at(0) + ": this amount of server names is excessive");
+	}
+	else if (tokens.size() > 1)
+	{
+		for (std::vector<String>::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
+		{
+			if (String::npos != it->find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_*"))
+				throw std::runtime_error(tokens.at(0) + ": invalid server_name: out of character range");
+			this->__serverNames.push_back(*it);
+		}
+	}
+	else
+	{
+		throw std::runtime_error(tokens.at(0) + ": no server_name value");
+	}
+}
+void Server::proccessClientBodyBufferSizeToken(std::vector<String> &tokens)
+{
+	if (this->b__clientBodyBufferSize)
+		throw std::runtime_error(tokens.at(0) + ": multiple directives");
+	if (tokens.size() == 1)
+		throw std::runtime_error(tokens.at(0) + ": no client_body_buffer_size value");
+	if (tokens.size() > 2)
+		throw std::runtime_error(tokens.at(0) + ": multiple client_body_buffer_size values");
+	if (String::npos != tokens.at(1).find_first_not_of("0123456789"))
+		throw std::runtime_error(tokens.at(0) + ": invalid client_body_buffer_size: not a number");
+	this->__clientBodyBufferSize = WSU::stringToInt(tokens.at(1));
+	this->b__clientBodyBufferSize = true;
+}
+
+void Server::proccessToken(std::vector<String> &tokens)
+{
+	String &key = tokens.at(0);
+	if (key != "host" &&
+		key != "root" &&
+		key != "index" &&
+		key != "listen" &&
+		key != "autoindex" &&
+		key != "error_page" &&
+		key != "server_name" &&
+		key != "allow_methods" &&
+		key != "client_body_buffer_size")
+		throw std::runtime_error(key + ": unknown directive");
+	if (key == "host")
+		proccessHostToken(tokens);
+	else if (key == "listen")
+		proccessListenToken(tokens);
+	else if (key == "server_name")
+		proccessServerNameToken(tokens);
+	else if (key == "client_body_buffer_size")
+		proccessClientBodyBufferSizeToken(tokens);
+}
+void Server::proccessDirectives()
+{
+	for (std::vector<String>::iterator it = this->__directives.begin(); it != this->__directives.end(); it++)
+	{
+		std::vector<String> tokens = WSU::splitBySpaces(*it);
+		if (!tokens.empty())
+		{
+			proccessToken(tokens);
+		}
+	}
+}
+void Server::LocationBlock(size_t pos)
+{
+	size_t end = pos + 1;
+	size_t tracker = 1;
+
+	do
+	{
+		if (end >= this->__line.length())
+			break;
+		if (this->__line.at(end) == '}')
+			tracker--;
+		if (this->__line.at(end) == '{')
+			tracker++;
+		end++;
+		if (tracker == 0)
+			break;
+	} while (true);
+	this->__line.erase(0, end);
+}
+void Server::addDirective(size_t end)
+{
+	String directive = String(__line.begin(), __line.begin() + end);
+	WSU::trimSpaces(directive);
+	if (directive.empty())
+		throw std::runtime_error("empty directive");
+	this->__directives.push_back(directive);
+	this->__line.erase(0, end + 1);
+	WSU::log(directive);
+}
+void Server::parseDirectives()
+{
+	do
+	{
+		size_t pos = __line.find_first_of(";{");
+		if (pos == String::npos && __line.find_first_not_of(" \t\n\r\v\f") != String::npos)
+			throw std::runtime_error("invalid block");
+		if (pos == String::npos)
+			break;
+		if (__line.at(pos) == ';')
+			addDirective(pos);
+		else if (__line.at(pos) == '{')
+			LocationBlock(pos);
+	} while (true);
+}
+void Server::parse()
+{
+	String line = __line;
+	WSU::trimSpaces(__line);
+	__line = __line.substr(1, __line.length() - 2);
+	WSU::trimSpaces(__line);
+	parseDirectives();
+	proccessDirectives();
+	__rootLocation.parseLocation(line);
 }

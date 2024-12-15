@@ -15,81 +15,34 @@ Config::Config(String configuration_file) : __configFile(configuration_file)
 			continue;
 		this->__lines.append(line);
 		this->__lines.append(" ");
+		WSU::log(line);
 		line.clear();
 		if (this->__fS.eof())
 			break;
 	} while (true);
 	__fS.close();
+	setupEverything();
 }
-
 Config::Config(const Config &copy)
 {
 	*this = copy;
 }
-
-Config::~Config()
-{
-}
-
 Config &Config::operator=(const Config &assign)
 {
 	if (this != &assign)
 	{
-		this->__configFile = assign.__configFile;
+		__lines = assign.__lines;
+		__servers = assign.__servers;
+		__configFile = assign.__configFile;
 	}
 	return *this;
 }
-void Config::firstCheck()
+Config::~Config()
 {
-	if (__lines.empty())
-		throw std::runtime_error("empty file");
-	if (String::npos == __lines.find_first_of("{}"))
-		throw std::runtime_error("invalid config file 1");
-	if (String::npos != __lines.find_first_not_of(PRINTABLE))
-		throw std::runtime_error("unknown characters");
 }
-
-void Config::reduceSpaces()
-{
-	std::string result;
-	bool inSpace = false;
-
-	for (size_t i = 0; i < __lines.length(); i++)
-	{
-		if (std::isspace(__lines.at(i)))
-		{
-			if (!inSpace)
-			{
-				result += ' ';
-				inSpace = true;
-			}
-		}
-		else
-		{
-			result += __lines.at(i);
-			inSpace = false;
-		}
-	}
-	this->__lines.clear();
-	this->__lines.append(result);
-}
-void Config::checkBraces()
-{
-	size_t end = 0;
-	size_t tracker = 0;
-	do
-	{
-		if (end >= this->__lines.length())
-			break;
-		if (this->__lines.at(end) == '}')
-			tracker--;
-		if (this->__lines.at(end) == '{')
-			tracker++;
-		end++;
-	} while (true);
-	if (tracker != 0)
-		throw std::runtime_error("unclosed curly braces");
-}
+/*****************************************************************************
+ *                                  METHODS                                  *
+ *****************************************************************************/
 void Config::checkOuterscope(String outerScope)
 {
 	WSU::trimSpaces(outerScope);
@@ -120,7 +73,8 @@ void Config::setUpServer(size_t start)
 		throw std::runtime_error("unclosed curly braces");
 	String serverConfig(this->__lines.begin() + start, this->__lines.begin() + end);
 	this->__lines.erase(0, end);
-	Template *temp = new Template(serverConfig);
+	Server *server = new Server(serverConfig);
+	this->__servers.push_back(server);
 }
 void Config::setUpServers()
 {
@@ -134,7 +88,56 @@ void Config::setUpServers()
 		setUpServer(pos);
 	} while (!this->__lines.empty());
 }
+void Config::checkBraces()
+{
+	size_t end = 0;
+	size_t tracker = 0;
+	do
+	{
+		if (end >= this->__lines.length())
+			break;
+		if (this->__lines.at(end) == '}')
+			tracker--;
+		if (this->__lines.at(end) == '{')
+			tracker++;
+		end++;
+	} while (true);
+	if (tracker != 0)
+		throw std::runtime_error("unclosed curly braces");
+}
+void Config::reduceSpaces()
+{
+	std::string result;
+	bool inSpace = false;
 
+	for (size_t i = 0; i < __lines.length(); i++)
+	{
+		if (std::isspace(__lines.at(i)))
+		{
+			if (!inSpace)
+			{
+				result += ' ';
+				inSpace = true;
+			}
+		}
+		else
+		{
+			result += __lines.at(i);
+			inSpace = false;
+		}
+	}
+	this->__lines.clear();
+	this->__lines.append(result);
+}
+void Config::firstCheck()
+{
+	if (__lines.empty() || String::npos == __lines.find_first_not_of(" \t\n\r\v\f"))
+		throw std::runtime_error("empty file");
+	if (String::npos == __lines.find_first_of("{}"))
+		throw std::runtime_error("invalid config file 1");
+	if (String::npos != __lines.find_first_not_of(PRINTABLE))
+		throw std::runtime_error("unknown characters");
+}
 void Config::setupEverything()
 {
 	firstCheck();

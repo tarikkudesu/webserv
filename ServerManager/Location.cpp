@@ -9,7 +9,6 @@ Location::Location() : __root("/"),
 	this->__allowMethods.push_back(POST);
 	addErrPages();
 }
-
 Location::Location(String dir) : __root(dir),
 								 __index("index.html"),
 								 __dirListing(false)
@@ -19,22 +18,27 @@ Location::Location(String dir) : __root(dir),
 	this->__allowMethods.push_back(POST);
 	addErrPages();
 }
-
 Location::Location(const Location &copy)
 {
 	*this = copy;
 }
-
-Location::~Location()
-{
-}
-
 Location &Location::operator=(const Location &assign)
 {
 	if (this != &assign)
 	{
+		__line = assign.__line;
+		__root = assign.__root;
+		__index = assign.__index;
+		__dirListing = assign.__dirListing;
+		__directives = assign.__directives;
+		__errorPages = assign.__errorPages;
+		__subLocations = assign.__subLocations;
+		__allowMethods = assign.__allowMethods;
 	}
 	return *this;
+}
+Location::~Location()
+{
 }
 /****************************************************************************
  *                               MINI METHODS                               *
@@ -94,10 +98,11 @@ void Location::addLocationBlock(size_t pos)
 	String outer = String(__line.begin(), __line.begin() + pos);
 	std::vector<String> tokens = WSU::splitBySpaces(outer);
 	WSU::trimSpaces(outer);
+	WSU::log(outer);
 	if (tokens.size() != 2)
 		throw std::runtime_error("location block error");
 	if (tokens.at(0) != "location")
-		throw std::runtime_error(tokens.at(0) + "unknown block");
+		throw std::runtime_error(tokens.at(0) + ": unknown block");
 	do
 	{
 		if (end >= this->__line.length())
@@ -124,6 +129,7 @@ void Location::addDirective(size_t end)
 	if (directive.empty())
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
+	WSU::log(directive);
 	this->__line.erase(0, end + 1);
 }
 void Location::proccessToken(std::vector<String> &tokens)
@@ -138,7 +144,7 @@ void Location::proccessToken(std::vector<String> &tokens)
 		key != "server_name" &&
 		key != "allow_methods" &&
 		key != "client_body_buffer_size")
-		throw std::runtime_error(key + ": unknown directive location");
+		throw std::runtime_error(key + ": unknown directive");
 }
 void Location::proccessDirectives()
 {
@@ -166,10 +172,10 @@ void Location::parseDirectives()
 }
 void Location::parseLocation(String conf)
 {
+	WSU::trimSpaces(conf);
+	conf = conf.substr(1, conf.length() - 2);
+	WSU::trimSpaces(conf);
 	this->__line = conf;
-	WSU::trimSpaces(__line);
-	__line = __line.substr(1, __line.length() - 2);
-	WSU::trimSpaces(__line);
 	parseDirectives();
 	proccessDirectives();
 }

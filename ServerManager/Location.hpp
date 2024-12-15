@@ -6,14 +6,14 @@
 class Location
 {
 	private :
-		String							__line;
-		String							__root;
-		String							__index;
-		bool							__dirListing;
-		std::deque< String >			__directives;
-		std::map< int16_t, String >		__errorPages;
-		std::vector< t_method >			__allowMethods;
-		std::map< String, Location* >	__subLocations;
+		String									__line;
+		String									__root;
+		String									__index;
+		bool									__dirListing;
+		std::deque< String >					__directives;
+		std::map< int16_t, String >				__errorPages;
+		std::map< String, Location* >			__subLocations;
+		std::vector< t_method >					__allowMethods;
 
 		void							proccessToken(std::vector<String> &tokens);
 		void							proccessDirectives();
