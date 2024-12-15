@@ -145,3 +145,7 @@ void Config::setupEverything()
 	checkBraces();
 	setUpServers();
 }
+std::vector<Server *>	&Config::getServers( void )
+{
+	return this->__servers;
+}

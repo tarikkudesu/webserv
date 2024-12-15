@@ -13,21 +13,23 @@ Server::Server(String &line) : __sd(-1),
 							   b__clientBodyBufferSize(false),
 							   b__host(false)
 {
-	__ports.push_back(8080);
 	parse();
+	WSU::log("Server para constructor");
 }
-
 Server::Server(const Server &copy)
 {
+	WSU::log("Server copy constructor");
 	*this = copy;
 }
 
 Server::~Server()
 {
+	WSU::log("Server destructor");
 }
 
 Server &Server::operator=(const Server &assign)
 {
+	WSU::log("Server copy assignement constructor");
 	if (this != &assign)
 	{
 		__sd = assign.__sd;
@@ -56,6 +58,14 @@ int Server::getServerSocket() const
 int Server::getServerPort() const
 {
 	return this->__port;
+}
+void Server::setPort(int port)
+{
+	this->__port = port;
+}
+std::vector<int> &Server::getPorts()
+{
+	return this->__ports;
 }
 /***********************************************************************
  *                               METHODS                               *
@@ -100,7 +110,6 @@ void Server::proccessHostToken(std::vector<String> &tokens)
 }
 void Server::proccessListenToken(std::vector<String> &tokens)
 {
-	this->__ports.clear();
 	if (tokens.size() > 80) // an extra leyer of protection, this value can be changed later
 	{
 		throw std::runtime_error(tokens.at(0) + ": this amount of ports is excessive");
@@ -237,9 +246,12 @@ void Server::parse()
 {
 	String line = __line;
 	WSU::trimSpaces(__line);
-	__line = __line.substr(1, __line.length() - 2);
+	if (!__line.empty())
+		__line = __line.substr(1, __line.length() - 2);
 	WSU::trimSpaces(__line);
 	parseDirectives();
 	proccessDirectives();
 	__rootLocation.parseLocation(line);
+	if (__ports.size() == 0)
+		__ports.push_back(8080);
 }

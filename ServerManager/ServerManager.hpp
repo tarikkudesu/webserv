@@ -4,7 +4,6 @@
 # include "Config.hpp"
 
 typedef std::map< int, Connection* >		t_Connections;
-typedef std::vector<Location *>				t_Locations;
 
 void printLocalAddress(int sockfd);
 
@@ -30,8 +29,9 @@ class ServerManager
 		static void			removeServer( int sd );
 		static bool			isServerSocket( int sd );
 
-		ServerManager();
+		void	initServers(Config &config);
 		void	mainLoop();
+		ServerManager();
 
 	public:
 		ServerManager( const String &configutation_file );
@@ -43,6 +43,10 @@ class ServerManager
 
 		void	debug()
 		{
+			t_Server::iterator it = ServerManager::__servers.begin();
+			for (; it != ServerManager::__servers.end(); it++) {
+				(*it).second->print();
+			}
 
 		};
 };

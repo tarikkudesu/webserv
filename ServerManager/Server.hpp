@@ -5,6 +5,7 @@
 
 class Server
 {
+	private:
 		int								__sd;
 		int								__port;
 		String							__line;
@@ -37,7 +38,26 @@ class Server
 
 		int								getServerSocket() const;
 		int								getServerPort() const;
+		void							setPort(int port);
+		std::vector< int >				&getPorts();
 		void							setup();
+		void							clean()
+		{
+			__ports.clear();
+			__directives.clear();
+		}
+		void							print() {
+			std::cout << "Server\n";
+			std::cout << "\thost: " << __host << "\n";
+			std::cout << "\tserver_name: ";
+			for (std::vector<String>::iterator it = __serverNames.begin(); it != __serverNames.end(); it++) {
+				std::cout << *it << " ";
+			} std::cout << "\n";
+			std::cout << "\tport: " << __port << "\n";
+			// for (std::vector<int>::iterator it = __ports.begin(); it != __ports.end(); it++) {
+			// 	std::cout << *it << " ";
+			// } std::cout << "\n";
+		}
 };
 
 #endif

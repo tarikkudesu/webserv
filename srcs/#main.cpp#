@@ -12,12 +12,10 @@ void f()
 	dup2(fd, STDOUT_FILENO);
 	dup2(fd, STDERR_FILENO);
 	close(fd);
-	// system("lsof -c webserv");
-	// system("valgrind --leak-check=full --track-fds=yes ./webserv");
+	system("lsof -c webserv");
 	std::cout << "\n********************************************************************\n";
 	std::cout << "********************************************************************\n\n";
-	// system("valgrind --leak-check=full --show-leak-kinds=all ./webserv");
-	// system("leaks -list webserv");
+	system("leaks -list webserv");
 }
 
 void signalHandler(int signal)

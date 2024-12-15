@@ -30,9 +30,7 @@ ServerManager::ServerManager()
 
 ServerManager::ServerManager(const String &configutation_file) : __config(configutation_file)
 {
-	WSU::l1();
-	WSU::l1("configuration file:" + configutation_file);
-	WSU::l1("\n");
+	WSU::log("configuration file:" + configutation_file);
 }
 
 ServerManager::ServerManager(const ServerManager &copy)
@@ -300,15 +298,35 @@ void ServerManager::mainLoop()
 		WSU::terr(e.what());
 	}
 }
+void ServerManager::initServers(Config &config)
+{
+	std::vector<Server *> &servers = config.getServers();
+	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); it++)
+	{
+		Server *tmp = *it;
+		std::vector<int> &ports = tmp->getPorts();
+		for (std::vector<int>::iterator it = ports.begin(); it != ports.end(); it++)
+		{
+			Server *newServer = new Server(*tmp);
+			newServer->setPort(*it);
+			newServer->setup();
+			ServerManager::addServer(newServer);
+		}
+	}
+}
 void ServerManager::setUpWebserv()
 {
 	try
 	{
-		Config config(__config);
+		{
+			Config config(__config);
+			initServers(config);
+		}
+		debug();
+		// mainLoop();
 	}
 	catch (std::exception &e)
 	{
 		WSU::terr(e.what());
 	}
-	// mainLoop();
 }

@@ -24,6 +24,8 @@ class Config
 		Config( const Config &copy );
 		Config	&operator=( const Config &assign );
 		~Config();
+
+		std::vector<Server *>	&getServers( void );
 };
 
 #endif

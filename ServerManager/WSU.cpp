@@ -77,6 +77,8 @@ void WSU::log(String __log_message)
 
 void WSU::trimSpaces(String &str)
 {
+	if (str.empty())
+		return ;
 	size_t start = 0;
 	size_t end = str.length() - 1;
 	while (start <= end && std::isspace(str[start]))
