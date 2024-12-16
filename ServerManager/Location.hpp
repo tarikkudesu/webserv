@@ -21,6 +21,7 @@ class Location
 		void							addDirective(size_t end);
 		void							parseDirectives();
 		void							addErrPages();
+		void							clean();
 
 	public:
 		Location();
@@ -29,6 +30,13 @@ class Location
 		Location	&operator=( const Location &assign );
 		~Location();
 
+		void		print()
+		{
+			std::cout << "\t" << __root << "\n";
+			for (std::map<String, Location*>::iterator i = __subLocations.begin(); i != __subLocations.end(); i++) {
+				i->second->print();
+			}
+		}
 		void		parseLocation( String conf );
 };
 

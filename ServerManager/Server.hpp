@@ -36,6 +36,7 @@ class Server
 		Server	&operator=( const Server &assign );
 		~Server();
 
+		bool							__valid;
 		int								getServerSocket() const;
 		int								getServerPort() const;
 		void							setPort(int port);
@@ -54,6 +55,7 @@ class Server
 				std::cout << *it << " ";
 			} std::cout << "\n";
 			std::cout << "\tport: " << __port << "\n";
+			this->__rootLocation.print();
 			// for (std::vector<int>::iterator it = __ports.begin(); it != __ports.end(); it++) {
 			// 	std::cout << *it << " ";
 			// } std::cout << "\n";

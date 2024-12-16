@@ -1,7 +1,7 @@
 #ifndef __SERVERMANAGER_HPP__
 # define __SERVERMANAGER_HPP__
 
-# include "Config.hpp"
+# include "Connection.hpp"
 
 typedef std::map< int, Connection* >		t_Connections;
 
@@ -10,11 +10,22 @@ void printLocalAddress(int sockfd);
 class ServerManager
 {
 	private :
+		String						__lines;
 		String						__config;
 		static int					__sockNum;
 		static t_events				__sockets;
 		static t_Server				__servers;
 		static t_Connections		__connections;
+		std::vector<Server *>		__serverTemplates;
+
+
+		void				readFile();
+		void				firstCheck();
+		void				checkBraces();
+		void				reduceSpaces();
+		void				setUpServers();
+		void				setUpServer(size_t start);
+		void				checkOuterscope(String outerScope);
 
 		void				writeDataToSocket( int sd );
 		void				readDataFromSocket( int sd );
@@ -29,7 +40,7 @@ class ServerManager
 		static void			removeServer( int sd );
 		static bool			isServerSocket( int sd );
 
-		void	initServers(Config &config);
+		void	initServers();
 		void	mainLoop();
 		ServerManager();
 

@@ -11,7 +11,8 @@ Server::Server(String &line) : __sd(-1),
 							   __host("0.0.0.0"),
 							   __clientBodyBufferSize(8000),
 							   b__clientBodyBufferSize(false),
-							   b__host(false)
+							   b__host(false),
+							__valid(false)
 {
 	parse();
 	WSU::log("Server para constructor");
@@ -107,13 +108,12 @@ void Server::proccessHostToken(std::vector<String> &tokens)
 		throw std::runtime_error(tokens.at(0) + ": multiple host values");
 	this->__host = tokens.at(1);
 	this->b__host = true;
+	this->__valid = true;
 }
 void Server::proccessListenToken(std::vector<String> &tokens)
 {
 	if (tokens.size() > 80) // an extra leyer of protection, this value can be changed later
-	{
 		throw std::runtime_error(tokens.at(0) + ": this amount of ports is excessive");
-	}
 	else if (tokens.size() > 1)
 	{
 		for (std::vector<String>::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
@@ -127,16 +127,13 @@ void Server::proccessListenToken(std::vector<String> &tokens)
 		}
 	}
 	else
-	{
 		throw std::runtime_error(tokens.at(0) + ": no port value");
-	}
+	this->__valid = true;
 }
 void Server::proccessServerNameToken(std::vector<String> &tokens)
 {
 	if (tokens.size() > 20) // an extra leyer of protection, this value can be changed later
-	{
 		throw std::runtime_error(tokens.at(0) + ": this amount of server names is excessive");
-	}
 	else if (tokens.size() > 1)
 	{
 		for (std::vector<String>::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
@@ -147,9 +144,8 @@ void Server::proccessServerNameToken(std::vector<String> &tokens)
 		}
 	}
 	else
-	{
 		throw std::runtime_error(tokens.at(0) + ": no server_name value");
-	}
+	this->__valid = true;
 }
 void Server::proccessClientBodyBufferSizeToken(std::vector<String> &tokens)
 {
@@ -251,7 +247,8 @@ void Server::parse()
 	WSU::trimSpaces(__line);
 	parseDirectives();
 	proccessDirectives();
-	__rootLocation.parseLocation(line);
+	if (__valid)
+		__rootLocation.parseLocation(line);
 	if (__ports.size() == 0)
 		__ports.push_back(8080);
 }

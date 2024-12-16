@@ -39,6 +39,13 @@ Location &Location::operator=(const Location &assign)
 }
 Location::~Location()
 {
+	this->clean();
+}
+void Location::clean()
+{
+	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
+		delete it->second;
+	__subLocations.clear();
 }
 /****************************************************************************
  *                               MINI METHODS                               *

@@ -141,10 +141,7 @@ void ServerManager::writeDataToSocket(int sd)
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
 	{
-		WSU::l1();
-		WSU::l1("send");
-		WSU::l1(sd);
-		WSU::l1("\n");
+		WSU::log("send " + WSU::intToString(sd) + "\n");
 	}
 	else
 	{
@@ -157,10 +154,7 @@ void ServerManager::writeDataToSocket(int sd)
 		}
 		else
 		{
-			WSU::l1();
-			WSU::l1("remove");
-			WSU::l1(sd);
-			WSU::l1("\n");
+			WSU::log("remove " + WSU::intToString(sd) + "\n");
 			removeConnection(sd);
 		}
 	}
@@ -180,10 +174,7 @@ void ServerManager::readDataFromSocket(int sd)
 		t_Connections::iterator iter = ServerManager::__connections.find(sd);
 		if (iter != ServerManager::__connections.end())
 		{
-			WSU::l1();
-			WSU::l1("recv");
-			WSU::l1(sd);
-			WSU::l1("\n");
+			WSU::log("recv " + WSU::intToString(sd) + "\n");
 			iter->second->proccessData(String(buff));
 		}
 	}
@@ -198,10 +189,7 @@ void ServerManager::readDataFromSocket(int sd)
 		}
 		else
 		{
-			WSU::l1();
-			WSU::l1("remove");
-			WSU::l1(sd);
-			WSU::l1("\n");
+			WSU::log("remove " + WSU::intToString(sd) + "\n");
 			removeConnection(sd);
 		}
 	}
@@ -213,10 +201,7 @@ void ServerManager::acceptNewConnection(int sd)
 	newSock = accept(sd, NULL, NULL);
 	if (newSock >= 0)
 	{
-		WSU::l1();
-		WSU::l1("accept");
-		WSU::l1(sd);
-		WSU::l1("\n");
+		WSU::log("accept " + WSU::intToString(sd) + "\n");
 		addConnection(newSock);
 	}
 	else
@@ -298,12 +283,13 @@ void ServerManager::mainLoop()
 		WSU::terr(e.what());
 	}
 }
-void ServerManager::initServers(Config &config)
+void ServerManager::initServers()
 {
-	std::vector<Server *> &servers = config.getServers();
-	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); it++)
+	for (std::vector<Server *>::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
 	{
 		Server *tmp = *it;
+		if (!tmp->__valid)
+			continue ;
 		std::vector<int> &ports = tmp->getPorts();
 		for (std::vector<int>::iterator it = ports.begin(); it != ports.end(); it++)
 		{
@@ -313,15 +299,139 @@ void ServerManager::initServers(Config &config)
 			ServerManager::addServer(newServer);
 		}
 	}
+	for (std::vector<Server *>::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
+		delete *it;
+	__serverTemplates.clear();
+}
+void ServerManager::readFile()
+{
+	std::fstream fS;
+	String line;
+
+	fS.open(__config);
+	if (!fS.is_open())
+		throw std::runtime_error("coudln't open file");
+	do
+	{
+		std::getline(fS, line, '\n');
+		if (fS.fail())
+			break;
+		if (line.empty() || String::npos == line.find_first_not_of(" \t\n\r\v\f"))
+			continue;
+		this->__lines.append(line);
+		this->__lines.append(" ");
+		WSU::log(line);
+		line.clear();
+		if (fS.eof())
+			break;
+	} while (true);
+	fS.close();
+}
+void ServerManager::firstCheck()
+{
+	if (__lines.empty() || String::npos == __lines.find_first_not_of(" \t\n\r\v\f"))
+		throw std::runtime_error("empty file");
+	if (String::npos == __lines.find_first_of("{}"))
+		throw std::runtime_error("invalid config file 1");
+	if (String::npos != __lines.find_first_not_of(PRINTABLE))
+		throw std::runtime_error("unknown characters");
+}
+void ServerManager::checkBraces()
+{
+	size_t end = 0;
+	size_t tracker = 0;
+	do
+	{
+		if (end >= this->__lines.length())
+			break;
+		if (this->__lines.at(end) == '}')
+			tracker--;
+		if (this->__lines.at(end) == '{')
+			tracker++;
+		end++;
+	} while (true);
+	if (tracker != 0)
+		throw std::runtime_error("unclosed curly braces");
+}
+void ServerManager::reduceSpaces()
+{
+	std::string result;
+	bool inSpace = false;
+
+	for (size_t i = 0; i < __lines.length(); i++)
+	{
+		if (std::isspace(__lines.at(i)))
+		{
+			if (!inSpace)
+			{
+				result += ' ';
+				inSpace = true;
+			}
+		}
+		else
+		{
+			result += __lines.at(i);
+			inSpace = false;
+		}
+	}
+	this->__lines.clear();
+	this->__lines.append(result);
+}
+void ServerManager::setUpServers()
+{
+	do
+	{
+		size_t pos = this->__lines.find("{");
+		if (pos == String::npos && __lines.find_first_not_of(" \t\n\r\v\f") != String::npos)
+			throw std::runtime_error("invalid config file 4");
+		else if (pos == String::npos)
+			break;
+		setUpServer(pos);
+	} while (!this->__lines.empty());
+}
+void ServerManager::setUpServer(size_t start)
+{
+	size_t end = start + 1;
+	size_t tracker = 1;
+
+	checkOuterscope(String(this->__lines.begin(), this->__lines.begin() + start));
+	do
+	{
+		if (end >= this->__lines.length())
+			break;
+		if (this->__lines.at(end) == '}')
+			tracker--;
+		if (this->__lines.at(end) == '{')
+			tracker++;
+		end++;
+		if (tracker == 0)
+			break;
+	} while (true);
+	if (tracker != 0)
+		throw std::runtime_error("unclosed curly braces");
+	String serverConfig(this->__lines.begin() + start, this->__lines.begin() + end);
+	this->__lines.erase(0, end);
+	Server *server = new Server(serverConfig);
+	__serverTemplates.push_back(server);
+}
+void ServerManager::checkOuterscope(String outerScope)
+{
+	WSU::trimSpaces(outerScope);
+	if (outerScope != "server")
+		throw std::runtime_error("invalid config file 2");
+	if (__lines.find_first_of("{}") == String::npos)
+		throw std::runtime_error("invalid config file 3");
 }
 void ServerManager::setUpWebserv()
 {
 	try
 	{
-		{
-			Config config(__config);
-			initServers(config);
-		}
+		readFile();
+		firstCheck();
+		reduceSpaces();
+		checkBraces();
+		setUpServers();
+		initServers();
 		debug();
 		// mainLoop();
 	}
