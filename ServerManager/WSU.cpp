@@ -20,10 +20,6 @@ std::string WSU::logDate()
 	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
 	return std::string(buffer); // Return the date as a string
 }
-void WSU::accessLog(String info)
-{
-	std::cout << BLUE << WSU::logDate() << RESET << " " << info << "\n";
-}
 std::string WSU::buildIMFDate()
 {
 	char buffer[30];
@@ -33,10 +29,6 @@ std::string WSU::buildIMFDate()
 	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", tm);
 	return std::string(buffer); // Return the date as a string
 }
-void WSU::tout(String __log_message)
-{
-	std::cout << BLUE << WSU::logDate() << RESET << " " << __log_message << GREEN << "\t\t\t" << "OK" << RESET << std::endl;
-}
 void WSU::terr(char *__error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
@@ -45,21 +37,21 @@ void WSU::terr(String __error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
-void WSU::file_error(String __error_message, String __file, String __line)
-{
-	std::cerr << RED << __file << ":" << __line << ": error: " << RESET << __error_message << std::endl;
-}
 void WSU::log(String __log_message)
 {
 	std::cout << BLUE << WSU::logDate() << RESET << " " << __log_message << std::endl;
 }
+void WSU::success(String __log_message)
+{
+	std::cout << BLUE << WSU::logDate() << GREEN << " [SUCCESS] " << RESET << __log_message << std::endl;
+}
 void WSU::warn(String __log_message)
 {
-	std::cout << YELLOW << WSU::logDate() << " [WARN] " << RESET << __log_message << std::endl;
+	std::cout << BLUE << WSU::logDate() << YELLOW << " [WARN] " << RESET << __log_message << std::endl;
 }
 void WSU::error(String __log_message)
 {
-	std::cout << RED << WSU::logDate() << " [ERROR] " << RESET << __log_message << std::endl;
+	std::cout << BLUE << WSU::logDate() << RED << " [ERROR] " << RESET << __log_message << std::endl;
 }
 void WSU::trimSpaces(String &str)
 {
@@ -124,4 +116,18 @@ void WSU::setNonBlockingMode(int sd)
 	int flags = fcntl(sd, F_GETFL, 0);
 	if (flags < 0 || fcntl(sd, F_SETFL, flags | O_NONBLOCK) < 0)
 		throw std::runtime_error("fcntl syscall, failed to make a non blocking socket");
+}
+void WSU::toUpperString(std::string &input)
+{
+	for (size_t i = 0; i < input.length(); ++i)
+	{
+		input[i] = static_cast<char>(std::toupper(static_cast<unsigned char>(input[i])));
+	}
+}
+void WSU::toLowerString(std::string &input)
+{
+	for (size_t i = 0; i < input.length(); ++i)
+	{
+		input[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(input[i])));
+	}
 }

@@ -75,7 +75,7 @@ void Request::hostAndPort()
 {
 	try
 	{
-		String value = getHeaderFeildValue("Host");
+		String value = getHeaderFeildValue("lost");
 		size_t pos = value.find(":");
 		if (pos == String::npos)
 		{
@@ -98,7 +98,7 @@ void Request::contentLength()
 {
 	try
 	{
-		std::istringstream ss(getHeaderFeildValue("Content-Length"));
+		std::istringstream ss(getHeaderFeildValue("content-length"));
 		ss >> this->__contentLength;
 	}
 	catch (std::exception &e)
@@ -121,7 +121,7 @@ void Request::transferEncoding()
 {
 	try
 	{
-		String value = getHeaderFeildValue("Transfer-Encoding");
+		String value = getHeaderFeildValue("transfer-encoding");
 		if (value.find("chunked") != String::npos)
 			this->__transferEncoding = CHUNKED;
 	}
@@ -143,8 +143,8 @@ void Request::proccessHeaders(String requestHeaders)
 			if (p == String::npos)
 				throw ErrorResponse(400, "invalid Header feild");
 			String key(hf.begin(), hf.begin() + p);
+			WSU::toLowerString(key);
 			String value(hf.begin() + p + 2, hf.end());
-			// std::cout << BLUE << key << RESET << ": " << YELLOW << value << RESET << "\n";
 			if (key.empty() || String::npos != key.find_first_not_of(H_KEY_CHAR_SET))
 				throw ErrorResponse(400, "invalid Header feild");
 			this->__headerFeilds[key] = value;

@@ -457,12 +457,11 @@ void ServerManager::logServers()
 	t_Server::iterator it = ServerManager::__servers.begin();
 	for (; it != ServerManager::__servers.end(); it++)
 	{
-		WSU::tout("Server: " + (*it).second->getServerHost() + ":" + WSU::intToString((*it).second->getServerPort()));
+		WSU::success("Server: " + (*it).second->getServerHost() + ":" + WSU::intToString((*it).second->getServerPort()));
 	}
 }
 void ServerManager::checkConflicts()
 {
-	WSU::log("checking conflicts");
 	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
 	{
 		const std::vector<String> &serverNames = it->second->getServerNames();
@@ -502,8 +501,8 @@ void ServerManager::setUpWebserv()
 		setUpServers();
 		checkHosts();
 		initServers();
-		logServers();
 		checkConflicts();
+		logServers();
 		mainLoop();
 	}
 	catch (std::exception &e)
