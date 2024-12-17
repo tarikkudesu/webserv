@@ -1,5 +1,5 @@
-#ifndef ERRORRESPONSE_HPP
-# define ERRORRESPONSE_HPP
+#ifndef __ERRORRESPONSE_HPP__
+# define __ERRORRESPONSE_HPP__
 
 # include "Server.hpp"
 
@@ -18,21 +18,22 @@ class ErrorResponse
 		void								buildHeaderFeilds();
 		void								buildResponseBody();
 
+		ErrorResponse();
+
 	protected :
 		static std::map< int16_t, String >	__errCode;
 		static String						__errPage;
 
 	public:
-		ErrorResponse();
+		const String		&getResponse();
+		static	void		initErrorCodes();
+		void				constructErrorPage();
+
+
 		ErrorResponse( int code, String error );
 		ErrorResponse( const ErrorResponse &copy );
 		ErrorResponse	&operator=( const ErrorResponse &assign );
 		~ErrorResponse();
-
-		void				constructErrorPage();
-		const String		&getResponse();
-		static	void		initErrorCodes();
-		static	void		replaceString( String &original, const String toReplace, const String replacement );
 };
 
 #endif

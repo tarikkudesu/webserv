@@ -8,10 +8,11 @@
 #include <unistd.h>
 #include <string.h>
 #include <iostream>
+#include <sstream>
 
 int main()
 {
-	char *name = strdup("e1r7p7.1337.ma");
+	char *name = strdup("127.0.0.1");
 	std::cout << name << "\n";
 
 	struct addrinfo hint;
@@ -26,31 +27,33 @@ int main()
 		struct addrinfo *tmp = result;
 		while (tmp)
 		{
-			struct sockaddr_in	*add = (struct sockaddr_in *)tmp->ai_addr;
-			char	addressString[INET6_ADDRSTRLEN];
-			inet_ntop(tmp->ai_family, &(add->sin_addr), addressString, sizeof(addressString));
-			std::cout << addressString << "\n";
-			tmp = tmp->ai_next;
-			struct sockaddr_in *add = (struct sockaddr_in *)tmp->ai_addr;
-			// char addressString[INET6_ADDRSTRLEN];
-
-			// if (tmp->ai_family == AF_INET) {
-			// 	// IPv4 address
-			// 	unsigned char *bytes = (unsigned char *)&(add->sin_addr);
-			// 	std::ostringstream oss;
-			// 	oss << static_cast<int>(bytes[0]) << "."
-			// 		<< static_cast<int>(bytes[1]) << "."
-			// 		<< static_cast<int>(bytes[2]) << "."
-			// 		<< static_cast<int>(bytes[3]);
-
-			// 	std::cout << oss.str() << "\n";
-			// }
+			// struct sockaddr_in	*add = (struct sockaddr_in *)tmp->ai_addr;
+			// char	addressString[INET6_ADDRSTRLEN];
+			// inet_ntop(tmp->ai_family, &(add->sin_addr), addressString, sizeof(addressString));
+			// std::cout << addressString << "\n";
 			// tmp = tmp->ai_next;
+
+			struct sockaddr_in *add = (struct sockaddr_in *)tmp->ai_addr;
+
+			char addressString[INET6_ADDRSTRLEN];
+
+			if (tmp->ai_family == AF_INET) {
+			// 	// IPv4 address
+				unsigned char *bytes = (unsigned char *)&(add->sin_addr);
+				std::ostringstream oss;
+				oss << static_cast<int>(bytes[0]) << "."
+					<< static_cast<int>(bytes[1]) << "."
+					<< static_cast<int>(bytes[2]) << "."
+					<< static_cast<int>(bytes[3]);
+
+				std::cout << oss.str() << "\n";
+			}
+			tmp = tmp->ai_next;
 		}
+		freeaddrinfo(result);
 	}
 	else
 	{
 		std::cerr << "Error" << std::endl;
 	}
-	freeaddrinfo(result);
 }

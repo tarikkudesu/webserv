@@ -31,23 +31,20 @@ class Server
 		Server();
 
 	public:
-		Server( String &line );
-		Server( const Server &copy );
-		Server	&operator=( const Server &assign );
-		~Server();
-
 		bool							__valid;
+
+		bool							amITheServerYouAreLookingFor( const String &sN);
+		const std::vector<String>		&getServerNames() const;
+		const String					&getServerHost() const;
 		int								getServerSocket() const;
 		int								getServerPort() const;
 		void							setPort(int port);
+		String							serverIdentity();
 		std::vector< int >				&getPorts();
 		void							setup();
-		void							clean()
+
+		void							print()
 		{
-			__ports.clear();
-			__directives.clear();
-		}
-		void							print() {
 			std::cout << "Server\n";
 			std::cout << "\thost: " << __host << "\n";
 			std::cout << "\tserver_name: ";
@@ -55,11 +52,13 @@ class Server
 				std::cout << *it << " ";
 			} std::cout << "\n";
 			std::cout << "\tport: " << __port << "\n";
-			this->__rootLocation.print();
-			// for (std::vector<int>::iterator it = __ports.begin(); it != __ports.end(); it++) {
-			// 	std::cout << *it << " ";
-			// } std::cout << "\n";
 		}
+
+
+		Server( String &line );
+		Server( const Server &copy );
+		Server	&operator=( const Server &assign );
+		~Server();
 };
 
 #endif

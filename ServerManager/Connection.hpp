@@ -8,7 +8,6 @@ typedef std::map< int, Server* >			t_Server;
 class Connection
 {
 	private :
-	public:
 		int						__sd;
 		String					__buff;
 		size_t					__erase;
@@ -16,25 +15,27 @@ class Connection
 		t_Server				*__serversP;
 
 
-		void		setServers( t_Server &servers );
-		String		identifyRequestHeaders();
-		String		identifyRequestLine();
-		void		identifyRequestBody();
-		Server		&identifyServer();
-		String		identifyChunks( String &currBuff );
-
-	// public:
-		std::queue< String >	__responseQueue;
+		String					identifyChunks( String &currBuff );
+		String					identifyRequestHeaders();
+		String					identifyRequestLine();
+		void					identifyRequestBody();
+		Server					*identifyServer();
+		void					responseBuilder();
+		void					requestParser();
 
 		Connection();
+
+	public:
+		std::queue< String >	__responseQueue;
+
+		void					setServers( t_Server &servers );
+		void					proccessData( String input );
+
+
 		Connection( int sd );
 		Connection( const Connection &copy );
 		Connection	&operator=( const Connection &assign );
 		~Connection();
-
-		void		requestParser();
-		void		responseBuilder();
-		void		proccessData( String input );
 };
 
 #endif

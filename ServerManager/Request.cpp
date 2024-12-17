@@ -20,8 +20,11 @@ Request &Request::operator=(const Request &assign)
 	if (this != &assign)
 	{
 		this->__URI = assign.__URI;
+		this->__port = assign.__port;
+		this->__host = assign.__host;
 		this->__method = assign.__method;
 		this->__protocole = assign.__protocole;
+		this->__requestbody = assign.__requestbody;
 		this->__headerFeilds = assign.__headerFeilds;
 		this->__contentLength = assign.__contentLength;
 		this->__connectionType = assign.__connectionType;
@@ -33,24 +36,16 @@ Request &Request::operator=(const Request &assign)
 /****************************************************************************
  *                               MINI METHODS                               *
  ****************************************************************************/
-int16_t Request::getPort() const
-{
-	return this->__port;
-}
-String Request::getHost() const
-{
-	return this->__host;
-}
-void Request::setServer(Server &server)
-{
-	this->__server = &server;
-}
 void Request::clear()
 {
 	this->__URI.clear();
+	this->__host.clear();
 	this->__protocole.clear();
+	this->__contentLength = 0;
+	this->__requestbody.clear();
 	this->__headerFeilds.clear();
 	this->__transferEncoding = GENERAL;
+	this->__connectionType = KEEP_ALIVE;
 }
 bool Request::connectionTypeClose()
 {
@@ -65,18 +60,6 @@ String Request::getHeaderFeildValue(const String &key)
 		throw std::exception();
 	return iter->second;
 }
-size_t Request::getContentLength()
-{
-	return this->__contentLength;
-}
-t_transferEncoding Request::gettransferEncoding()
-{
-	return this->__transferEncoding;
-}
-t_connectionType Request::getconnectionType()
-{
-	return this->__connectionType;
-}
 bool Request::hasBody()
 {
 	if (this->__transferEncoding == CHUNKED)
@@ -84,10 +67,6 @@ bool Request::hasBody()
 	else if (this->__contentLength)
 		return true;
 	return false;
-}
-void Request::setBody(const String &body)
-{
-	this->__requestbody = body;
 }
 /*****************************************************************************
  *                                  METHODS                                  *
@@ -101,7 +80,7 @@ void Request::hostAndPort()
 		if (pos == String::npos)
 		{
 			this->__host = value;
-			this->__port = 80;
+			this->__port = 8080;
 		}
 		else
 		{

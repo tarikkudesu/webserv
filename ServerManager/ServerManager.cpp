@@ -141,7 +141,7 @@ void ServerManager::writeDataToSocket(int sd)
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
 	{
-		WSU::log("send " + WSU::intToString(sd) + "\n");
+		WSU::log("send " + WSU::intToString(sd));
 	}
 	else
 	{
@@ -154,7 +154,7 @@ void ServerManager::writeDataToSocket(int sd)
 		}
 		else
 		{
-			WSU::log("remove " + WSU::intToString(sd) + "\n");
+			WSU::log("remove " + WSU::intToString(sd));
 			removeConnection(sd);
 		}
 	}
@@ -174,7 +174,7 @@ void ServerManager::readDataFromSocket(int sd)
 		t_Connections::iterator iter = ServerManager::__connections.find(sd);
 		if (iter != ServerManager::__connections.end())
 		{
-			WSU::log("recv " + WSU::intToString(sd) + "\n");
+			WSU::log("recv " + WSU::intToString(sd));
 			iter->second->proccessData(String(buff));
 		}
 	}
@@ -189,7 +189,7 @@ void ServerManager::readDataFromSocket(int sd)
 		}
 		else
 		{
-			WSU::log("remove " + WSU::intToString(sd) + "\n");
+			WSU::log("remove " + WSU::intToString(sd));
 			removeConnection(sd);
 		}
 	}
@@ -201,7 +201,7 @@ void ServerManager::acceptNewConnection(int sd)
 	newSock = accept(sd, NULL, NULL);
 	if (newSock >= 0)
 	{
-		WSU::log("accept " + WSU::intToString(sd) + "\n");
+		WSU::log("accept " + WSU::intToString(sd));
 		addConnection(newSock);
 	}
 	else
@@ -283,20 +283,48 @@ void ServerManager::mainLoop()
 		WSU::terr(e.what());
 	}
 }
+void ServerManager::checkHosts()
+{
+	WSU::log("resolving hosts");
+	for (std::vector<Server *>::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
+	{
+		Server *tmp = *it;
+		if (!tmp->__valid)
+			continue;
+		const String &host = tmp->getServerHost();
+		{
+			struct addrinfo hint;
+			struct addrinfo *result;
+			memset(&hint, 0, sizeof(hint));
+			hint.ai_family = AF_INET;
+			hint.ai_socktype = SOCK_STREAM;
+			int status = getaddrinfo(host.c_str(), NULL, &hint, &result);
+			if (status != 0)
+				throw std::runtime_error("getaddrinfo: couldn't resolve server host name: " + host);
+		}
+	}
+}
 void ServerManager::initServers()
 {
 	for (std::vector<Server *>::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
 	{
 		Server *tmp = *it;
 		if (!tmp->__valid)
-			continue ;
+			continue;
 		std::vector<int> &ports = tmp->getPorts();
 		for (std::vector<int>::iterator it = ports.begin(); it != ports.end(); it++)
 		{
 			Server *newServer = new Server(*tmp);
 			newServer->setPort(*it);
-			newServer->setup();
-			ServerManager::addServer(newServer);
+			try
+			{
+				newServer->setup();
+				ServerManager::addServer(newServer);
+			}
+			catch (std::exception &e)
+			{
+				WSU::error(e.what());
+			}
 		}
 	}
 	for (std::vector<Server *>::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
@@ -308,7 +336,7 @@ void ServerManager::readFile()
 	std::fstream fS;
 	String line;
 
-	fS.open(__config);
+	fS.open(__config.c_str());
 	if (!fS.is_open())
 		throw std::runtime_error("coudln't open file");
 	do
@@ -377,18 +405,6 @@ void ServerManager::reduceSpaces()
 	this->__lines.clear();
 	this->__lines.append(result);
 }
-void ServerManager::setUpServers()
-{
-	do
-	{
-		size_t pos = this->__lines.find("{");
-		if (pos == String::npos && __lines.find_first_not_of(" \t\n\r\v\f") != String::npos)
-			throw std::runtime_error("invalid config file 4");
-		else if (pos == String::npos)
-			break;
-		setUpServer(pos);
-	} while (!this->__lines.empty());
-}
 void ServerManager::setUpServer(size_t start)
 {
 	size_t end = start + 1;
@@ -414,6 +430,18 @@ void ServerManager::setUpServer(size_t start)
 	Server *server = new Server(serverConfig);
 	__serverTemplates.push_back(server);
 }
+void ServerManager::setUpServers()
+{
+	do
+	{
+		size_t pos = this->__lines.find("{");
+		if (pos == String::npos && __lines.find_first_not_of(" \t\n\r\v\f") != String::npos)
+			throw std::runtime_error("invalid config file 4");
+		else if (pos == String::npos)
+			break;
+		setUpServer(pos);
+	} while (!this->__lines.empty());
+}
 void ServerManager::checkOuterscope(String outerScope)
 {
 	WSU::trimSpaces(outerScope);
@@ -421,6 +449,47 @@ void ServerManager::checkOuterscope(String outerScope)
 		throw std::runtime_error("invalid config file 2");
 	if (__lines.find_first_of("{}") == String::npos)
 		throw std::runtime_error("invalid config file 3");
+}
+void ServerManager::logServers()
+{
+	if (ServerManager::__servers.empty())
+		throw std::runtime_error("config file does not identify any server");
+	t_Server::iterator it = ServerManager::__servers.begin();
+	for (; it != ServerManager::__servers.end(); it++)
+	{
+		WSU::tout("Server: " + (*it).second->getServerHost() + ":" + WSU::intToString((*it).second->getServerPort()));
+	}
+}
+void ServerManager::checkConflicts()
+{
+	WSU::log("checking conflicts");
+	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
+	{
+		const std::vector<String> &serverNames = it->second->getServerNames();
+		for (std::vector<String>::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
+		{
+			for (std::vector<String>::const_iterator match = name + 1; match != serverNames.end(); match++)
+			{
+				if (*match == *name)
+					WSU::warn("conflicting server name " + *name + " on " + it->second->serverIdentity() + ", ignored");
+			}
+		}
+	}
+	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
+	{
+		for (t_Server::iterator iter = ServerManager::__servers.begin(); iter != it && iter != ServerManager::__servers.end(); iter++)
+		{
+			if (it->second->getServerPort() == iter->second->getServerPort())
+			{
+				const std::vector<String> &serverNames = it->second->getServerNames();
+				for (std::vector<String>::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
+				{
+					if (iter->second->amITheServerYouAreLookingFor(*name))
+						WSU::warn("conflicting server name " + *name + " on " + it->second->serverIdentity() + ", ignored");
+				}
+			}
+		}
+	}
 }
 void ServerManager::setUpWebserv()
 {
@@ -431,9 +500,11 @@ void ServerManager::setUpWebserv()
 		reduceSpaces();
 		checkBraces();
 		setUpServers();
+		checkHosts();
 		initServers();
-		debug();
-		// mainLoop();
+		logServers();
+		checkConflicts();
+		mainLoop();
 	}
 	catch (std::exception &e)
 	{

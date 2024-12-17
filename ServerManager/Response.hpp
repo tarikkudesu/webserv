@@ -3,17 +3,18 @@
 
 # include "Request.hpp"
 
-class Response : public ErrorResponse
+class Response
 {
 	private :
-		std::vector< String >				__Content;
-
-		// void			buildStatusLine();
-		// void			buildHeaderFeilds();
-		// void			buildResponseBody();
+		Request				&__request;
+		Server				&__server;
 
 	public:
-		Response();
+
+		void	build();
+
+
+		Response( Request &request, Server &server );
 		Response( const Response &copy );
 		Response	&operator=( const Response &assign );
 		~Response();

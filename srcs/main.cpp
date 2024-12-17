@@ -13,10 +13,8 @@ void f()
 	dup2(fd, STDERR_FILENO);
 	close(fd);
 	// system("lsof -c webserv");
-	// system("valgrind --leak-check=full --track-fds=yes ./webserv");
 	std::cout << "\n********************************************************************\n";
 	std::cout << "********************************************************************\n\n";
-	// system("valgrind --leak-check=full --show-leak-kinds=all ./webserv");
 	// system("leaks -list webserv");
 }
 
@@ -116,6 +114,11 @@ int main(int ac, char **av)
 		config = *(av + 1);
 	else if (ac == 1)
 		config = "conf/webserv_default.conf";
+	else
+	{
+		WSU::terr(String("Usage: ./webserv file_path"));
+		return 1;
+	}
 	ServerManager webserv(config);
 	webserv.setUpWebserv();
 	return 0;

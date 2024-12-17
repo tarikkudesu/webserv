@@ -71,17 +71,18 @@ configuration file:
 Implemented Methods GET, HEAD, POST, DELETE
 
 ServerManager :
-	__configFile;
+	__lines
+	__config;
 	__sockNum;
 	__sockets;
 	__servers;
 	__connections;
+	__serverTemplates
 
-	proccessPollEvent()		✅
-	acceptNewConnection()	✅
-	readDataFromSocket()	✅
 	writeDataToSocket()		✅
-
+	readDataFromSocket()	✅
+	acceptNewConnection()	✅
+	proccessPollEvent()		✅
 	isServerSocket()		✅
 	removeSocket()			✅
 	addSocket()				✅
@@ -89,18 +90,28 @@ ServerManager :
 	addConnection()			✅
 	removeServer()			✅
 	addServer()				✅
-
-	setUpWebserv()			❌
 	mainLoop()				✅
 
-												single object throught the entire program,
-												it will implement the core of the web server,
-												the parent of all other objects.
+	initServers()			✅
+	checkOuterscope()		✅
+	setUpServer()			✅
+	setUpServers()			✅
+	reduceSpaces()			✅
+	checkBraces()			✅
+	firstCheck()			✅
+	readFile()				✅
+
+	setUpWebserv()			✅
+
 Server :
-	__sd;
-	__port;
-	__serverName;
-	__serverDown;
+		__sd;
+		__port;
+		__line;
+		__host;
+		__ports;
+		__directives;
+		__serverNames;
+		__rootLocation;
 
 	setup()					✅
 	getServerPort()			✅

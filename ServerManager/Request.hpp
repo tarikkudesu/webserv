@@ -6,46 +6,36 @@
 class Request
 {
 	private:
+		void							clear();
+		void							hostAndPort();
+		void							contentLength();
+		void							connectionType();
+		void							transferEncoding();
+		String							getHeaderFeildValue( const String &key );
+		void							proccessHeaders( String requestHeaders );
+		void							proccessRequestLine( const String &requestLine );
+
+	public:
 		String							__URI;
-		int16_t							__port;
 		String							__host;
+		int								__port;
 		t_method						__method;
 		String							__protocole;
-		Server							*__server;
 		std::map< String, String >		__headerFeilds;
 		t_transferEncoding				__transferEncoding;
 		t_connectionType				__connectionType;
 		size_t							__contentLength;
 		String							__requestbody;
 
+		bool							hasBody();
+		bool							connectionTypeClose();
+		void							parseRequest( const String &requestLine, const String &requestHeaders );
 
-		void					clear();
-		void					hostAndPort();
-		void					contentLength();
-		void					connectionType();
-		void					transferEncoding();
 
-		String					getHeaderFeildValue( const String &key );
-		void					proccessHeaders( String requestHeaders );
-		void					proccessRequestLine( const String &requestLine );
-
-	public:
-		Request(void);
+		Request();
 		Request( const Request &copy );
 		Request& operator=( const Request &assign );
 		~Request();
-
-		int16_t					getPort() const;
-		String					getHost() const;
-		void					setServer( Server &server );
-
-		bool					hasBody();
-		void					setBody( const String &body );
-		size_t					getContentLength();
-		t_connectionType		getconnectionType();
-		t_transferEncoding		gettransferEncoding();
-		bool					connectionTypeClose();
-		void					parseRequest( const String &requestLine, const String &requestHeaders );
 };
 
 #endif

@@ -11,7 +11,6 @@ WSU &WSU::operator=(const WSU &assign)
 	(void)assign;
 	return *this;
 }
-
 std::string WSU::logDate()
 {
 	char buffer[30];
@@ -21,12 +20,10 @@ std::string WSU::logDate()
 	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
 	return std::string(buffer); // Return the date as a string
 }
-
 void WSU::accessLog(String info)
 {
 	std::cout << BLUE << WSU::logDate() << RESET << " " << info << "\n";
 }
-
 std::string WSU::buildIMFDate()
 {
 	char buffer[30];
@@ -36,49 +33,38 @@ std::string WSU::buildIMFDate()
 	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", tm);
 	return std::string(buffer); // Return the date as a string
 }
-
 void WSU::tout(String __log_message)
 {
-	std::cout << __log_message << GREEN << "\t\t\t" << "OK" << RESET << std::endl;
+	std::cout << BLUE << WSU::logDate() << RESET << " " << __log_message << GREEN << "\t\t\t" << "OK" << RESET << std::endl;
 }
-
 void WSU::terr(char *__error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
-
 void WSU::terr(String __error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
-
 void WSU::file_error(String __error_message, String __file, String __line)
 {
 	std::cerr << RED << __file << ":" << __line << ": error: " << RESET << __error_message << std::endl;
 }
-
-void WSU::l1()
-{
-	std::cout << BLUE << WSU::logDate() << RESET << " ";
-}
-void WSU::l1(String s)
-{
-	std::cout << " " << s;
-}
-void WSU::l1(int i)
-{
-	std::cout << " " << i;
-}
-
 void WSU::log(String __log_message)
 {
 	std::cout << BLUE << WSU::logDate() << RESET << " " << __log_message << std::endl;
 }
-
+void WSU::warn(String __log_message)
+{
+	std::cout << YELLOW << WSU::logDate() << " [WARN] " << RESET << __log_message << std::endl;
+}
+void WSU::error(String __log_message)
+{
+	std::cout << RED << WSU::logDate() << " [ERROR] " << RESET << __log_message << std::endl;
+}
 void WSU::trimSpaces(String &str)
 {
 	if (str.empty())
-		return ;
+		return;
 	size_t start = 0;
 	size_t end = str.length() - 1;
 	while (start <= end && std::isspace(str[start]))
@@ -90,7 +76,6 @@ void WSU::trimSpaces(String &str)
 	else
 		str = str.substr(start, end - start + 1);
 }
-
 std::vector<std::string> WSU::splitBySpaces(const std::string &input)
 {
 	std::istringstream iss(input);
@@ -104,14 +89,12 @@ std::vector<std::string> WSU::splitBySpaces(const std::string &input)
 
 	return result;
 }
-
 std::string WSU::intToString(int number)
 {
 	std::ostringstream oss;
 	oss << number;
 	return oss.str();
 }
-
 int WSU::stringToInt(const std::string &str)
 {
 	std::istringstream iss(str);
@@ -119,7 +102,14 @@ int WSU::stringToInt(const std::string &str)
 	iss >> number;
 	return number;
 }
-
+int WSU::hexToInt(const std::string &str)
+{
+	int number = 0;
+	std::stringstream ss;
+	ss << std::hex << str;
+	ss >> number;
+	return number;
+}
 void WSU::replaceString(String &original, const String toReplace, const String replacement)
 {
 	size_t pos = 0;
@@ -129,7 +119,6 @@ void WSU::replaceString(String &original, const String toReplace, const String r
 		pos += replacement.length();
 	}
 }
-
 void WSU::setNonBlockingMode(int sd)
 {
 	int flags = fcntl(sd, F_GETFL, 0);

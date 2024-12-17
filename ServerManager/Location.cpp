@@ -32,16 +32,17 @@ Location &Location::operator=(const Location &assign)
 		__dirListing = assign.__dirListing;
 		__directives = assign.__directives;
 		__errorPages = assign.__errorPages;
-		__subLocations = assign.__subLocations;
 		__allowMethods = assign.__allowMethods;
+		for (std::map<String, Location *>::const_iterator it = assign.__subLocations.begin(); it != assign.__subLocations.end(); it++)
+		{
+			String first = it->first;
+			Location *second = new Location(*it->second);
+			__subLocations.insert(std::make_pair(first, second));
+		}
 	}
 	return *this;
 }
 Location::~Location()
-{
-	this->clean();
-}
-void Location::clean()
 {
 	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
 		delete it->second;
@@ -136,8 +137,8 @@ void Location::addDirective(size_t end)
 	if (directive.empty())
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
-	WSU::log(directive);
 	this->__line.erase(0, end + 1);
+	WSU::log(directive);
 }
 void Location::proccessToken(std::vector<String> &tokens)
 {

@@ -4,30 +4,33 @@ Connection::Connection() : __sd(-1),
 						   __erase(0),
 						   __serversP(NULL)
 {
-	(void)__sd;
-	// std::cout << __sd << " default constructor\n";
+	WSU::error("Connection constructor");
 }
 
 Connection::Connection(int sd) : __sd(sd),
 								 __erase(0),
 								 __serversP(NULL)
 {
-	// std::cout << __sd << " parameterized constructor\n";
 }
 
 Connection::Connection(const Connection &copy)
 {
-	(void)copy;
+	WSU::error("Connection copy constructor");
+	*this = copy;
 }
 
 Connection::~Connection()
 {
-	// std::cout << __sd << " destructor called\n";
 }
 
 Connection &Connection::operator=(const Connection &assign)
 {
-	(void)assign;
+	WSU::error("Connection copy assignement operator");
+	if (this != &assign)
+	{
+		__sd = assign.__sd;
+		__serversP = assign.__serversP;
+	}
 	return *this;
 }
 
@@ -48,13 +51,7 @@ String Connection::identifyChunks(String &currBuff)
 		size_t pos = currBuff.find("\r\n");
 		if (pos == String::npos)
 			throw std::exception();
-		size_t contentLen = 0;
-		{
-			std::stringstream ss;
-			String hex(currBuff.begin(), currBuff.begin() + pos);
-			ss << std::hex << hex;
-			ss >> contentLen;
-		}
+		size_t contentLen = WSU::hexToInt(String(currBuff.begin(), currBuff.begin() + pos));
 		currBuff.erase(0, pos + 2);
 		this->__erase += pos + 2;
 		if (contentLen == 0)
@@ -82,19 +79,19 @@ void Connection::identifyRequestBody()
 	{
 		String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
 		String body;
-		if (this->__request.gettransferEncoding() == CHUNKED)
+		if (this->__request.__transferEncoding == CHUNKED)
 		{
 			body = identifyChunks(currBuff);
 		}
 		else
 		{
-			size_t contentLen = this->__request.getContentLength();
+			size_t contentLen = this->__request.__contentLength;
 			if (currBuff.length() <= contentLen)
 				throw std::exception();
 			body = String(currBuff.begin(), currBuff.begin() + contentLen);
 			this->__erase += contentLen;
 		}
-		this->__request.setBody(body);
+		this->__request.__requestbody = body;
 		std::cout << MAGENTA << body << RESET << "\n";
 	}
 }
@@ -120,91 +117,70 @@ String Connection::identifyRequestLine()
 		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
 	return requestLine;
 }
-Server &Connection::identifyServer()
-{
-	t_Server tmpMap;
-	int id = 0;
-	int16_t port = this->__request.getPort();
-	String host = this->__request.getHost();
-	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
-	{
-		if (it->second->getServerPort() == port)
-		{
-			tmpMap[id] = it->second;
-			id++;
-		}
-	}
-	if (tmpMap.size() == 1)
-		return *tmpMap.begin()->second;
-	for (t_Server::iterator it = tmpMap.begin(); it != tmpMap.end(); it++)
-	{
-
-		// std::cout << it->second->getServerName() << "\n";
-	}
-	return *this->__serversP->begin()->second;
-}
 void Connection::requestParser()
 {
 	String requestLine = identifyRequestLine();
-	WSU::l1();
-	WSU::l1(requestLine);
-	WSU::l1("\n");
 	String requestHeaders = identifyRequestHeaders();
+	WSU::log(requestLine);
 	this->__request.parseRequest(requestLine, requestHeaders);
-	WSU::l1();
-	WSU::l1("identify Body");
-	WSU::l1("\n");
+	WSU::log("identify Body");
 	identifyRequestBody();
 	this->__buff.erase(0, this->__erase);
-	WSU::l1();
-	WSU::l1("request proccessing complete");
-	WSU::l1("\n");
-	WSU::l1();
-	WSU::l1("identifying server to respond");
-	WSU::l1("\n");
-	this->__request.setServer(identifyServer());
 	this->__erase = 0;
+	WSU::log("request proccessing complete");
+}
+Server *Connection::identifyServer()
+{
+	WSU::log("identifying server to respond");
+	std::vector<Server *> tmpMapP;
+	std::vector<Server *> tmpMapH;
+	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
+	{
+		if (it->second->getServerPort() == this->__request.__port)
+			tmpMapP.push_back(it->second);
+	}
+	for (std::vector<Server *>::iterator it = tmpMapP.begin(); it != tmpMapP.end(); it++)
+	{
+		if ((*it)->amITheServerYouAreLookingFor(this->__request.__host) == false)
+			tmpMapH.push_back(*it);
+	}
+	if (tmpMapH.empty())
+		return this->__serversP->begin()->second;
+	return tmpMapH.at(0);
 }
 void Connection::responseBuilder()
 {
+	Server *server = identifyServer();
+	Response res(this->__request, *server);
 }
 
 void Connection::proccessData(String input)
 {
+	WSU::log("request proccessing");
 	this->__buff += input;
 	try
 	{
-		WSU::l1();
-		WSU::l1("request proccessing");
-		WSU::l1("\n");
 		requestParser();
 		responseBuilder();
-		WSU::l1();
-		WSU::l1("response building");
-		WSU::l1("\n");
+		WSU::log("response building");
 		const char *response = "HTTP/1.1 200 OK\n"
 							   "Content-Type: text/html\n"
 							   "Content-Length: 17\n"
 							   "Connection: keep-alive\r\n\r\n"
 							   "<h1>Webserv</h1>\n";
 		this->__responseQueue.push(String(response));
-		WSU::l1();
-		WSU::l1("response proccessed");
-		WSU::l1("\n");
+		WSU::log("response proccessed");
 	}
 	catch (ErrorResponse &e)
 	{
-		WSU::l1();
-		WSU::l1("response is an error page");
-		WSU::l1("\n");
+		WSU::log("response is an error page");
 		this->__responseQueue.push(e.getResponse());
 	}
 	catch (std::exception &e)
 	{
-		WSU::terr(e.what());
-		WSU::l1();
-		WSU::l1("request not complete");
-		WSU::l1("\n");
+		WSU::log("continue");
 		this->__erase = 0;
 	}
 }
+
+// WSU::log(RED "+++++++++++++++++++ debug +++++++++++++++++++" RESET);

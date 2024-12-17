@@ -12,25 +12,24 @@ Server::Server(String &line) : __sd(-1),
 							   __clientBodyBufferSize(8000),
 							   b__clientBodyBufferSize(false),
 							   b__host(false),
-							__valid(false)
+							   __valid(false)
 {
+	// WSU::log("Server para constructor");
 	parse();
-	WSU::log("Server para constructor");
 }
 Server::Server(const Server &copy)
 {
-	WSU::log("Server copy constructor");
+	// WSU::log("Server copy constructor");
 	*this = copy;
 }
 
 Server::~Server()
 {
-	WSU::log("Server destructor");
+	// WSU::log("Server destructor");
 }
 
 Server &Server::operator=(const Server &assign)
 {
-	WSU::log("Server copy assignement constructor");
 	if (this != &assign)
 	{
 		__sd = assign.__sd;
@@ -68,6 +67,27 @@ std::vector<int> &Server::getPorts()
 {
 	return this->__ports;
 }
+const String &Server::getServerHost() const
+{
+	return this->__host;
+}
+const std::vector<String> &Server::getServerNames() const
+{
+	return this->__serverNames;
+}
+bool Server::amITheServerYouAreLookingFor(const String &sN)
+{
+	for (std::vector<String>::iterator it = __serverNames.begin(); it != __serverNames.end(); it++)
+	{
+		if (*it == sN)
+			return true;
+	}
+	return false;
+}
+String Server::serverIdentity()
+{
+	return String(__host + ":" + WSU::intToString(__port));
+}
 /***********************************************************************
  *                               METHODS                               *
  ***********************************************************************/
@@ -80,18 +100,32 @@ void Server::setup()
 
 	this->__sd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->__sd == -1)
-		throw std::runtime_error("socket syscall, failed to create socket");
+		throw std::runtime_error(serverIdentity() + ": non functional: failed to create socket ");
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEADDR, (void *)&ra, sizeof(ra)))
-		throw std::runtime_error("socket setsockopt, failed to make reusable address");
+		throw std::runtime_error(serverIdentity() + ": non functional: failed to make reusable address");
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEPORT, (void *)&rp, sizeof(rp)))
-		throw std::runtime_error("socket setsockopt, failed to make reusable port");
+		throw std::runtime_error(serverIdentity() + ": non functional: failed to make reusable port");
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = INADDR_ANY;
+	{
+		struct addrinfo hint;
+		struct addrinfo *result;
+		memset(&hint, 0, sizeof(hint));
+		hint.ai_family = AF_INET;
+		hint.ai_socktype = SOCK_STREAM;
+		int status = getaddrinfo(this->__host.c_str(), NULL, &hint, &result);
+		if (status == 0)
+		{
+			struct sockaddr_in *add = (struct sockaddr_in *)result->ai_addr;
+			addr.sin_addr.s_addr = add->sin_addr.s_addr;
+		}
+		else
+			throw std::runtime_error(serverIdentity() + ": non functional: couldn't resolve server host name: " + this->__host);
+	}
 	addr.sin_port = htons(this->__port);
 	if (-1 == bind(this->__sd, (struct sockaddr *)&addr, sizeof(addr)))
-		throw std::runtime_error("bind syscall, failed to bind socket");
+		throw std::runtime_error(serverIdentity() + ": non functional: failed to bind socket");
 	if (-1 == listen(this->__sd, 3))
-		throw std::runtime_error("listen syscall, failed to listen for connections");
+		throw std::runtime_error(serverIdentity() + ": non functional: failed to listen for connections");
 }
 
 /**********************************************************************

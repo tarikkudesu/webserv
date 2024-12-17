@@ -1,12 +1,13 @@
 #include "Response.hpp"
 
-Response::Response()
+Response::Response(Request &request, Server &server) : __request(request), __server(server)
 {
+	build();
 }
 
-Response::Response(const Response &copy)
+Response::Response(const Response &copy) : __request(copy.__request), __server(copy.__server)
 {
-	(void)copy;
+	*this = copy;
 }
 
 Response::~Response()
@@ -15,10 +16,19 @@ Response::~Response()
 
 Response &Response::operator=(const Response &assign)
 {
-	(void)assign;
+	if (this != &assign)
+	{
+		this->__request = assign.__request;
+		this->__server = assign.__server;
+	}
 	return *this;
 }
 
 /***********************************************************************
  *                               METHODS                               *
  ***********************************************************************/
+
+void Response::build()
+{
+
+}
