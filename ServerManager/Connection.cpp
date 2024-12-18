@@ -123,15 +123,15 @@ void Connection::requestParser()
 	String requestHeaders = identifyRequestHeaders();
 	WSU::log(requestLine);
 	this->__request.parseRequest(requestLine, requestHeaders);
-	WSU::log("identify Body");
 	identifyRequestBody();
 	this->__buff.erase(0, this->__erase);
 	this->__erase = 0;
-	WSU::log("request proccessing complete");
+	if (WSU::__criticalOverLoad == true)
+		throw ErrorResponse(503, "critical server overload");
 }
 Server *Connection::identifyServer()
 {
-	WSU::log("identifying server to respond");
+	// WSU::log("identifying server to respond");
 	std::vector<Server *> tmpMapP;
 	std::vector<Server *> tmpMapH;
 	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)

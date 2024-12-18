@@ -1,6 +1,7 @@
 #include "Location.hpp"
 
-Location::Location() : __root("/"),
+Location::Location() : __r(true),
+					   __root("/"),
 					   __index("index.html"),
 					   __dirListing(false)
 {
@@ -9,7 +10,8 @@ Location::Location() : __root("/"),
 	this->__allowMethods.push_back(POST);
 	addErrPages();
 }
-Location::Location(String dir) : __root(dir),
+Location::Location(String dir) : __r(false),
+								 __root(dir),
 								 __index("index.html"),
 								 __dirListing(false)
 {
@@ -45,7 +47,9 @@ Location &Location::operator=(const Location &assign)
 Location::~Location()
 {
 	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
+	{
 		delete it->second;
+	}
 	__subLocations.clear();
 }
 /****************************************************************************
@@ -106,7 +110,7 @@ void Location::addLocationBlock(size_t pos)
 	String outer = String(__line.begin(), __line.begin() + pos);
 	std::vector<String> tokens = WSU::splitBySpaces(outer);
 	WSU::trimSpaces(outer);
-	WSU::log(outer);
+	WSU::log("location: " + outer);
 	if (tokens.size() != 2)
 		throw std::runtime_error("location block error");
 	if (tokens.at(0) != "location")
@@ -138,7 +142,7 @@ void Location::addDirective(size_t end)
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
 	this->__line.erase(0, end + 1);
-	WSU::log(directive);
+	WSU::log("directive: " + directive);
 }
 void Location::proccessToken(std::vector<String> &tokens)
 {
@@ -153,6 +157,13 @@ void Location::proccessToken(std::vector<String> &tokens)
 		key != "allow_methods" &&
 		key != "client_body_buffer_size")
 		throw std::runtime_error(key + ": unknown directive");
+	if (__r == false &&
+		key != "root" &&
+		key != "index" &&
+		key != "autoindex" &&
+		key != "error_page" &&
+		key != "allow_methods")
+		throw std::runtime_error(key + ": invalid context");
 }
 void Location::proccessDirectives()
 {

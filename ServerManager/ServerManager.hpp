@@ -28,7 +28,7 @@ class ServerManager
 		void						writeDataToSocket( int sd );
 		void						readDataFromSocket( int sd );
 		void						acceptNewConnection( int sd );
-		void						proccessPollEvent( int retV );
+		void						proccessPollEvent( int sd );
 		void						mainLoop();
 
 /*************************************************************************

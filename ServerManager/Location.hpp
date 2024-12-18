@@ -6,6 +6,7 @@
 class Location
 {
 	private :
+		bool								__r;
 		String								__line;
 		String								__root;
 		String								__index;
@@ -22,13 +23,14 @@ class Location
 		void								parseDirectives();
 		void								addErrPages();
 
+		Location( String dir );
+
 	public:
 
 		void		parseLocation( String conf );
 
 
 		Location();
-		Location( String dir );
 		Location( const Location &copy );
 		Location	&operator=( const Location &assign );
 		~Location();

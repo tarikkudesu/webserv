@@ -12,6 +12,9 @@ class WSU
 		~WSU();
 
 	public:
+		static bool								__criticalOverLoad;
+		static int								__exit;
+
 		static std::string						logDate();
 		static std::string						buildIMFDate();
 		static void								log( String __log_message );
@@ -19,6 +22,8 @@ class WSU
 		static void								error( String __log_message );
 		static void								terr( char *__error_message );
 		static void								terr( String __error_message );
+		static void								debug( String __log_message );
+		static void								running( String __log_message );
 		static void								success( String __log_message );
 
 		static void								trimSpaces( String &str );

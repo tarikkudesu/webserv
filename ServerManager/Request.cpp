@@ -75,7 +75,7 @@ void Request::hostAndPort()
 {
 	try
 	{
-		String value = getHeaderFeildValue("lost");
+		String value = getHeaderFeildValue("host");
 		size_t pos = value.find(":");
 		if (pos == String::npos)
 		{

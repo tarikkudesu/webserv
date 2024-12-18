@@ -14,7 +14,6 @@ Server::Server(String &line) : __sd(-1),
 							   b__host(false),
 							   __valid(false)
 {
-	// WSU::log("Server para constructor");
 	parse();
 }
 Server::Server(const Server &copy)
@@ -25,7 +24,6 @@ Server::Server(const Server &copy)
 
 Server::~Server()
 {
-	// WSU::log("Server destructor");
 }
 
 Server &Server::operator=(const Server &assign)
@@ -255,7 +253,7 @@ void Server::addDirective(size_t end)
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
 	this->__line.erase(0, end + 1);
-	WSU::log(directive);
+	WSU::log("directive: " + directive);
 }
 void Server::parseDirectives()
 {
