@@ -131,15 +131,15 @@ void Connection::requestParser()
 }
 Server *Connection::identifyServer()
 {
-	// WSU::log("identifying server to respond");
-	std::vector<Server *> tmpMapP;
-	std::vector<Server *> tmpMapH;
+	WSU::log("identifying server to respond");
+	t_serVect tmpMapP;
+	t_serVect tmpMapH;
 	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
 	{
 		if (it->second->getServerPort() == this->__request.__port)
 			tmpMapP.push_back(it->second);
 	}
-	for (std::vector<Server *>::iterator it = tmpMapP.begin(); it != tmpMapP.end(); it++)
+	for (t_serVect::iterator it = tmpMapP.begin(); it != tmpMapP.end(); it++)
 	{
 		if ((*it)->amITheServerYouAreLookingFor(this->__request.__host) == false)
 			tmpMapH.push_back(*it);
@@ -162,7 +162,6 @@ void Connection::proccessData(String input)
 	{
 		requestParser();
 		responseBuilder();
-		WSU::log("response building");
 		const char *response = "HTTP/1.1 200 OK\n"
 							   "Content-Type: text/html\n"
 							   "Content-Length: 17\n"

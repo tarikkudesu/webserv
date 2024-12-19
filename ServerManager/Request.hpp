@@ -20,10 +20,12 @@ class Request
 		String							__host;
 		int								__port;
 		t_method						__method;
+		t_strVect						__URIpath;
 		String							__protocole;
 		std::map< String, String >		__headerFeilds;
 		t_transferEncoding				__transferEncoding;
 		t_connectionType				__connectionType;
+		t_strVect						__queryVariables;
 		size_t							__contentLength;
 		String							__requestbody;
 

@@ -13,10 +13,6 @@ WSU &WSU::operator=(const WSU &assign)
 }
 
 bool WSU::__criticalOverLoad = false;
-int WSU::__memory = 0;
-int WSU::__l = 0;
-int WSU::__s = 0;
-int WSU::__c = 0;
 
 std::string WSU::logDate()
 {
@@ -41,59 +37,41 @@ std::string WSU::buildIMFDate()
  ************************************************************************************************/
 void WSU::debug(String __log_message)
 {
-	if (__log_message.find("allocated") != String::npos)
-	{
-		if (__log_message.find("location") != String::npos)
-			WSU::__l++;
-		if (__log_message.find("server") != String::npos)
-			WSU::__s++;
-		if (__log_message.find("connection") != String::npos)
-			WSU::__c++;
-	}
-	else if (__log_message.find("freed") != String::npos)
-	{
-		if (__log_message.find("location") != String::npos)
-			WSU::__l--;
-		if (__log_message.find("server") != String::npos)
-			WSU::__s--;
-		if (__log_message.find("connection") != String::npos)
-			WSU::__c--;
-	}
 	std::cout << BLUE << WSU::logDate() << MAGENTA << " [DEBUG] " << RESET << __log_message << std::endl;
 	return;
 }
 void WSU::terr(char *__error_message)
 {
-	std::cerr << BLUE << WSU::logDate() << RED << " [error] " << RESET << __error_message << std::endl;
+	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
 void WSU::terr(String __error_message)
 {
-	std::cerr << BLUE << WSU::logDate() << RED << " [error] " << RESET << __error_message << std::endl;
+	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
 void WSU::log(String __log_message)
 {
-	return;
 	std::cout << BLUE << WSU::logDate() << RESET << " " << __log_message << std::endl;
+	return;
 }
 void WSU::success(String __log_message)
 {
-	return;
 	std::cout << BLUE << WSU::logDate() << GREEN << " [SUCCESS] " << RESET << __log_message << std::endl;
+	return;
 }
 void WSU::running(String __log_message)
 {
-	return;
 	std::cout << BLUE << WSU::logDate() << GREEN << " [RUNNING] " << RESET << __log_message << std::endl;
+	return;
 }
 void WSU::warn(String __log_message)
 {
-	return;
 	std::cout << BLUE << WSU::logDate() << YELLOW << " [WARN] " << RESET << __log_message << std::endl;
+	return;
 }
 void WSU::error(String __log_message)
 {
-	return;
 	std::cout << BLUE << WSU::logDate() << RED << " [ERROR] " << RESET << __log_message << std::endl;
+	return;
 }
 /*************************************************************************************************
  *                                           UTILITIES                                           *
@@ -120,6 +98,24 @@ std::vector<std::string> WSU::splitBySpaces(const std::string &input)
 	std::vector<std::string> result;
 	while (iss >> word)
 		result.push_back(word);
+	return result;
+}
+std::vector<std::string> WSU::splitByChar(const std::string &input, char del)
+{
+	std::vector<std::string> result;
+	std::string temp;
+	for (size_t i = 0; i < input.size(); ++i)
+	{
+		if (input[i] == del)
+		{
+			result.push_back(temp);
+			temp.clear();
+		}
+		else
+			temp += input[i];
+	}
+	if (!temp.empty())
+		result.push_back(temp);
 	return result;
 }
 std::string WSU::intToString(int number)

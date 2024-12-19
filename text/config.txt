@@ -36,14 +36,14 @@
 ### index:
     - context: location
     - syntax: index file
-    - multiple directives: no
+    - multiple directives: yes
     - default: index.html
     - required: no
 
 ### allow_methods:
     - context: location
     - syntax: allow_methods METHOD METHOD METHOD
-    - multiple directives: no
+    - multiple directives: yes
     - default: GET POST DELETE
     - required: no
 

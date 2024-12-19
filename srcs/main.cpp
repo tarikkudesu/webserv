@@ -22,7 +22,7 @@ void signalHandler(int signal)
 {
 	if (signal == SIGINT)
 	{
-		std::cout << "\nleaks:\n\tlocation: " + WSU::intToString(WSU::__l) + "\n\tserver: " + WSU::intToString(WSU::__s) + "\n\tconnection: " + WSU::intToString(WSU::__c) + "\n" << "exiting\n";
+		std::cout << "exiting\n";
 		exit(0);
 	}
 	WSU::terr(String("SIGPIPE"));

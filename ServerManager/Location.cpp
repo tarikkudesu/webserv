@@ -1,23 +1,31 @@
 #include "Location.hpp"
 
-Location::Location() : __r(true),
+Location::Location() : b__r(true),
+					   b__root(false),
+					   b__index(false),
+					   b__autoindex(false),
+					   b__allowMethods(false),
 					   __root("/"),
-					   __index("index.html"),
-					   __dirListing(false)
+					   __autoindex(false)
 {
 	this->__allowMethods.push_back(GET);
 	this->__allowMethods.push_back(DELETE);
 	this->__allowMethods.push_back(POST);
+	this->__index.push_back("index.html");
 	addErrPages();
 }
-Location::Location(String dir) : __r(false),
+Location::Location(String dir) : b__r(false),
+								 b__root(false),
+								 b__index(false),
+								 b__autoindex(false),
+								 b__allowMethods(false),
 								 __root(dir),
-								 __index("index.html"),
-								 __dirListing(false)
+								 __autoindex(false)
 {
 	this->__allowMethods.push_back(GET);
 	this->__allowMethods.push_back(DELETE);
 	this->__allowMethods.push_back(POST);
+	this->__index.push_back("index.html");
 	addErrPages();
 }
 Location::Location(const Location &copy)
@@ -28,10 +36,11 @@ Location &Location::operator=(const Location &assign)
 {
 	if (this != &assign)
 	{
+		b__r = assign.b__r;
 		__line = assign.__line;
 		__root = assign.__root;
 		__index = assign.__index;
-		__dirListing = assign.__dirListing;
+		__autoindex = assign.__autoindex;
 		__directives = assign.__directives;
 		__errorPages = assign.__errorPages;
 		__allowMethods = assign.__allowMethods;
@@ -57,15 +66,6 @@ Location::~Location()
  ****************************************************************************/
 void Location::addErrPages()
 {
-	__errorPages.insert(std::make_pair(100, "./Content/100.html"));
-	__errorPages.insert(std::make_pair(101, "./Content/101.html"));
-	__errorPages.insert(std::make_pair(200, "./Content/200.html"));
-	__errorPages.insert(std::make_pair(201, "./Content/201.html"));
-	__errorPages.insert(std::make_pair(202, "./Content/202.html"));
-	__errorPages.insert(std::make_pair(203, "./Content/203.html"));
-	__errorPages.insert(std::make_pair(204, "./Content/204.html"));
-	__errorPages.insert(std::make_pair(205, "./Content/205.html"));
-	__errorPages.insert(std::make_pair(206, "./Content/206.html"));
 	__errorPages.insert(std::make_pair(300, "./Content/300.html"));
 	__errorPages.insert(std::make_pair(301, "./Content/301.html"));
 	__errorPages.insert(std::make_pair(302, "./Content/302.html"));
@@ -102,13 +102,17 @@ void Location::addErrPages()
  *                                  METHODS                                  *
  *****************************************************************************/
 
+void Location::rootPath()
+{
+	this->__rootPath = WSU::splitByChar(this->__root, '/');
+}
 void Location::addLocationBlock(size_t pos)
 {
 	size_t end = pos + 1;
 	size_t tracker = 1;
 
 	String outer = String(__line.begin(), __line.begin() + pos);
-	std::vector<String> tokens = WSU::splitBySpaces(outer);
+	t_strVect tokens = WSU::splitBySpaces(outer);
 	WSU::trimSpaces(outer);
 	WSU::log("location: " + outer);
 	if (tokens.size() != 2)
@@ -130,9 +134,20 @@ void Location::addLocationBlock(size_t pos)
 	String locationBlock(this->__line.begin() + pos, this->__line.begin() + end);
 	WSU::trimSpaces(locationBlock);
 	this->__line.erase(0, end);
-	Location *loc = new Location(tokens.at(1));
-	loc->parseLocation(locationBlock);
-	this->__subLocations.insert(std::make_pair(tokens.at(1), loc));
+	/********************************************************************
+	 * HANDLE DUPLICATE LOCATIONS AND OUTER LOCATIONS INSIDE A LOCATION *
+	 ********************************************************************/
+	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
+	{
+	}
+	if (tokens.at(1) == "/")
+		this->parseLocation(locationBlock);
+	else
+	{
+		Location *loc = new Location(tokens.at(1));
+		loc->parseLocation(locationBlock);
+		this->__subLocations.insert(std::make_pair(tokens.at(1), loc));
+	}
 }
 void Location::addDirective(size_t end)
 {
@@ -144,7 +159,77 @@ void Location::addDirective(size_t end)
 	this->__line.erase(0, end + 1);
 	WSU::log("directive: " + directive);
 }
-void Location::proccessToken(std::vector<String> &tokens)
+void Location::rootDirective(t_strVect &tokens)
+{
+	if (b__root == true)
+		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
+	b__root = true;
+	if (tokens.size() != 2)
+		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
+	this->__root = tokens.at(1);
+}
+void Location::indexDirective(t_strVect &tokens)
+{
+	if (b__index == false)
+		this->__index.clear();
+	b__index = true;
+	for (t_strVect::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
+		this->__index.push_back(*it);
+}
+void Location::autoindexDirective(t_strVect &tokens)
+{
+	if (b__autoindex == true)
+		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
+	b__autoindex = true;
+	if (tokens.size() != 2)
+		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
+	if (tokens.at(1) == "on")
+		this->__autoindex = true;
+	else if (tokens.at(1) != "off")
+		throw std::runtime_error(tokens.at(0) + " invalid value, it must be \"on\" or \"off\"");
+}
+void Location::errorPageDirective(t_strVect &tokens)
+{
+	if (tokens.size() <= 2)
+		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
+	for (t_strVect::iterator it = tokens.begin() + 1; it != tokens.end() && it != tokens.end() - 1; it++)
+	{
+		if (it->find_first_not_of("0123456789") != String::npos)
+			throw std::runtime_error(*it + " invalid value");
+		int code = WSU::stringToInt(*it);
+		if (code < 300 || code > 599)
+			throw std::runtime_error(tokens.at(0) + " value \"" + *it + "\" must be between 300 and 599");
+		this->__errorPages[code] = *(tokens.end() - 1);
+	}
+}
+void Location::allowMethodsDirective(t_strVect &tokens)
+{
+	if (b__allowMethods == false)
+		this->__allowMethods.clear();
+	b__allowMethods = true;
+	for (t_strVect::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
+	{
+		if (*it != "OPTIONS" && *it != "GET" && *it != "HEAD" && *it != "PUT" && *it != "DELETE" && *it != "TRACE" && *it != "CONNECT" && *it != "POST")
+			throw std::runtime_error(*it + " invalid value");
+		if (*it == "OPTIONS" && std::find(__allowMethods.begin(), __allowMethods.end(), OPTIONS) == __allowMethods.end())
+			this->__allowMethods.push_back(OPTIONS);
+		else if (*it == "GET" && std::find(__allowMethods.begin(), __allowMethods.end(), GET) == __allowMethods.end())
+			this->__allowMethods.push_back(GET);
+		else if (*it == "HEAD" && std::find(__allowMethods.begin(), __allowMethods.end(), HEAD) == __allowMethods.end())
+			this->__allowMethods.push_back(HEAD);
+		else if (*it == "PUT" && std::find(__allowMethods.begin(), __allowMethods.end(), PUT) == __allowMethods.end())
+			this->__allowMethods.push_back(PUT);
+		else if (*it == "DELETE" && std::find(__allowMethods.begin(), __allowMethods.end(), DELETE) == __allowMethods.end())
+			this->__allowMethods.push_back(DELETE);
+		else if (*it == "TRACE" && std::find(__allowMethods.begin(), __allowMethods.end(), TRACE) == __allowMethods.end())
+			this->__allowMethods.push_back(TRACE);
+		else if (*it == "CONNECT" && std::find(__allowMethods.begin(), __allowMethods.end(), CONNECT) == __allowMethods.end())
+			this->__allowMethods.push_back(CONNECT);
+		else if (*it == "POST" && std::find(__allowMethods.begin(), __allowMethods.end(), POST) == __allowMethods.end())
+			this->__allowMethods.push_back(POST);
+	}
+}
+void Location::proccessToken(t_strVect &tokens)
 {
 	String &key = tokens.at(0);
 	if (key != "host" &&
@@ -157,21 +242,35 @@ void Location::proccessToken(std::vector<String> &tokens)
 		key != "allow_methods" &&
 		key != "client_body_buffer_size")
 		throw std::runtime_error(key + ": unknown directive");
-	if (__r == false &&
+	if (b__r == false &&
 		key != "root" &&
 		key != "index" &&
 		key != "autoindex" &&
 		key != "error_page" &&
 		key != "allow_methods")
 		throw std::runtime_error(key + ": invalid context");
+	if (key == "root")
+		rootDirective(tokens);
+	else if (key == "index")
+		indexDirective(tokens);
+	else if (key == "autoindex")
+		autoindexDirective(tokens);
+	else if (key == "error_page")
+		errorPageDirective(tokens);
+	else if (key == "allow_methods")
+		allowMethodsDirective(tokens);
 }
 void Location::proccessDirectives()
 {
 	for (std::deque<String>::iterator it = this->__directives.begin(); it != this->__directives.end(); it++)
 	{
-		std::vector<String> tokens = WSU::splitBySpaces(*it);
+		t_strVect tokens = WSU::splitBySpaces(*it);
 		if (!tokens.empty())
+		{
+			if (tokens.size() == 1)
+				throw std::runtime_error("invalid number of arguments");
 			proccessToken(tokens);
+		}
 	}
 }
 void Location::parseDirectives()
@@ -197,4 +296,5 @@ void Location::parseLocation(String conf)
 	this->__line = conf;
 	parseDirectives();
 	proccessDirectives();
+	rootPath();
 }

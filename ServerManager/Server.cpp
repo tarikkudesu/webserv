@@ -69,13 +69,13 @@ const String &Server::getServerHost() const
 {
 	return this->__host;
 }
-const std::vector<String> &Server::getServerNames() const
+const t_strVect &Server::getServerNames() const
 {
 	return this->__serverNames;
 }
 bool Server::amITheServerYouAreLookingFor(const String &sN)
 {
-	for (std::vector<String>::iterator it = __serverNames.begin(); it != __serverNames.end(); it++)
+	for (t_strVect::iterator it = __serverNames.begin(); it != __serverNames.end(); it++)
 	{
 		if (*it == sN)
 			return true;
@@ -122,18 +122,18 @@ void Server::setup()
 	addr.sin_port = htons(this->__port);
 	if (-1 == bind(this->__sd, (struct sockaddr *)&addr, sizeof(addr)))
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to bind socket");
-	if (-1 == listen(this->__sd, 3))
+	if (-1 == listen(this->__sd, 10))
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to listen for connections");
 }
 
 /**********************************************************************
  *                            PARSE METHODS                           *
  **********************************************************************/
-void Server::proccessHostToken(std::vector<String> &tokens)
+void Server::proccessHostToken(t_strVect &tokens)
 {
 	this->__host.clear();
 	if (this->b__host)
-		throw std::runtime_error(tokens.at(0) + ": multiple directives");
+		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
 	if (tokens.size() == 1)
 		throw std::runtime_error(tokens.at(0) + ": no host value");
 	if (tokens.size() > 2)
@@ -142,13 +142,13 @@ void Server::proccessHostToken(std::vector<String> &tokens)
 	this->b__host = true;
 	this->__valid = true;
 }
-void Server::proccessListenToken(std::vector<String> &tokens)
+void Server::proccessListenToken(t_strVect &tokens)
 {
 	if (tokens.size() > 80) // an extra leyer of protection, this value can be changed later
 		throw std::runtime_error(tokens.at(0) + ": this amount of ports is excessive");
 	else if (tokens.size() > 1)
 	{
-		for (std::vector<String>::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
+		for (t_strVect::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
 		{
 			if (String::npos != it->find_first_not_of("0123456789"))
 				throw std::runtime_error(tokens.at(0) + ": invalid port: not a number");
@@ -162,13 +162,13 @@ void Server::proccessListenToken(std::vector<String> &tokens)
 		throw std::runtime_error(tokens.at(0) + ": no port value");
 	this->__valid = true;
 }
-void Server::proccessServerNameToken(std::vector<String> &tokens)
+void Server::proccessServerNameToken(t_strVect &tokens)
 {
 	if (tokens.size() > 20) // an extra leyer of protection, this value can be changed later
 		throw std::runtime_error(tokens.at(0) + ": this amount of server names is excessive");
 	else if (tokens.size() > 1)
 	{
-		for (std::vector<String>::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
+		for (t_strVect::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
 		{
 			if (String::npos != it->find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_*"))
 				throw std::runtime_error(tokens.at(0) + ": invalid server_name: out of character range");
@@ -179,10 +179,10 @@ void Server::proccessServerNameToken(std::vector<String> &tokens)
 		throw std::runtime_error(tokens.at(0) + ": no server_name value");
 	this->__valid = true;
 }
-void Server::proccessClientBodyBufferSizeToken(std::vector<String> &tokens)
+void Server::proccessClientBodyBufferSizeToken(t_strVect &tokens)
 {
 	if (this->b__clientBodyBufferSize)
-		throw std::runtime_error(tokens.at(0) + ": multiple directives");
+		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
 	if (tokens.size() == 1)
 		throw std::runtime_error(tokens.at(0) + ": no client_body_buffer_size value");
 	if (tokens.size() > 2)
@@ -193,7 +193,7 @@ void Server::proccessClientBodyBufferSizeToken(std::vector<String> &tokens)
 	this->b__clientBodyBufferSize = true;
 }
 
-void Server::proccessToken(std::vector<String> &tokens)
+void Server::proccessToken(t_strVect &tokens)
 {
 	String &key = tokens.at(0);
 	if (key != "host" &&
@@ -217,9 +217,9 @@ void Server::proccessToken(std::vector<String> &tokens)
 }
 void Server::proccessDirectives()
 {
-	for (std::vector<String>::iterator it = this->__directives.begin(); it != this->__directives.end(); it++)
+	for (t_strVect::iterator it = this->__directives.begin(); it != this->__directives.end(); it++)
 	{
-		std::vector<String> tokens = WSU::splitBySpaces(*it);
+		t_strVect tokens = WSU::splitBySpaces(*it);
 		if (!tokens.empty())
 		{
 			proccessToken(tokens);

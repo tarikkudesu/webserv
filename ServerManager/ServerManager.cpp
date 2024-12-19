@@ -48,11 +48,6 @@ ServerManager &ServerManager::operator=(const ServerManager &assign)
 
 ServerManager::~ServerManager()
 {
-	for (t_Server::iterator it = __servers.begin(); it != __servers.end(); it++)
-	{
-		delete it->second;
-		__servers.erase(it);
-	}
 	for (t_events::iterator it = __sockets.begin(); it != __sockets.end(); it++)
 		close(it->fd);
 }
@@ -91,6 +86,8 @@ void ServerManager::removeServer(int sd)
 }
 void ServerManager::addServer(Server *server)
 {
+	if (ServerManager::__servers.size() >= MAX_EVENTS)
+		throw std::runtime_error("critical server overload, " + server->getServerHost() + ":" + WSU::intToString(server->getServerPort()) + " non functional");
 	ServerManager::__servers[server->getServerSocket()] = server;
 	addSocket(server->getServerSocket(), SERVER);
 }
@@ -198,6 +195,7 @@ void ServerManager::readDataFromSocket(int sd)
 		}
 	}
 }
+
 void ServerManager::acceptNewConnection(int sd)
 {
 	int newSock;
@@ -225,7 +223,7 @@ void ServerManager::acceptNewConnection(int sd)
 		}
 	}
 }
-void ServerManager::proccessPollEvent(int sd)
+void ServerManager::proccessPollEvent(int sd, int &retV)
 {
 	struct pollfd &sockStruct = ServerManager::__sockets.at(sd);
 	if (sockStruct.revents & POLLIN)
@@ -235,15 +233,27 @@ void ServerManager::proccessPollEvent(int sd)
 			if (ServerManager::__sockets.size() >= MAX_EVENTS)
 				WSU::__criticalOverLoad = true;
 			else
+			{
 				acceptNewConnection(sockStruct.fd);
+				retV--;
+			}
 		}
 		else
+		{
 			readDataFromSocket(sockStruct.fd);
+			retV--;
+		}
 	}
 	else if (sockStruct.revents & POLLOUT)
+	{
 		writeDataToSocket(sockStruct.fd);
+		retV--;
+	}
 	else if (sockStruct.revents & POLLHUP)
+	{
 		removeConnection(sockStruct.fd);
+		retV--;
+	}
 	else if (WSU::__criticalOverLoad == true)
 	{
 		WSU::warn("critcal server overload");
@@ -278,7 +288,7 @@ void ServerManager::mainLoop()
 						retV = ServerManager::__sockNum;
 					try
 					{
-						this->proccessPollEvent(sd);
+						this->proccessPollEvent(sd, retV);
 					}
 					catch (std::exception &e)
 					{
@@ -299,7 +309,7 @@ void ServerManager::mainLoop()
  *************************************************************************/
 void ServerManager::checkHosts()
 {
-	for (std::vector<Server *>::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
+	for (t_serVect::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
 	{
 		Server *tmp = *it;
 		if (!tmp->__valid)
@@ -320,7 +330,7 @@ void ServerManager::checkHosts()
 }
 void ServerManager::initServers()
 {
-	for (std::vector<Server *>::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
+	for (t_serVect::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
 	{
 		Server *tmp = *it;
 		if (!tmp->__valid)
@@ -341,10 +351,12 @@ void ServerManager::initServers()
 			}
 		}
 	}
-	for (std::vector<Server *>::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
+	for (t_serVect::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
 	{
 		delete *it;
 	}
+	if (ServerManager::__servers.size() >= MAX_EVENTS)
+		throw std::runtime_error("critical server overload: too many servers");
 	__serverTemplates.clear();
 }
 void ServerManager::readFile()
@@ -482,10 +494,10 @@ void ServerManager::checkConflicts()
 {
 	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
 	{
-		const std::vector<String> &serverNames = it->second->getServerNames();
-		for (std::vector<String>::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
+		const t_strVect &serverNames = it->second->getServerNames();
+		for (t_strVect::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
 		{
-			for (std::vector<String>::const_iterator match = name + 1; match != serverNames.end(); match++)
+			for (t_strVect::const_iterator match = name + 1; match != serverNames.end(); match++)
 			{
 				if (*match == *name)
 					WSU::warn("conflicting server name " + *name + " on " + it->second->serverIdentity() + ", ignored");
@@ -498,8 +510,8 @@ void ServerManager::checkConflicts()
 		{
 			if (it->second->getServerPort() == iter->second->getServerPort())
 			{
-				const std::vector<String> &serverNames = it->second->getServerNames();
-				for (std::vector<String>::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
+				const t_strVect &serverNames = it->second->getServerNames();
+				for (t_strVect::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
 				{
 					if (iter->second->amITheServerYouAreLookingFor(*name))
 						WSU::warn("conflicting server name " + *name + " on " + it->second->serverIdentity() + ", ignored");
@@ -521,6 +533,8 @@ void ServerManager::setUpWebserv()
 		initServers();
 		checkConflicts();
 		logServers();
+		debug();
+		exit(1);
 		mainLoop();
 	}
 	catch (std::exception &e)

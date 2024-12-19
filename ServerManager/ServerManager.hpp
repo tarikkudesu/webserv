@@ -28,7 +28,7 @@ class ServerManager
 		void						writeDataToSocket( int sd );
 		void						readDataFromSocket( int sd );
 		void						acceptNewConnection( int sd );
-		void						proccessPollEvent( int sd );
+		void						proccessPollEvent( int sd, int &retV );
 		void						mainLoop();
 
 /*************************************************************************
@@ -36,7 +36,7 @@ class ServerManager
  *************************************************************************/
 		String						__lines;
 		String						__config;
-		std::vector<Server *>		__serverTemplates;
+		t_serVect					__serverTemplates;
 
 		void						readFile();
 		void						checkHosts();

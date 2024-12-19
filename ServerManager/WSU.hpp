@@ -13,7 +13,6 @@ class WSU
 
 	public:
 		static bool								__criticalOverLoad;
-		static int								__exit;
 
 		static std::string						logDate();
 		static std::string						buildIMFDate();
@@ -34,8 +33,8 @@ class WSU
 		static void								toUpperString( std::string &input );
 		static void								replaceString(String &original, const String toReplace, const String replacement);
 		static std::vector<std::string>			splitBySpaces( const std::string &input );
+		static std::vector<std::string>			splitByChar( const std::string &input, char del );
 		static std::string 						intToString(int number);
-
 };
 
 #endif

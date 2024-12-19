@@ -71,6 +71,7 @@ bool Request::hasBody()
 /*****************************************************************************
  *                                  METHODS                                  *
  *****************************************************************************/
+
 void Request::hostAndPort()
 {
 	try
@@ -150,7 +151,6 @@ void Request::proccessHeaders(String requestHeaders)
 			this->__headerFeilds[key] = value;
 			requestHeaders.erase(0, pos + 2);
 		}
-
 	} while (requestHeaders.empty() == false);
 }
 void Request::proccessRequestLine(const String &requestLine)

@@ -4,6 +4,7 @@
 # include "Response.hpp"
 
 typedef std::map< int, Server* >			t_Server;
+typedef std::vector< Server * >				t_serVect;
 
 class Connection
 {
