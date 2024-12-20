@@ -57,9 +57,9 @@ void ErrorResponse::buildResponseBody()
 	this->__Body = ErrorResponse::__errPage;
 	std::stringstream ss;
 	ss << this->__code;
-	WSU::replaceString(this->__Body, "CODE", ss.str());
-	WSU::replaceString(this->__Body, "REASON_PHRASE", this->__reasonPhrase);
-	WSU::replaceString(this->__Body, "MESSAGE", this->__errorIndication);
+	wsu::replaceString(this->__Body, "CODE", ss.str());
+	wsu::replaceString(this->__Body, "REASON_PHRASE", this->__reasonPhrase);
+	wsu::replaceString(this->__Body, "MESSAGE", this->__errorIndication);
 }
 void ErrorResponse::buildHeaderFeilds()
 {
@@ -71,7 +71,7 @@ void ErrorResponse::buildHeaderFeilds()
 	this->__headers += "Content-Length: " + ss.str() + "\r\n";
 	this->__headers += "Content-Type: text/html; charset=UTF-8\r\n";
 	this->__headers += "Server: Webserv\r\n";
-	this->__headers += "Date: " + WSU::buildIMFDate() + "\r\n";
+	this->__headers += "Date: " + wsu::buildIMFDate() + "\r\n";
 	this->__headers += "\r\n";
 }
 void ErrorResponse::constructErrorPage()

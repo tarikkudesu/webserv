@@ -16,6 +16,7 @@ class ServerManager
 		static int					__sockNum;
 		static t_events				__sockets;
 		static t_Server				__servers;
+		static struct pollfd		*__events;
 		static t_Connections		__connections;
 
 		static void					addSocket( int sd, t_endian endian );
@@ -56,10 +57,10 @@ class ServerManager
 		void						setUpWebserv();
 		void						debug()
 		{
-			t_Server::iterator it = ServerManager::__servers.begin();
-			for (; it != ServerManager::__servers.end(); it++) {
-				(*it).second->print();
-			}
+			// t_Server::iterator it = ServerManager::__servers.begin();
+			// for (; it != ServerManager::__servers.end(); it++) {
+			// 	(*it).second->print();
+			// }
 		};
 
 

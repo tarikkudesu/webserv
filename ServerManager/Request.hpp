@@ -8,6 +8,7 @@ class Request
 	private:
 		void							clear();
 		void							hostAndPort();
+		void							proccessURI();
 		void							contentLength();
 		void							connectionType();
 		void							transferEncoding();
@@ -21,11 +22,12 @@ class Request
 		int								__port;
 		t_method						__method;
 		t_strVect						__URIpath;
+		String							__fragement;
 		String							__protocole;
 		std::map< String, String >		__headerFeilds;
 		t_transferEncoding				__transferEncoding;
+		std::map< String, String >		__queryVariables;
 		t_connectionType				__connectionType;
-		t_strVect						__queryVariables;
 		size_t							__contentLength;
 		String							__requestbody;
 

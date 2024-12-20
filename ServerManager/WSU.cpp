@@ -1,82 +1,80 @@
 #include "WSU.hpp"
 
-WSU::WSU() {}
+wsu::wsu() {}
 
-WSU::WSU(const WSU &copy) { (void)copy; }
+wsu::wsu(const wsu &copy) { (void)copy; }
 
-WSU::~WSU() {}
+wsu::~wsu() {}
 
-WSU &WSU::operator=(const WSU &assign)
+wsu &wsu::operator=(const wsu &assign)
 {
 	(void)assign;
 	return *this;
 }
 
-bool WSU::__criticalOverLoad = false;
+bool wsu::__criticalOverLoad = false;
 
-std::string WSU::logDate()
+String wsu::logDate()
 {
 	char buffer[30];
-	std::time_t t = std::time(nullptr); // Get the current time
-	std::tm *tm = std::gmtime(&t);		// Convert time to GMT (UTC)
-	// Format the date in IMF format: Day, DD Mon YYYY HH:MM:SS GMT
+	std::time_t t = std::time(NULL);
+	std::tm *tm = std::gmtime(&t);
 	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
-	return std::string(buffer); // Return the date as a string
+	return String(buffer);
 }
-std::string WSU::buildIMFDate()
+String wsu::buildIMFDate()
 {
 	char buffer[30];
-	std::time_t t = std::time(nullptr); // Get the current time
-	std::tm *tm = std::gmtime(&t);		// Convert time to GMT (UTC)
-	// Format the date in IMF format: Day, DD Mon YYYY HH:MM:SS GMT
+	std::time_t t = std::time(NULL);
+	std::tm *tm = std::gmtime(&t);
 	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", tm);
-	return std::string(buffer); // Return the date as a string
+	return String(buffer);
 }
 /************************************************************************************************
  *                                             LOGS                                             *
  ************************************************************************************************/
-void WSU::debug(String __log_message)
+void wsu::debug(String __log_message)
 {
-	std::cout << BLUE << WSU::logDate() << MAGENTA << " [DEBUG] " << RESET << __log_message << std::endl;
+	std::cout << BLUE << wsu::logDate() << MAGENTA << " [DEBUG] " << RESET << __log_message << std::endl;
 	return;
 }
-void WSU::terr(char *__error_message)
+void wsu::terr(char *__error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
-void WSU::terr(String __error_message)
+void wsu::terr(String __error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
-void WSU::log(String __log_message)
+void wsu::log(String __log_message)
 {
-	std::cout << BLUE << WSU::logDate() << RESET << " " << __log_message << std::endl;
+	std::cout << BLUE << wsu::logDate() << RESET << " " << __log_message << std::endl;
 	return;
 }
-void WSU::success(String __log_message)
+void wsu::success(String __log_message)
 {
-	std::cout << BLUE << WSU::logDate() << GREEN << " [SUCCESS] " << RESET << __log_message << std::endl;
+	std::cout << BLUE << wsu::logDate() << GREEN << " [SUCCESS] " << RESET << __log_message << std::endl;
 	return;
 }
-void WSU::running(String __log_message)
+void wsu::running(String __log_message)
 {
-	std::cout << BLUE << WSU::logDate() << GREEN << " [RUNNING] " << RESET << __log_message << std::endl;
+	std::cout << BLUE << wsu::logDate() << GREEN << " [RUNNING] " << RESET << __log_message << std::endl;
 	return;
 }
-void WSU::warn(String __log_message)
+void wsu::warn(String __log_message)
 {
-	std::cout << BLUE << WSU::logDate() << YELLOW << " [WARN] " << RESET << __log_message << std::endl;
+	std::cout << BLUE << wsu::logDate() << YELLOW << " [WARN] " << RESET << __log_message << std::endl;
 	return;
 }
-void WSU::error(String __log_message)
+void wsu::error(String __log_message)
 {
-	std::cout << BLUE << WSU::logDate() << RED << " [ERROR] " << RESET << __log_message << std::endl;
+	std::cout << BLUE << wsu::logDate() << RED << " [ERROR] " << RESET << __log_message << std::endl;
 	return;
 }
 /*************************************************************************************************
  *                                           UTILITIES                                           *
  *************************************************************************************************/
-void WSU::trimSpaces(String &str)
+void wsu::trimSpaces(String &str)
 {
 	if (str.empty())
 		return;
@@ -91,24 +89,25 @@ void WSU::trimSpaces(String &str)
 	else
 		str = str.substr(start, end - start + 1);
 }
-std::vector<std::string> WSU::splitBySpaces(const std::string &input)
+std::vector<String> wsu::splitBySpaces(const String &input)
 {
-	std::string word;
+	String word;
 	std::istringstream iss(input);
-	std::vector<std::string> result;
+	std::vector<String> result;
 	while (iss >> word)
 		result.push_back(word);
 	return result;
 }
-std::vector<std::string> WSU::splitByChar(const std::string &input, char del)
+std::vector<String> wsu::splitByChar(const String &input, char del)
 {
-	std::vector<std::string> result;
-	std::string temp;
+	std::vector<String> result;
+	String temp;
 	for (size_t i = 0; i < input.size(); ++i)
 	{
 		if (input[i] == del)
 		{
-			result.push_back(temp);
+			if (!temp.empty())
+				result.push_back(temp);
 			temp.clear();
 		}
 		else
@@ -118,20 +117,20 @@ std::vector<std::string> WSU::splitByChar(const std::string &input, char del)
 		result.push_back(temp);
 	return result;
 }
-std::string WSU::intToString(int number)
+String wsu::intToString(int number)
 {
 	std::ostringstream oss;
 	oss << number;
 	return oss.str();
 }
-int WSU::stringToInt(const std::string &str)
+int wsu::stringToInt(const String &str)
 {
 	std::istringstream iss(str);
 	int number = 0;
 	iss >> number;
 	return number;
 }
-int WSU::hexToInt(const std::string &str)
+int wsu::hexToInt(const String &str)
 {
 	int number = 0;
 	std::stringstream ss;
@@ -139,7 +138,7 @@ int WSU::hexToInt(const std::string &str)
 	ss >> number;
 	return number;
 }
-void WSU::replaceString(String &original, const String toReplace, const String replacement)
+void wsu::replaceString(String &original, const String toReplace, const String replacement)
 {
 	size_t pos = 0;
 	while ((pos = original.find(toReplace, pos)) != String::npos)
@@ -148,23 +147,72 @@ void WSU::replaceString(String &original, const String toReplace, const String r
 		pos += replacement.length();
 	}
 }
-void WSU::setNonBlockingMode(int sd)
+void wsu::setNonBlockingMode(int sd)
 {
 	int flags = fcntl(sd, F_GETFL, 0);
 	if (flags < 0 || fcntl(sd, F_SETFL, flags | O_NONBLOCK) < 0)
 		throw std::runtime_error("fcntl syscall, failed to make a non blocking socket");
 }
-void WSU::toUpperString(std::string &input)
+void wsu::toUpperString(String &input)
 {
 	for (size_t i = 0; i < input.length(); ++i)
 	{
 		input[i] = static_cast<char>(std::toupper(static_cast<unsigned char>(input[i])));
 	}
 }
-void WSU::toLowerString(std::string &input)
+void wsu::toLowerString(String &input)
 {
 	for (size_t i = 0; i < input.length(); ++i)
 	{
 		input[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(input[i])));
 	}
+}
+String wsu::mergeByChar(const std::vector<String> &input, char del)
+{
+	String result;
+	for (std::vector<String>::const_iterator it = input.begin(); it != input.end(); it++)
+	{
+		result += *it;
+		if (it != input.end() - 1)
+			result += del;
+	}
+	return result;
+}
+bool wsu::samePath(const String &path1, const String &path2)
+{
+	t_strVect vPath1 = wsu::splitByChar(path1, '/');
+	t_strVect vPath2 = wsu::splitByChar(path2, '/');
+	size_t pos = 0;
+	if (vPath1.size() != vPath2.size())
+		return false;
+	for (; pos < vPath1.size() && vPath1.at(pos) == vPath2.at(pos); pos++)
+	{
+	}
+	if (pos == vPath1.size())
+		return true;
+	return false;
+}
+bool wsu::containsPath(const String &path, const String &subPath)
+{
+	t_strVect vPath = wsu::splitByChar(path, '/');
+	t_strVect vSubPath = wsu::splitByChar(subPath, '/');
+	size_t pos = 0;
+	if (vPath.empty())
+		return true;
+	if (vPath.size() >= vSubPath.size())
+		return false;
+	while (pos < vPath.size())
+	{
+		if (vPath.at(pos) != vSubPath.at(pos))
+			return false;
+		pos++;
+	}
+	return true;
+}
+struct pollfd *wsu::data(t_events &events)
+{
+	struct pollfd *arr = new struct pollfd[events.size()];
+	for (size_t i = 0; i < events.size(); ++i)
+		arr[i] = events[i];
+	return arr;
 }

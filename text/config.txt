@@ -2,6 +2,7 @@
     - context: server
     - syntax: host 0.0.0.0;
     - multiple directives: no
+    - multiple values: no
     - default: 0.0.0.0
     - required: no
 
@@ -9,6 +10,7 @@
     - context: server
     - syntax: listen 8080 8081 8081;
     - multiple directives: yes
+    - multiple values: yes
     - default: 8080
     - required: no
 
@@ -16,6 +18,7 @@
     - context: server
     - syntax: server_name domain1 domain2 domain2;
     - multiple directives: yes
+    - multiple values: yes
     - default: -
     - required: no
 
@@ -23,6 +26,7 @@
     - context: server
     - syntax: client_body_buffer_size size;
     - multiple directives: no
+    - multiple values: no
     - default: 8k
     - required: no
 
@@ -30,6 +34,7 @@
     - context: location
     - syntax: root path
     - multiple directives: no
+    - multiple values: no
     - default: ./Content
     - required: no
 
@@ -37,6 +42,7 @@
     - context: location
     - syntax: index file
     - multiple directives: yes
+    - multiple values: yes
     - default: index.html
     - required: no
 
@@ -44,6 +50,7 @@
     - context: location
     - syntax: allow_methods METHOD METHOD METHOD
     - multiple directives: yes
+    - multiple values: yes
     - default: GET POST DELETE
     - required: no
 
@@ -51,6 +58,7 @@
     - context: location
     - syntax: error_page code code path
     - multiple directives: yes
+    - multiple values: yes
     - default: -
     - required: no
 
@@ -58,5 +66,22 @@
     - context: location
     - syntax: autoindex on | off
     - multiple directives: no
-    - default: no
+    - multiple values: no
+    - default: off
+    - required: no
+
+### return :
+    - context: location
+    - syntax: return url
+    - multiple directives: yes
+    - multiple values: no
+    - default: -
+    - required: no
+
+### cgi_pass :
+    - context: location
+    - syntax: cgi_pass path
+    - multiple directives: yes
+    - multiple values: no
+    - default: -
     - required: no

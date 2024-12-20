@@ -4,7 +4,7 @@ Connection::Connection() : __sd(-1),
 						   __erase(0),
 						   __serversP(NULL)
 {
-	WSU::error("Connection constructor");
+	wsu::error("Connection constructor");
 }
 
 Connection::Connection(int sd) : __sd(sd),
@@ -15,7 +15,7 @@ Connection::Connection(int sd) : __sd(sd),
 
 Connection::Connection(const Connection &copy)
 {
-	WSU::error("Connection copy constructor");
+	wsu::error("Connection copy constructor");
 	*this = copy;
 }
 
@@ -25,7 +25,7 @@ Connection::~Connection()
 
 Connection &Connection::operator=(const Connection &assign)
 {
-	WSU::error("Connection copy assignement operator");
+	wsu::error("Connection copy assignement operator");
 	if (this != &assign)
 	{
 		__sd = assign.__sd;
@@ -51,7 +51,7 @@ String Connection::identifyChunks(String &currBuff)
 		size_t pos = currBuff.find("\r\n");
 		if (pos == String::npos)
 			throw std::exception();
-		size_t contentLen = WSU::hexToInt(String(currBuff.begin(), currBuff.begin() + pos));
+		size_t contentLen = wsu::hexToInt(String(currBuff.begin(), currBuff.begin() + pos));
 		currBuff.erase(0, pos + 2);
 		this->__erase += pos + 2;
 		if (contentLen == 0)
@@ -121,17 +121,22 @@ void Connection::requestParser()
 {
 	String requestLine = identifyRequestLine();
 	String requestHeaders = identifyRequestHeaders();
-	WSU::log(requestLine);
+	wsu::log(requestLine);
 	this->__request.parseRequest(requestLine, requestHeaders);
 	identifyRequestBody();
 	this->__buff.erase(0, this->__erase);
 	this->__erase = 0;
-	if (WSU::__criticalOverLoad == true)
+	if (wsu::__criticalOverLoad == true)
 		throw ErrorResponse(503, "critical server overload");
+}
+Location *Connection::identifyLocation()
+{
+	//to be done tomorrow
+	return NULL;
 }
 Server *Connection::identifyServer()
 {
-	WSU::log("identifying server to respond");
+	wsu::log("identifying server to respond");
 	t_serVect tmpMapP;
 	t_serVect tmpMapH;
 	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
@@ -151,12 +156,14 @@ Server *Connection::identifyServer()
 void Connection::responseBuilder()
 {
 	Server *server = identifyServer();
+	Location *location = identifyLocation();
+	(void)location;
 	Response res(this->__request, *server);
 }
 
 void Connection::proccessData(String input)
 {
-	WSU::log("request proccessing");
+	wsu::log("request proccessing");
 	this->__buff += input;
 	try
 	{
@@ -168,18 +175,17 @@ void Connection::proccessData(String input)
 							   "Connection: keep-alive\r\n\r\n"
 							   "<h1>Webserv</h1>\n";
 		this->__responseQueue.push(String(response));
-		WSU::log("response proccessed");
+		wsu::log("response proccessed");
 	}
 	catch (ErrorResponse &e)
 	{
-		WSU::log("response is an error page");
+		wsu::log("response is an error page");
 		this->__responseQueue.push(e.getResponse());
 	}
 	catch (std::exception &e)
 	{
-		WSU::log("continue");
+		wsu::log("continue");
 		this->__erase = 0;
 	}
 }
 
-// WSU::log(RED "+++++++++++++++++++ debug +++++++++++++++++++" RESET);

@@ -34,7 +34,7 @@ class Server
 		bool							__valid;
 
 		bool							amITheServerYouAreLookingFor( const String &sN);
-		const t_strVect		&getServerNames() const;
+		const t_strVect					&getServerNames() const;
 		const String					&getServerHost() const;
 		int								getServerSocket() const;
 		int								getServerPort() const;

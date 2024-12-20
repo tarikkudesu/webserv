@@ -3,19 +3,19 @@
 
 # include "../srcs/webserv.hpp"
 
-class WSU
+class wsu
 {
 	private :
-		WSU();
-		WSU( const WSU &copy );
-		WSU	&operator=( const WSU &assign );
-		~WSU();
+		wsu();
+		wsu( const wsu &copy );
+		wsu	&operator=( const wsu &assign );
+		~wsu();
 
 	public:
 		static bool								__criticalOverLoad;
 
-		static std::string						logDate();
-		static std::string						buildIMFDate();
+		static String							logDate();
+		static String							buildIMFDate();
 		static void								log( String __log_message );
 		static void								warn( String __log_message );
 		static void								error( String __log_message );
@@ -25,16 +25,20 @@ class WSU
 		static void								running( String __log_message );
 		static void								success( String __log_message );
 
+		static String 							intToString(int number);
+		static struct pollfd					*data( t_events &events );
 		static void								trimSpaces( String &str );
+		static int 								hexToInt(const String& str);
 		static void								setNonBlockingMode( int sd );
-		static int 								hexToInt(const std::string& str);
-		static int 								stringToInt(const std::string& str);
-		static void								toLowerString( std::string &input );
-		static void								toUpperString( std::string &input );
+		static int 								stringToInt(const String& str);
+		static void								toLowerString( String &input );
+		static void								toUpperString( String &input );
+		static std::vector<String>				splitBySpaces( const String &input );
+		static std::vector<String>				splitByChar( const String &input, char del );
+		static bool								samePath(const String &path1, const String &path2 );
+		static bool								containsPath(const String &path, const String &subPath );
+		static String							mergeByChar( const std::vector<String> &input, char del );
 		static void								replaceString(String &original, const String toReplace, const String replacement);
-		static std::vector<std::string>			splitBySpaces( const std::string &input );
-		static std::vector<std::string>			splitByChar( const std::string &input, char del );
-		static std::string 						intToString(int number);
 };
 
 #endif

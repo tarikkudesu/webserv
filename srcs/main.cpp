@@ -6,7 +6,7 @@ void f()
 	int fd = open(".logs/sds.log", O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (-1 == fd)
 	{
-		WSU::terr(String(" .logs/sds.log cannot be opened"));
+		wsu::terr(String(" .logs/sds.log cannot be opened"));
 		exit(EXIT_FAILURE);
 	}
 	dup2(fd, STDOUT_FILENO);
@@ -25,7 +25,7 @@ void signalHandler(int signal)
 		std::cout << "exiting\n";
 		exit(0);
 	}
-	WSU::terr(String("SIGPIPE"));
+	wsu::terr(String("SIGPIPE"));
 }
 
 void buildPage()
@@ -86,16 +86,17 @@ void buildPage()
 	{
 		if (__errCode.find(i) != __errCode.end())
 		{
-			std::ofstream file("./Content/" + WSU::intToString(i) + ".html");
+			String	path("./Content/" + wsu::intToString(i) + ".html");
+			std::ofstream file(path.c_str());
 			if (!file)
 			{
 				std::cerr << "Error: Could not create or open the file.\n";
 				return;
 			}
 			String page = __errPage;
-			WSU::replaceString(page, "CODE", WSU::intToString(i));
-			WSU::replaceString(page, "REASON_PHRASE", __errCode[i]);
-			WSU::replaceString(page, "MESSAGE", "");
+			wsu::replaceString(page, "CODE", wsu::intToString(i));
+			wsu::replaceString(page, "REASON_PHRASE", __errCode[i]);
+			wsu::replaceString(page, "MESSAGE", "");
 			file << page;
 			file.close();
 		}
@@ -116,7 +117,7 @@ int main(int ac, char **av)
 		config = "conf/webserv_default.conf";
 	else
 	{
-		WSU::terr(String("Usage: ./webserv file_path"));
+		wsu::terr(String("Usage: ./webserv file_path"));
 		return 1;
 	}
 	ServerManager webserv(config);

@@ -5,7 +5,7 @@ Location::Location() : b__r(true),
 					   b__index(false),
 					   b__autoindex(false),
 					   b__allowMethods(false),
-					   __root("/"),
+					   __path("/"),
 					   __autoindex(false)
 {
 	this->__allowMethods.push_back(GET);
@@ -19,7 +19,7 @@ Location::Location(String dir) : b__r(false),
 								 b__index(false),
 								 b__autoindex(false),
 								 b__allowMethods(false),
-								 __root(dir),
+								 __path(dir),
 								 __autoindex(false)
 {
 	this->__allowMethods.push_back(GET);
@@ -66,45 +66,55 @@ Location::~Location()
  ****************************************************************************/
 void Location::addErrPages()
 {
-	__errorPages.insert(std::make_pair(300, "./Content/300.html"));
-	__errorPages.insert(std::make_pair(301, "./Content/301.html"));
-	__errorPages.insert(std::make_pair(302, "./Content/302.html"));
-	__errorPages.insert(std::make_pair(303, "./Content/303.html"));
-	__errorPages.insert(std::make_pair(304, "./Content/304.html"));
-	__errorPages.insert(std::make_pair(305, "./Content/305.html"));
-	__errorPages.insert(std::make_pair(307, "./Content/307.html"));
-	__errorPages.insert(std::make_pair(400, "./Content/400.html"));
-	__errorPages.insert(std::make_pair(401, "./Content/401.html"));
-	__errorPages.insert(std::make_pair(402, "./Content/402.html"));
-	__errorPages.insert(std::make_pair(403, "./Content/403.html"));
-	__errorPages.insert(std::make_pair(404, "./Content/404.html"));
-	__errorPages.insert(std::make_pair(405, "./Content/405.html"));
-	__errorPages.insert(std::make_pair(406, "./Content/406.html"));
-	__errorPages.insert(std::make_pair(407, "./Content/407.html"));
-	__errorPages.insert(std::make_pair(408, "./Content/408.html"));
-	__errorPages.insert(std::make_pair(409, "./Content/409.html"));
-	__errorPages.insert(std::make_pair(410, "./Content/410.html"));
-	__errorPages.insert(std::make_pair(411, "./Content/411.html"));
-	__errorPages.insert(std::make_pair(412, "./Content/412.html"));
-	__errorPages.insert(std::make_pair(413, "./Content/413.html"));
-	__errorPages.insert(std::make_pair(414, "./Content/414.html"));
-	__errorPages.insert(std::make_pair(415, "./Content/415.html"));
-	__errorPages.insert(std::make_pair(416, "./Content/416.html"));
-	__errorPages.insert(std::make_pair(417, "./Content/417.html"));
-	__errorPages.insert(std::make_pair(500, "./Content/500.html"));
-	__errorPages.insert(std::make_pair(501, "./Content/501.html"));
-	__errorPages.insert(std::make_pair(502, "./Content/502.html"));
-	__errorPages.insert(std::make_pair(503, "./Content/503.html"));
-	__errorPages.insert(std::make_pair(504, "./Content/504.html"));
-	__errorPages.insert(std::make_pair(505, "./Content/505.html"));
+	// __errorPages.insert(std::make_pair(300, "./Content/300.html"));
+	// __errorPages.insert(std::make_pair(301, "./Content/301.html"));
+	// __errorPages.insert(std::make_pair(302, "./Content/302.html"));
+	// __errorPages.insert(std::make_pair(303, "./Content/303.html"));
+	// __errorPages.insert(std::make_pair(304, "./Content/304.html"));
+	// __errorPages.insert(std::make_pair(305, "./Content/305.html"));
+	// __errorPages.insert(std::make_pair(307, "./Content/307.html"));
+	// __errorPages.insert(std::make_pair(400, "./Content/400.html"));
+	// __errorPages.insert(std::make_pair(401, "./Content/401.html"));
+	// __errorPages.insert(std::make_pair(402, "./Content/402.html"));
+	// __errorPages.insert(std::make_pair(403, "./Content/403.html"));
+	// __errorPages.insert(std::make_pair(404, "./Content/404.html"));
+	// __errorPages.insert(std::make_pair(405, "./Content/405.html"));
+	// __errorPages.insert(std::make_pair(406, "./Content/406.html"));
+	// __errorPages.insert(std::make_pair(407, "./Content/407.html"));
+	// __errorPages.insert(std::make_pair(408, "./Content/408.html"));
+	// __errorPages.insert(std::make_pair(409, "./Content/409.html"));
+	// __errorPages.insert(std::make_pair(410, "./Content/410.html"));
+	// __errorPages.insert(std::make_pair(411, "./Content/411.html"));
+	// __errorPages.insert(std::make_pair(412, "./Content/412.html"));
+	// __errorPages.insert(std::make_pair(413, "./Content/413.html"));
+	// __errorPages.insert(std::make_pair(414, "./Content/414.html"));
+	// __errorPages.insert(std::make_pair(415, "./Content/415.html"));
+	// __errorPages.insert(std::make_pair(416, "./Content/416.html"));
+	// __errorPages.insert(std::make_pair(417, "./Content/417.html"));
+	// __errorPages.insert(std::make_pair(500, "./Content/500.html"));
+	// __errorPages.insert(std::make_pair(501, "./Content/501.html"));
+	// __errorPages.insert(std::make_pair(502, "./Content/502.html"));
+	// __errorPages.insert(std::make_pair(503, "./Content/503.html"));
+	// __errorPages.insert(std::make_pair(504, "./Content/504.html"));
+	// __errorPages.insert(std::make_pair(505, "./Content/505.html"));
+}
+const String &Location::getPath() const
+{
+	return this->__path;
 }
 /*****************************************************************************
  *                                  METHODS                                  *
  *****************************************************************************/
 
-void Location::rootPath()
+void Location::checkNestedLocation(String &path)
 {
-	this->__rootPath = WSU::splitByChar(this->__root, '/');
+	if (wsu::containsPath(this->__path, path) == false)
+		throw std::runtime_error("location \"" + path + "\" is outside location \"" + __path + "\"");
+	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
+	{
+		if (wsu::samePath(path, it->second->getPath()))
+			throw std::runtime_error("duplicate location \"" + path + "\"");
+	}
 }
 void Location::addLocationBlock(size_t pos)
 {
@@ -112,9 +122,9 @@ void Location::addLocationBlock(size_t pos)
 	size_t tracker = 1;
 
 	String outer = String(__line.begin(), __line.begin() + pos);
-	t_strVect tokens = WSU::splitBySpaces(outer);
-	WSU::trimSpaces(outer);
-	WSU::log("location: " + outer);
+	t_strVect tokens = wsu::splitBySpaces(outer);
+	wsu::trimSpaces(outer);
+	wsu::log("location: " + outer);
 	if (tokens.size() != 2)
 		throw std::runtime_error("location block error");
 	if (tokens.at(0) != "location")
@@ -132,32 +142,22 @@ void Location::addLocationBlock(size_t pos)
 			break;
 	} while (true);
 	String locationBlock(this->__line.begin() + pos, this->__line.begin() + end);
-	WSU::trimSpaces(locationBlock);
+	wsu::trimSpaces(locationBlock);
 	this->__line.erase(0, end);
-	/********************************************************************
-	 * HANDLE DUPLICATE LOCATIONS AND OUTER LOCATIONS INSIDE A LOCATION *
-	 ********************************************************************/
-	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
-	{
-	}
-	if (tokens.at(1) == "/")
-		this->parseLocation(locationBlock);
-	else
-	{
-		Location *loc = new Location(tokens.at(1));
-		loc->parseLocation(locationBlock);
-		this->__subLocations.insert(std::make_pair(tokens.at(1), loc));
-	}
+	checkNestedLocation(tokens.at(1));
+	Location *loc = new Location(tokens.at(1));
+	loc->parseLocation(locationBlock);
+	this->__subLocations.insert(std::make_pair(tokens.at(1), loc));
 }
 void Location::addDirective(size_t end)
 {
 	String directive = String(__line.begin(), __line.begin() + end);
-	WSU::trimSpaces(directive);
+	wsu::trimSpaces(directive);
 	if (directive.empty())
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
 	this->__line.erase(0, end + 1);
-	WSU::log("directive: " + directive);
+	wsu::log("directive: " + directive);
 }
 void Location::rootDirective(t_strVect &tokens)
 {
@@ -196,10 +196,10 @@ void Location::errorPageDirective(t_strVect &tokens)
 	{
 		if (it->find_first_not_of("0123456789") != String::npos)
 			throw std::runtime_error(*it + " invalid value");
-		int code = WSU::stringToInt(*it);
+		int code = wsu::stringToInt(*it);
 		if (code < 300 || code > 599)
 			throw std::runtime_error(tokens.at(0) + " value \"" + *it + "\" must be between 300 and 599");
-		this->__errorPages[code] = *(tokens.end() - 1);
+		this->__errorPages.insert(std::make_pair(code, *(tokens.end() - 1)));
 	}
 }
 void Location::allowMethodsDirective(t_strVect &tokens)
@@ -229,6 +229,18 @@ void Location::allowMethodsDirective(t_strVect &tokens)
 			this->__allowMethods.push_back(POST);
 	}
 }
+void Location::returnDirective(t_strVect &tokens)
+{
+	if (tokens.size() != 2)
+		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
+	this->__return = tokens.at(1);
+}
+void Location::cgiPassDirective(t_strVect &tokens)
+{
+	if (tokens.size() != 2)
+		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
+	this->__cgiPass = tokens.at(1);
+}
 void Location::proccessToken(t_strVect &tokens)
 {
 	String &key = tokens.at(0);
@@ -236,6 +248,8 @@ void Location::proccessToken(t_strVect &tokens)
 		key != "root" &&
 		key != "index" &&
 		key != "listen" &&
+		key != "return" &&
+		key != "cgi_pass" &&
 		key != "autoindex" &&
 		key != "error_page" &&
 		key != "server_name" &&
@@ -253,8 +267,12 @@ void Location::proccessToken(t_strVect &tokens)
 		rootDirective(tokens);
 	else if (key == "index")
 		indexDirective(tokens);
+	else if (key == "return")
+		returnDirective(tokens);
 	else if (key == "autoindex")
 		autoindexDirective(tokens);
+	else if (key == "cgi_pass")
+		cgiPassDirective(tokens);
 	else if (key == "error_page")
 		errorPageDirective(tokens);
 	else if (key == "allow_methods")
@@ -264,11 +282,11 @@ void Location::proccessDirectives()
 {
 	for (std::deque<String>::iterator it = this->__directives.begin(); it != this->__directives.end(); it++)
 	{
-		t_strVect tokens = WSU::splitBySpaces(*it);
+		t_strVect tokens = wsu::splitBySpaces(*it);
 		if (!tokens.empty())
 		{
 			if (tokens.size() == 1)
-				throw std::runtime_error("invalid number of arguments");
+				throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 			proccessToken(tokens);
 		}
 	}
@@ -290,11 +308,10 @@ void Location::parseDirectives()
 }
 void Location::parseLocation(String conf)
 {
-	WSU::trimSpaces(conf);
+	wsu::trimSpaces(conf);
 	conf = conf.substr(1, conf.length() - 2);
-	WSU::trimSpaces(conf);
+	wsu::trimSpaces(conf);
 	this->__line = conf;
 	parseDirectives();
 	proccessDirectives();
-	rootPath();
 }

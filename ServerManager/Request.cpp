@@ -144,7 +144,7 @@ void Request::proccessHeaders(String requestHeaders)
 			if (p == String::npos)
 				throw ErrorResponse(400, "invalid Header feild");
 			String key(hf.begin(), hf.begin() + p);
-			WSU::toLowerString(key);
+			wsu::toLowerString(key);
 			String value(hf.begin() + p + 2, hf.end());
 			if (key.empty() || String::npos != key.find_first_not_of(H_KEY_CHAR_SET))
 				throw ErrorResponse(400, "invalid Header feild");
@@ -152,6 +152,30 @@ void Request::proccessHeaders(String requestHeaders)
 			requestHeaders.erase(0, pos + 2);
 		}
 	} while (requestHeaders.empty() == false);
+}
+void Request::proccessURI()
+{
+	size_t start = 0;
+	size_t end = 0;
+	start = this->__URI.find("?");
+	if (start == String::npos)
+		return;
+	end = this->__URI.find("#");
+	if (end != String::npos)
+		this->__fragement = String(this->__URI.begin() + end + 1, this->__URI.end());
+	else
+		end = __URI.size();
+	this->__URI = __URI.substr(0, start);
+	String query = String(__URI.begin() + start, __URI.begin() + end);
+	{
+		t_strVect queris = wsu::splitByChar(query, '&');
+		for (t_strVect::iterator it = queris.begin(); it != queris.end(); it++)
+		{
+			t_strVect pairs = wsu::splitByChar(*it, '=');
+			if (pairs.size() >= 2)
+				__queryVariables.insert(std::make_pair(pairs.at(0), pairs.at(1)));
+		}
+	}
 }
 void Request::proccessRequestLine(const String &requestLine)
 {
@@ -188,6 +212,7 @@ void Request::proccessRequestLine(const String &requestLine)
 	this->__protocole = protocole;
 	if (this->__protocole != PROTOCOLE_V)
 		throw ErrorResponse(505, "Unsupported protocole");
+	proccessURI();
 }
 void Request::parseRequest(const String &requestLine, const String &requestHeaders)
 {

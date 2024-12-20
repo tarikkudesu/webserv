@@ -18,7 +18,7 @@ Server::Server(String &line) : __sd(-1),
 }
 Server::Server(const Server &copy)
 {
-	// WSU::log("Server copy constructor");
+	// wsu::log("Server copy constructor");
 	*this = copy;
 }
 
@@ -84,7 +84,7 @@ bool Server::amITheServerYouAreLookingFor(const String &sN)
 }
 String Server::serverIdentity()
 {
-	return String(__host + ":" + WSU::intToString(__port));
+	return String(__host + ":" + wsu::intToString(__port));
 }
 /***********************************************************************
  *                               METHODS                               *
@@ -152,7 +152,7 @@ void Server::proccessListenToken(t_strVect &tokens)
 		{
 			if (String::npos != it->find_first_not_of("0123456789"))
 				throw std::runtime_error(tokens.at(0) + ": invalid port: not a number");
-			size_t port = WSU::stringToInt(*it);
+			size_t port = wsu::stringToInt(*it);
 			if (port > 65535)
 				throw std::runtime_error(tokens.at(0) + ": invalid port: out of range");
 			this->__ports.push_back(port);
@@ -189,7 +189,7 @@ void Server::proccessClientBodyBufferSizeToken(t_strVect &tokens)
 		throw std::runtime_error(tokens.at(0) + ": multiple client_body_buffer_size values");
 	if (String::npos != tokens.at(1).find_first_not_of("0123456789"))
 		throw std::runtime_error(tokens.at(0) + ": invalid client_body_buffer_size: not a number");
-	this->__clientBodyBufferSize = WSU::stringToInt(tokens.at(1));
+	this->__clientBodyBufferSize = wsu::stringToInt(tokens.at(1));
 	this->b__clientBodyBufferSize = true;
 }
 
@@ -200,6 +200,8 @@ void Server::proccessToken(t_strVect &tokens)
 		key != "root" &&
 		key != "index" &&
 		key != "listen" &&
+		key != "return" &&
+		key != "cgi_pass" &&
 		key != "autoindex" &&
 		key != "error_page" &&
 		key != "server_name" &&
@@ -219,7 +221,7 @@ void Server::proccessDirectives()
 {
 	for (t_strVect::iterator it = this->__directives.begin(); it != this->__directives.end(); it++)
 	{
-		t_strVect tokens = WSU::splitBySpaces(*it);
+		t_strVect tokens = wsu::splitBySpaces(*it);
 		if (!tokens.empty())
 		{
 			proccessToken(tokens);
@@ -248,12 +250,12 @@ void Server::LocationBlock(size_t pos)
 void Server::addDirective(size_t end)
 {
 	String directive = String(__line.begin(), __line.begin() + end);
-	WSU::trimSpaces(directive);
+	wsu::trimSpaces(directive);
 	if (directive.empty())
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
 	this->__line.erase(0, end + 1);
-	WSU::log("directive: " + directive);
+	wsu::log("directive: " + directive);
 }
 void Server::parseDirectives()
 {
@@ -273,10 +275,10 @@ void Server::parseDirectives()
 void Server::parse()
 {
 	String line = __line;
-	WSU::trimSpaces(__line);
+	wsu::trimSpaces(__line);
 	if (!__line.empty())
 		__line = __line.substr(1, __line.length() - 2);
-	WSU::trimSpaces(__line);
+	wsu::trimSpaces(__line);
 	parseDirectives();
 	proccessDirectives();
 	if (__valid)
