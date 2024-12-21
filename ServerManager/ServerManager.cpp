@@ -1,28 +1,11 @@
 
 #include "ServerManager.hpp"
 
-void printLocalAddress(int sockfd)
-{
-	struct sockaddr_in localAddr;
-	socklen_t addrLen = sizeof(localAddr);
-
-	if (getsockname(sockfd, (struct sockaddr *)&localAddr, &addrLen) == 0)
-	{
-		char ip[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &(localAddr.sin_addr), ip, sizeof(ip));
-		std::cout << "Request came to IP: " << ip
-				  << ", Port: " << ntohs(localAddr.sin_port) << std::endl;
-	}
-	else
-	{
-		std::cerr << "Error: Could not retrieve local address." << std::endl;
-	}
-}
-
+int ServerManager::__sockNum = 0;
 t_Server ServerManager::__servers;
 t_events ServerManager::__sockets;
 t_Connections ServerManager::__connections;
-int ServerManager::__sockNum = 0;
+struct pollfd *ServerManager::__events = NULL;
 
 ServerManager::ServerManager()
 {
@@ -123,11 +106,9 @@ bool ServerManager::isServerSocket(int sd)
 		return true;
 	return false;
 }
-
 /************************************************************************
  *                            SERVER CONTROL                            *
  ************************************************************************/
-
 void ServerManager::writeDataToSocket(int sd)
 {
 	if (wsu::__criticalOverLoad == true && ServerManager::__connections[sd]->__responseQueue.empty())
@@ -225,7 +206,7 @@ void ServerManager::acceptNewConnection(int sd)
 }
 void ServerManager::proccessPollEvent(int sd, int &retV)
 {
-	struct pollfd &sockStruct = ServerManager::__sockets.at(sd);
+	struct pollfd &sockStruct = ServerManager::__events[sd];
 	if (sockStruct.revents & POLLIN)
 	{
 		if (isServerSocket(sockStruct.fd))
@@ -266,6 +247,9 @@ void ServerManager::proccessPollEvent(int sd, int &retV)
 	if (ServerManager::__servers.size() == ServerManager::__sockets.size())
 		wsu::__criticalOverLoad = false;
 }
+/***************************************************************************************
+ *                                      MAIN LOOP                                      *
+ ***************************************************************************************/
 void ServerManager::mainLoop()
 {
 	int retV = 0;
@@ -275,16 +259,15 @@ void ServerManager::mainLoop()
 	{
 		while (true)
 		{
-			struct pollfd *events = wsu::data(ServerManager::__sockets);
-			retV = poll(ServerManager::__sockets.data(), ServerManager::__sockets.size(), timeout);
+			ServerManager::__events = wsu::data(ServerManager::__sockets);
+			retV = poll(ServerManager::__events, ServerManager::__sockets.size(), timeout);
 			if (retV == -1)
 			{
-				free(events);
-				throw std::runtime_error("poll syscall err");
+				delete[] ServerManager::__events;
 			}
 			else if (retV == 0)
 			{
-				free(events);
+				delete[] ServerManager::__events;
 				continue;
 			}
 			else
@@ -302,7 +285,7 @@ void ServerManager::mainLoop()
 						wsu::terr(e.what());
 					}
 				}
-				free(events);
+				delete[] ServerManager::__events;
 			}
 		}
 	}
@@ -500,10 +483,10 @@ void ServerManager::checkConflicts()
 {
 	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
 	{
-		const t_strVect &serverNames = it->second->getServerNames();
-		for (t_strVect::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
+		const t_svec &serverNames = it->second->getServerNames();
+		for (t_svec::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
 		{
-			for (t_strVect::const_iterator match = name + 1; match != serverNames.end(); match++)
+			for (t_svec::const_iterator match = name + 1; match != serverNames.end(); match++)
 			{
 				if (*match == *name)
 					wsu::warn("conflicting server name " + *name + " on " + it->second->serverIdentity() + ", ignored");
@@ -516,8 +499,8 @@ void ServerManager::checkConflicts()
 		{
 			if (it->second->getServerPort() == iter->second->getServerPort())
 			{
-				const t_strVect &serverNames = it->second->getServerNames();
-				for (t_strVect::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
+				const t_svec &serverNames = it->second->getServerNames();
+				for (t_svec::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
 				{
 					if (iter->second->amITheServerYouAreLookingFor(*name))
 						wsu::warn("conflicting server name " + *name + " on " + it->second->serverIdentity() + ", ignored");

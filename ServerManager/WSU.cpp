@@ -180,8 +180,8 @@ String wsu::mergeByChar(const std::vector<String> &input, char del)
 }
 bool wsu::samePath(const String &path1, const String &path2)
 {
-	t_strVect vPath1 = wsu::splitByChar(path1, '/');
-	t_strVect vPath2 = wsu::splitByChar(path2, '/');
+	t_svec vPath1 = wsu::splitByChar(path1, '/');
+	t_svec vPath2 = wsu::splitByChar(path2, '/');
 	size_t pos = 0;
 	if (vPath1.size() != vPath2.size())
 		return false;
@@ -194,8 +194,8 @@ bool wsu::samePath(const String &path1, const String &path2)
 }
 bool wsu::containsPath(const String &path, const String &subPath)
 {
-	t_strVect vPath = wsu::splitByChar(path, '/');
-	t_strVect vSubPath = wsu::splitByChar(subPath, '/');
+	t_svec vPath = wsu::splitByChar(path, '/');
+	t_svec vSubPath = wsu::splitByChar(subPath, '/');
 	size_t pos = 0;
 	if (vPath.empty())
 		return true;

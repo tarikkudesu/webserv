@@ -16,7 +16,7 @@ class Location
 		String								__line;
 		String								__root;
 		String								__path;
-		t_strVect							__index;
+		t_svec								__index;
 		String								__return;
 		String								__cgiPass;
 		bool								__autoindex;
@@ -25,15 +25,15 @@ class Location
 		std::map< String, Location* >		__subLocations;
 		std::vector< t_method >				__allowMethods;
 
-		void								allowMethodsDirective( t_strVect &tokens );
-		void								errorPageDirective( t_strVect &tokens );
-		void								autoindexDirective( t_strVect &tokens );
+		void								allowMethodsDirective( t_svec &tokens );
+		void								errorPageDirective( t_svec &tokens );
+		void								autoindexDirective( t_svec &tokens );
 		void 								checkNestedLocation( String &path );
-		void								indexDirective( t_strVect &tokens );
-		void								cgiPassDirective( t_strVect &tokens );
-		void								returnDirective( t_strVect &tokens );
-		void								rootDirective( t_strVect &tokens );
-		void								proccessToken(t_strVect &tokens );
+		void								indexDirective( t_svec &tokens );
+		void								cgiPassDirective( t_svec &tokens );
+		void								returnDirective( t_svec &tokens );
+		void								rootDirective( t_svec &tokens );
+		void								proccessToken(t_svec &tokens );
 		void								addLocationBlock( size_t pos );
 		void								addDirective( size_t end );
 		void								proccessDirectives();
@@ -50,7 +50,7 @@ class Location
 		void		print() {
 			std::cout << "root: " << this->__root << "\n";
 			std::cout << "index: ";
-			for (t_strVect::iterator it = __index.begin(); it != __index.end(); it++) {
+			for (t_svec::iterator it = __index.begin(); it != __index.end(); it++) {
 				std::cout << *it << " ";
 			} std::cout << "\n";
 			if (__autoindex == true)

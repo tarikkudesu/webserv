@@ -1,7 +1,6 @@
 # Prerequisites
 *.d
 
-.vscode
 .logs
 tester
 webserv

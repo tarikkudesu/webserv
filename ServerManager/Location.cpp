@@ -122,7 +122,7 @@ void Location::addLocationBlock(size_t pos)
 	size_t tracker = 1;
 
 	String outer = String(__line.begin(), __line.begin() + pos);
-	t_strVect tokens = wsu::splitBySpaces(outer);
+	t_svec tokens = wsu::splitBySpaces(outer);
 	wsu::trimSpaces(outer);
 	wsu::log("location: " + outer);
 	if (tokens.size() != 2)
@@ -159,7 +159,7 @@ void Location::addDirective(size_t end)
 	this->__line.erase(0, end + 1);
 	wsu::log("directive: " + directive);
 }
-void Location::rootDirective(t_strVect &tokens)
+void Location::rootDirective(t_svec &tokens)
 {
 	if (b__root == true)
 		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
@@ -168,15 +168,15 @@ void Location::rootDirective(t_strVect &tokens)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 	this->__root = tokens.at(1);
 }
-void Location::indexDirective(t_strVect &tokens)
+void Location::indexDirective(t_svec &tokens)
 {
 	if (b__index == false)
 		this->__index.clear();
 	b__index = true;
-	for (t_strVect::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
+	for (t_svec::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
 		this->__index.push_back(*it);
 }
-void Location::autoindexDirective(t_strVect &tokens)
+void Location::autoindexDirective(t_svec &tokens)
 {
 	if (b__autoindex == true)
 		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
@@ -188,11 +188,11 @@ void Location::autoindexDirective(t_strVect &tokens)
 	else if (tokens.at(1) != "off")
 		throw std::runtime_error(tokens.at(0) + " invalid value, it must be \"on\" or \"off\"");
 }
-void Location::errorPageDirective(t_strVect &tokens)
+void Location::errorPageDirective(t_svec &tokens)
 {
 	if (tokens.size() <= 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
-	for (t_strVect::iterator it = tokens.begin() + 1; it != tokens.end() && it != tokens.end() - 1; it++)
+	for (t_svec::iterator it = tokens.begin() + 1; it != tokens.end() && it != tokens.end() - 1; it++)
 	{
 		if (it->find_first_not_of("0123456789") != String::npos)
 			throw std::runtime_error(*it + " invalid value");
@@ -202,12 +202,12 @@ void Location::errorPageDirective(t_strVect &tokens)
 		this->__errorPages.insert(std::make_pair(code, *(tokens.end() - 1)));
 	}
 }
-void Location::allowMethodsDirective(t_strVect &tokens)
+void Location::allowMethodsDirective(t_svec &tokens)
 {
 	if (b__allowMethods == false)
 		this->__allowMethods.clear();
 	b__allowMethods = true;
-	for (t_strVect::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
+	for (t_svec::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
 	{
 		if (*it != "OPTIONS" && *it != "GET" && *it != "HEAD" && *it != "PUT" && *it != "DELETE" && *it != "TRACE" && *it != "CONNECT" && *it != "POST")
 			throw std::runtime_error(*it + " invalid value");
@@ -229,19 +229,19 @@ void Location::allowMethodsDirective(t_strVect &tokens)
 			this->__allowMethods.push_back(POST);
 	}
 }
-void Location::returnDirective(t_strVect &tokens)
+void Location::returnDirective(t_svec &tokens)
 {
 	if (tokens.size() != 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 	this->__return = tokens.at(1);
 }
-void Location::cgiPassDirective(t_strVect &tokens)
+void Location::cgiPassDirective(t_svec &tokens)
 {
 	if (tokens.size() != 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 	this->__cgiPass = tokens.at(1);
 }
-void Location::proccessToken(t_strVect &tokens)
+void Location::proccessToken(t_svec &tokens)
 {
 	String &key = tokens.at(0);
 	if (key != "host" &&
@@ -282,7 +282,7 @@ void Location::proccessDirectives()
 {
 	for (std::deque<String>::iterator it = this->__directives.begin(); it != this->__directives.end(); it++)
 	{
-		t_strVect tokens = wsu::splitBySpaces(*it);
+		t_svec tokens = wsu::splitBySpaces(*it);
 		if (!tokens.empty())
 		{
 			if (tokens.size() == 1)

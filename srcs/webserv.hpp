@@ -32,7 +32,7 @@
 
 typedef std::string String;
 typedef std::vector<pollfd> t_events;
-typedef std::vector<String> t_strVect;
+typedef std::vector<String> t_svec;
 
 #define RED "\033[1;31m"
 #define BLUE "\033[1;34m"

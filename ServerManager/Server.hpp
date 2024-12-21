@@ -18,11 +18,11 @@ class Server
 		bool							b__clientBodyBufferSize;
 		bool							b__host;
 
-		void							proccessClientBodyBufferSizeToken( t_strVect &tokens );
-		void							proccessServerNameToken( t_strVect &tokens );
-		void							proccessListenToken( t_strVect &tokens );
-		void							proccessHostToken( t_strVect &tokens );
-		void							proccessToken(t_strVect &tokens);
+		void							proccessClientBodyBufferSizeToken( t_svec &tokens );
+		void							proccessServerNameToken( t_svec &tokens );
+		void							proccessListenToken( t_svec &tokens );
+		void							proccessHostToken( t_svec &tokens );
+		void							proccessToken(t_svec &tokens);
 		void							proccessDirectives();
 		void							LocationBlock( size_t pos );
 		void							addDirective( size_t pos );
@@ -34,7 +34,7 @@ class Server
 		bool							__valid;
 
 		bool							amITheServerYouAreLookingFor( const String &sN);
-		const t_strVect					&getServerNames() const;
+		const t_svec					&getServerNames() const;
 		const String					&getServerHost() const;
 		int								getServerSocket() const;
 		int								getServerPort() const;
@@ -48,7 +48,7 @@ class Server
 			std::cout << "Server\n";
 			std::cout << "\thost: " << __host << "\n";
 			std::cout << "\tserver_name: ";
-			for (t_strVect::iterator it = __serverNames.begin(); it != __serverNames.end(); it++) {
+			for (t_svec::iterator it = __serverNames.begin(); it != __serverNames.end(); it++) {
 				std::cout << *it << " ";
 			} std::cout << "\n";
 			std::cout << "\tclientBodyBufferSize: " << __clientBodyBufferSize << "\n";

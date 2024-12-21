@@ -1,0 +1,136 @@
+[1;34m[21/Dec/2024:13:16:24][1;0m configuration file:conf/webserv_default.conf
+[1;34m[21/Dec/2024:13:16:24][1;0m server {
+[1;34m[21/Dec/2024:13:16:24][1;0m     host localhost;
+[1;34m[21/Dec/2024:13:16:24][1;0m     listen	8080 8081 8082;
+[1;34m[21/Dec/2024:13:16:24][1;0m     server_name youpi youhi youji;
+[1;34m[21/Dec/2024:13:16:24][1;0m     client_body_buffer_size 10;
+[1;34m[21/Dec/2024:13:16:24][1;0m     root ./test_us/root;
+[1;34m[21/Dec/2024:13:16:24][1;0m     index index.html;
+[1;34m[21/Dec/2024:13:16:24][1;0m     allow_methods GET;
+[1;34m[21/Dec/2024:13:16:24][1;0m     location /put_test {
+[1;34m[21/Dec/2024:13:16:24][1;0m         allow_methods PUT;
+[1;34m[21/Dec/2024:13:16:24][1;0m         root ./YoupiBanane/put_here;
+[1;34m[21/Dec/2024:13:16:24][1;0m         location put_test/hu {
+[1;34m[21/Dec/2024:13:16:24][1;0m             allow_methods GET;
+[1;34m[21/Dec/2024:13:16:24][1;0m             allow_methods GET;
+[1;34m[21/Dec/2024:13:16:24][1;0m         }
+[1;34m[21/Dec/2024:13:16:24][1;0m     }
+[1;34m[21/Dec/2024:13:16:24][1;0m }
+[1;34m[21/Dec/2024:13:16:24][1;0m server {
+[1;34m[21/Dec/2024:13:16:24][1;0m     server_name youpi;
+[1;34m[21/Dec/2024:13:16:24][1;0m     host 0.0.0.0;
+[1;34m[21/Dec/2024:13:16:24][1;0m     listen 9000;
+[1;34m[21/Dec/2024:13:16:24][1;0m     allow_methods GET;
+[1;34m[21/Dec/2024:13:16:24][1;0m     location /put_test {
+[1;34m[21/Dec/2024:13:16:24][1;0m         allow_methods PUT;
+[1;34m[21/Dec/2024:13:16:24][1;0m         root ./YoupiBanane/put_here;
+[1;34m[21/Dec/2024:13:16:24][1;0m     }
+[1;34m[21/Dec/2024:13:16:24][1;0m }
+[1;34m[21/Dec/2024:13:16:24][1;0m server {
+[1;34m[21/Dec/2024:13:16:24][1;0m     listen 8000;
+[1;34m[21/Dec/2024:13:16:24][1;0m     listen 8001;
+[1;34m[21/Dec/2024:13:16:24][1;0m     listen 8002;
+[1;34m[21/Dec/2024:13:16:24][1;0m     root test_us/root;
+[1;34m[21/Dec/2024:13:16:24][1;0m     server_name weebserv;
+[1;34m[21/Dec/2024:13:16:24][1;0m     autoindex off;
+[1;34m[21/Dec/2024:13:16:24][1;0m     index index.html;
+[1;34m[21/Dec/2024:13:16:24][1;0m     client_body_buffer_size 10;
+[1;34m[21/Dec/2024:13:16:24][1;0m     location *.test {
+[1;34m[21/Dec/2024:13:16:24][1;0m         autoindex off;
+[1;34m[21/Dec/2024:13:16:24][1;0m     }
+[1;34m[21/Dec/2024:13:16:24][1;0m }
+[1;34m[21/Dec/2024:13:16:24][1;0m server {
+[1;34m[21/Dec/2024:13:16:24][1;0m     host 127.0.0.1;
+[1;34m[21/Dec/2024:13:16:24][1;0m     root test_us/root/el_secundo;
+[1;34m[21/Dec/2024:13:16:24][1;0m     server_name el_secundo;
+[1;34m[21/Dec/2024:13:16:24][1;0m     allow_methods GET;
+[1;34m[21/Dec/2024:13:16:24][1;0m     autoindex off;
+[1;34m[21/Dec/2024:13:16:24][1;0m     index index.html;
+[1;34m[21/Dec/2024:13:16:24][1;0m     client_body_buffer_size 10;
+[1;34m[21/Dec/2024:13:16:24][1;0m     location *.tes {
+[1;34m[21/Dec/2024:13:16:24][1;0m         index index.html;
+[1;34m[21/Dec/2024:13:16:24][1;0m     }
+[1;34m[21/Dec/2024:13:16:24][1;0m }
+[1;34m[21/Dec/2024:13:16:24][1;0m server {
+[1;34m[21/Dec/2024:13:16:24][1;0m     listen 1024;
+[1;34m[21/Dec/2024:13:16:24][1;0m }
+[1;34m[21/Dec/2024:13:16:24][1;32m [SUCCESS] [1;0mreading file content
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: host localhost
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 8080 8081 8082
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: server_name youpi youhi youji
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: client_body_buffer_size 10
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: root ./test_us/root
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: index index.html
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods GET
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: host localhost
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 8080 8081 8082
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: server_name youpi youhi youji
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: client_body_buffer_size 10
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: root ./test_us/root
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: index index.html
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods GET
+[1;34m[21/Dec/2024:13:16:24][1;0m location: location /put_test
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods PUT
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: root ./YoupiBanane/put_here
+[1;34m[21/Dec/2024:13:16:24][1;0m location: location put_test/hu
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods GET
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods GET
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: server_name youpi
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: host 0.0.0.0
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 9000
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods GET
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: server_name youpi
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: host 0.0.0.0
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 9000
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods GET
+[1;34m[21/Dec/2024:13:16:24][1;0m location: location /put_test
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods PUT
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: root ./YoupiBanane/put_here
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 8000
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 8001
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 8002
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: root test_us/root
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: server_name weebserv
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: autoindex off
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: index index.html
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: client_body_buffer_size 10
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 8000
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 8001
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 8002
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: root test_us/root
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: server_name weebserv
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: autoindex off
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: index index.html
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: client_body_buffer_size 10
+[1;34m[21/Dec/2024:13:16:24][1;0m location: location *.test
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: autoindex off
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: host 127.0.0.1
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: root test_us/root/el_secundo
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: server_name el_secundo
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods GET
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: autoindex off
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: index index.html
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: client_body_buffer_size 10
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: host 127.0.0.1
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: root test_us/root/el_secundo
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: server_name el_secundo
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: allow_methods GET
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: autoindex off
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: index index.html
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: client_body_buffer_size 10
+[1;34m[21/Dec/2024:13:16:24][1;0m location: location *.tes
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: index index.html
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 1024
+[1;34m[21/Dec/2024:13:16:24][1;0m directive: listen 1024
+[1;34m[21/Dec/2024:13:16:24][1;32m [SUCCESS] [1;0msyntax check
+[1;34m[21/Dec/2024:13:16:24][1;32m [SUCCESS] [1;0mresolving hosts
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: localhost:8080
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: localhost:8081
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: localhost:8082
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: 0.0.0.0:9000
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: 0.0.0.0:8000
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: 0.0.0.0:8001
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: 0.0.0.0:8002
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: 127.0.0.1:8080
+[1;34m[21/Dec/2024:13:16:24][1;32m [RUNNING] [1;0mServer: 0.0.0.0:1024
+exiting

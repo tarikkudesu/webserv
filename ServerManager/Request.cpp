@@ -168,10 +168,10 @@ void Request::proccessURI()
 	this->__URI = __URI.substr(0, start);
 	String query = String(__URI.begin() + start, __URI.begin() + end);
 	{
-		t_strVect queris = wsu::splitByChar(query, '&');
-		for (t_strVect::iterator it = queris.begin(); it != queris.end(); it++)
+		t_svec queris = wsu::splitByChar(query, '&');
+		for (t_svec::iterator it = queris.begin(); it != queris.end(); it++)
 		{
-			t_strVect pairs = wsu::splitByChar(*it, '=');
+			t_svec pairs = wsu::splitByChar(*it, '=');
 			if (pairs.size() >= 2)
 				__queryVariables.insert(std::make_pair(pairs.at(0), pairs.at(1)));
 		}
