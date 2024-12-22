@@ -99,6 +99,7 @@ void Server::setup()
 	this->__sd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->__sd == -1)
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to create socket ");
+	throw std::runtime_error(serverIdentity() + ": non functional: failed to create socket ");
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEADDR, (void *)&ra, sizeof(ra)))
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to make reusable address");
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEPORT, (void *)&rp, sizeof(rp)))
@@ -115,9 +116,13 @@ void Server::setup()
 		{
 			struct sockaddr_in *add = (struct sockaddr_in *)result->ai_addr;
 			addr.sin_addr.s_addr = add->sin_addr.s_addr;
+			freeaddrinfo(result);
 		}
 		else
+		{
+			freeaddrinfo(result);
 			throw std::runtime_error(serverIdentity() + ": non functional: couldn't resolve server host name: " + this->__host);
+		}
 	}
 	addr.sin_port = htons(this->__port);
 	if (-1 == bind(this->__sd, (struct sockaddr *)&addr, sizeof(addr)))

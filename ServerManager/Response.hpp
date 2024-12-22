@@ -8,10 +8,6 @@ class Response
 	private :
 		Request				&__request;
 		Server				&__server;
-		int					statusCode;;
-		String				reasonPhrase;
-		String				body;
-		std::map<String,	String> heaaderResponse;
 
 	public:
 

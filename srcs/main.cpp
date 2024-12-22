@@ -1,6 +1,8 @@
 
 #include "../ServerManager/ServerManager.hpp"
 
+ServerManager *webservP = NULL;
+
 void f()
 {
 	int fd = open(".logs/sds.log", O_WRONLY | O_CREAT | O_TRUNC, 0666);
@@ -12,10 +14,10 @@ void f()
 	dup2(fd, STDOUT_FILENO);
 	dup2(fd, STDERR_FILENO);
 	close(fd);
-	// system("lsof -c webserv");
+	system("lsof -c webserv");
 	std::cout << "\n********************************************************************\n";
 	std::cout << "********************************************************************\n\n";
-	// system("leaks -list webserv");
+	system("leaks -list webserv");
 }
 
 void signalHandler(int signal)
@@ -23,6 +25,7 @@ void signalHandler(int signal)
 	if (signal == SIGINT)
 	{
 		std::cout << "exiting\n";
+		webservP->clear();
 		exit(0);
 	}
 	wsu::terr(String("SIGPIPE"));
@@ -121,6 +124,7 @@ int main(int ac, char **av)
 		return 1;
 	}
 	ServerManager webserv(config);
+	webservP = &webserv;
 	webserv.setUpWebserv();
 	return 0;
 }

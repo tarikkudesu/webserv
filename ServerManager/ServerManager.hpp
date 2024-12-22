@@ -55,6 +55,7 @@ class ServerManager
 
 	public:
 		void						setUpWebserv();
+		void						clear();
 		void						debug()
 		{
 			// t_Server::iterator it = ServerManager::__servers.begin();

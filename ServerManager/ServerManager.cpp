@@ -29,10 +29,61 @@ ServerManager &ServerManager::operator=(const ServerManager &assign)
 	return *this;
 }
 
+void ServerManager::clear()
+{
+	if (ServerManager::__connections.empty() == false)
+	{
+		for (t_Connections::iterator it = ServerManager::__connections.begin(); it != ServerManager::__connections.end(); it++)
+		{
+			ServerManager::removeSocket(it->second->getSock());
+			delete it->second;
+		}
+	}
+	if (ServerManager::__servers.empty() == false)
+	{
+		for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
+		{
+			ServerManager::removeSocket(it->second->getServerSocket());
+			delete it->second;
+		}
+	}
+	if (ServerManager::__sockets.empty() == false)
+	{
+		for (t_events::iterator it = ServerManager::__sockets.begin(); it != ServerManager::__sockets.end(); it++)
+		{
+			close(it->fd);
+		}
+		ServerManager::__sockets.clear();
+	}
+}
+
 ServerManager::~ServerManager()
 {
-	for (t_events::iterator it = __sockets.begin(); it != __sockets.end(); it++)
-		close(it->fd);
+	// if (ServerManager::__sockets.empty() == false)
+	// {
+	// 	for (t_events::iterator it = ServerManager::__sockets.begin(); it != ServerManager::__sockets.end(); it++)
+	// 	{
+	// 		std::cout << it->fd << " |\n";
+	// 		close(it->fd);
+	// 	}
+	// 	ServerManager::__sockets.clear();
+	// }
+	// if (ServerManager::__connections.empty() == false)
+	// {
+	// 	for (t_Connections::iterator it = ServerManager::__connections.begin(); it != ServerManager::__connections.end(); it++)
+	// 	{
+	// 		std::cout << it->second->getSock();
+	// 	}
+	// 	ServerManager::__connections.clear();
+	// }
+	// if (ServerManager::__servers.empty() == false)
+	// {
+	// 	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
+	// 	{
+	// 		std::cout << it->second->getServerSocket();
+	// 	}
+	// 	ServerManager::__servers.clear();
+	// }
 }
 
 /****************************************************************************
@@ -54,6 +105,7 @@ void ServerManager::addConnection(int sd)
 {
 	ServerManager::__connections[sd] = new Connection(sd);
 	ServerManager::__connections[sd]->setServers(ServerManager::__servers);
+	std::cout << "socket " << sd << " connection\n";
 	addSocket(sd, CONNECTION);
 }
 void ServerManager::removeServer(int sd)
@@ -72,6 +124,7 @@ void ServerManager::addServer(Server *server)
 	if (ServerManager::__servers.size() >= MAX_EVENTS)
 		throw std::runtime_error("critical server overload, " + server->getServerHost() + ":" + wsu::intToString(server->getServerPort()) + " non functional");
 	ServerManager::__servers[server->getServerSocket()] = server;
+	std::cout << "socket " << server->getServerSocket() << " server\n";
 	addSocket(server->getServerSocket(), SERVER);
 }
 void ServerManager::removeSocket(int sd)
@@ -314,7 +367,11 @@ void ServerManager::checkHosts()
 			hint.ai_socktype = SOCK_STREAM;
 			int status = getaddrinfo(host.c_str(), NULL, &hint, &result);
 			if (status != 0)
+			{
+				freeaddrinfo(result);
 				throw std::runtime_error("getaddrinfo: couldn't resolve server host name: " + host);
+			}
+			freeaddrinfo(result);
 		}
 	}
 	wsu::success("resolving hosts");
@@ -344,9 +401,9 @@ void ServerManager::initServers()
 	}
 	for (t_serVect::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
 		delete *it;
+	__serverTemplates.clear();
 	if (ServerManager::__servers.size() >= MAX_EVENTS)
 		throw std::runtime_error("critical server overload: too many servers");
-	__serverTemplates.clear();
 }
 void ServerManager::readFile()
 {
@@ -476,7 +533,7 @@ void ServerManager::logServers()
 	t_Server::iterator it = ServerManager::__servers.begin();
 	for (; it != ServerManager::__servers.end(); it++)
 	{
-		wsu::running("Server: " + (*it).second->getServerHost() + ":" + wsu::intToString((*it).second->getServerPort()));
+		wsu::running("Server: " + wsu::intToString(it->second->getServerSocket()) + " " + (*it).second->getServerHost() + ":" + wsu::intToString((*it).second->getServerPort()));
 	}
 }
 void ServerManager::checkConflicts()
@@ -509,6 +566,7 @@ void ServerManager::checkConflicts()
 		}
 	}
 }
+
 void ServerManager::setUpWebserv()
 {
 	try
@@ -521,8 +579,8 @@ void ServerManager::setUpWebserv()
 		checkHosts();
 		initServers();
 		checkConflicts();
+		while (1);
 		logServers();
-		// debug();
 		mainLoop();
 	}
 	catch (std::exception &e)
