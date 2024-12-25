@@ -5,16 +5,10 @@ Request::Request() : __transferEncoding(GENERAL),
 					 __contentLength(0)
 {
 }
-
 Request::Request(const Request &copy)
 {
 	*this = copy;
 }
-
-Request::~Request()
-{
-}
-
 Request &Request::operator=(const Request &assign)
 {
 	if (this != &assign)
@@ -31,6 +25,9 @@ Request &Request::operator=(const Request &assign)
 		this->__transferEncoding = assign.__transferEncoding;
 	}
 	return *this;
+}
+Request::~Request()
+{
 }
 
 /****************************************************************************

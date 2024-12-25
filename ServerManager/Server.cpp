@@ -4,7 +4,6 @@ Server::Server()
 {
 	throw std::runtime_error(": can not initiate server without port and server_name");
 }
-
 Server::Server(String &line) : __sd(-1),
 							   __port(-1),
 							   __line(line),
@@ -18,14 +17,8 @@ Server::Server(String &line) : __sd(-1),
 }
 Server::Server(const Server &copy)
 {
-	// wsu::log("Server copy constructor");
 	*this = copy;
 }
-
-Server::~Server()
-{
-}
-
 Server &Server::operator=(const Server &assign)
 {
 	if (this != &assign)
@@ -43,6 +36,9 @@ Server &Server::operator=(const Server &assign)
 		b__host = assign.b__host;
 	}
 	return *this;
+}
+Server::~Server()
+{
 }
 
 /****************************************************************************
@@ -89,7 +85,13 @@ String Server::serverIdentity()
 /***********************************************************************
  *                               METHODS                               *
  ***********************************************************************/
-
+Location &Server::identifyLocation(const String &path)
+{
+	Location	*l = NULL;
+	this->__rootLocation.locationMatch(path, l);
+	std::cout << "requested path: " << l->__path << " " << &l << "\n";
+	return *l;
+}
 void Server::setup()
 {
 	struct sockaddr_in addr;
@@ -99,11 +101,16 @@ void Server::setup()
 	this->__sd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->__sd == -1)
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to create socket ");
-	throw std::runtime_error(serverIdentity() + ": non functional: failed to create socket ");
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEADDR, (void *)&ra, sizeof(ra)))
+	{
+		close(this->__sd);
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to make reusable address");
+	}
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEPORT, (void *)&rp, sizeof(rp)))
+	{
+		close(this->__sd);
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to make reusable port");
+	}
 	addr.sin_family = AF_INET;
 	{
 		struct addrinfo hint;
@@ -120,20 +127,27 @@ void Server::setup()
 		}
 		else
 		{
-			freeaddrinfo(result);
+			close(this->__sd);
 			throw std::runtime_error(serverIdentity() + ": non functional: couldn't resolve server host name: " + this->__host);
 		}
 	}
 	addr.sin_port = htons(this->__port);
 	if (-1 == bind(this->__sd, (struct sockaddr *)&addr, sizeof(addr)))
+	{
+		close(this->__sd);
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to bind socket");
+	}
 	if (-1 == listen(this->__sd, 10))
+	{
+		close(this->__sd);
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to listen for connections");
+	}
 }
 
 /**********************************************************************
  *                            PARSE METHODS                           *
  **********************************************************************/
+
 void Server::proccessHostToken(t_svec &tokens)
 {
 	this->__host.clear();

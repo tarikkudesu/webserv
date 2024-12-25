@@ -1,12 +1,14 @@
 #include "Location.hpp"
 
+std::map<int16_t, String> Location::__defaultErrorPages;
+
 Location::Location() : b__r(true),
 					   b__root(false),
 					   b__index(false),
 					   b__autoindex(false),
 					   b__allowMethods(false),
-					   __path("/"),
-					   __autoindex(false)
+					   __autoindex(false),
+					   __path("/")
 {
 	this->__allowMethods.push_back(GET);
 	this->__allowMethods.push_back(DELETE);
@@ -14,13 +16,13 @@ Location::Location() : b__r(true),
 	this->__index.push_back("index.html");
 	addErrPages();
 }
-Location::Location(String dir) : b__r(false),
-								 b__root(false),
-								 b__index(false),
-								 b__autoindex(false),
-								 b__allowMethods(false),
-								 __path(dir),
-								 __autoindex(false)
+Location::Location(const String &dir) : b__r(false),
+										b__root(false),
+										b__index(false),
+										b__autoindex(false),
+										b__allowMethods(false),
+										__autoindex(false),
+										__path(dir)
 {
 	this->__allowMethods.push_back(GET);
 	this->__allowMethods.push_back(DELETE);
@@ -56,9 +58,7 @@ Location &Location::operator=(const Location &assign)
 Location::~Location()
 {
 	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
-	{
 		delete it->second;
-	}
 	__subLocations.clear();
 }
 /****************************************************************************
@@ -66,53 +66,72 @@ Location::~Location()
  ****************************************************************************/
 void Location::addErrPages()
 {
-	// __errorPages.insert(std::make_pair(300, "./Content/300.html"));
-	// __errorPages.insert(std::make_pair(301, "./Content/301.html"));
-	// __errorPages.insert(std::make_pair(302, "./Content/302.html"));
-	// __errorPages.insert(std::make_pair(303, "./Content/303.html"));
-	// __errorPages.insert(std::make_pair(304, "./Content/304.html"));
-	// __errorPages.insert(std::make_pair(305, "./Content/305.html"));
-	// __errorPages.insert(std::make_pair(307, "./Content/307.html"));
-	// __errorPages.insert(std::make_pair(400, "./Content/400.html"));
-	// __errorPages.insert(std::make_pair(401, "./Content/401.html"));
-	// __errorPages.insert(std::make_pair(402, "./Content/402.html"));
-	// __errorPages.insert(std::make_pair(403, "./Content/403.html"));
-	// __errorPages.insert(std::make_pair(404, "./Content/404.html"));
-	// __errorPages.insert(std::make_pair(405, "./Content/405.html"));
-	// __errorPages.insert(std::make_pair(406, "./Content/406.html"));
-	// __errorPages.insert(std::make_pair(407, "./Content/407.html"));
-	// __errorPages.insert(std::make_pair(408, "./Content/408.html"));
-	// __errorPages.insert(std::make_pair(409, "./Content/409.html"));
-	// __errorPages.insert(std::make_pair(410, "./Content/410.html"));
-	// __errorPages.insert(std::make_pair(411, "./Content/411.html"));
-	// __errorPages.insert(std::make_pair(412, "./Content/412.html"));
-	// __errorPages.insert(std::make_pair(413, "./Content/413.html"));
-	// __errorPages.insert(std::make_pair(414, "./Content/414.html"));
-	// __errorPages.insert(std::make_pair(415, "./Content/415.html"));
-	// __errorPages.insert(std::make_pair(416, "./Content/416.html"));
-	// __errorPages.insert(std::make_pair(417, "./Content/417.html"));
-	// __errorPages.insert(std::make_pair(500, "./Content/500.html"));
-	// __errorPages.insert(std::make_pair(501, "./Content/501.html"));
-	// __errorPages.insert(std::make_pair(502, "./Content/502.html"));
-	// __errorPages.insert(std::make_pair(503, "./Content/503.html"));
-	// __errorPages.insert(std::make_pair(504, "./Content/504.html"));
-	// __errorPages.insert(std::make_pair(505, "./Content/505.html"));
+	if (Location::__defaultErrorPages.empty() == false)
+	{
+		__defaultErrorPages.insert(std::make_pair(300, "./Content/300.html"));
+		__defaultErrorPages.insert(std::make_pair(301, "./Content/301.html"));
+		__defaultErrorPages.insert(std::make_pair(302, "./Content/302.html"));
+		__defaultErrorPages.insert(std::make_pair(303, "./Content/303.html"));
+		__defaultErrorPages.insert(std::make_pair(304, "./Content/304.html"));
+		__defaultErrorPages.insert(std::make_pair(305, "./Content/305.html"));
+		__defaultErrorPages.insert(std::make_pair(307, "./Content/307.html"));
+		__defaultErrorPages.insert(std::make_pair(400, "./Content/400.html"));
+		__defaultErrorPages.insert(std::make_pair(401, "./Content/401.html"));
+		__defaultErrorPages.insert(std::make_pair(402, "./Content/402.html"));
+		__defaultErrorPages.insert(std::make_pair(403, "./Content/403.html"));
+		__defaultErrorPages.insert(std::make_pair(404, "./Content/404.html"));
+		__defaultErrorPages.insert(std::make_pair(405, "./Content/405.html"));
+		__defaultErrorPages.insert(std::make_pair(406, "./Content/406.html"));
+		__defaultErrorPages.insert(std::make_pair(407, "./Content/407.html"));
+		__defaultErrorPages.insert(std::make_pair(408, "./Content/408.html"));
+		__defaultErrorPages.insert(std::make_pair(409, "./Content/409.html"));
+		__defaultErrorPages.insert(std::make_pair(410, "./Content/410.html"));
+		__defaultErrorPages.insert(std::make_pair(411, "./Content/411.html"));
+		__defaultErrorPages.insert(std::make_pair(412, "./Content/412.html"));
+		__defaultErrorPages.insert(std::make_pair(413, "./Content/413.html"));
+		__defaultErrorPages.insert(std::make_pair(414, "./Content/414.html"));
+		__defaultErrorPages.insert(std::make_pair(415, "./Content/415.html"));
+		__defaultErrorPages.insert(std::make_pair(416, "./Content/416.html"));
+		__defaultErrorPages.insert(std::make_pair(417, "./Content/417.html"));
+		__defaultErrorPages.insert(std::make_pair(500, "./Content/500.html"));
+		__defaultErrorPages.insert(std::make_pair(501, "./Content/501.html"));
+		__defaultErrorPages.insert(std::make_pair(502, "./Content/502.html"));
+		__defaultErrorPages.insert(std::make_pair(503, "./Content/503.html"));
+		__defaultErrorPages.insert(std::make_pair(504, "./Content/504.html"));
+		__defaultErrorPages.insert(std::make_pair(505, "./Content/505.html"));
+	}
 }
-const String &Location::getPath() const
-{
-	return this->__path;
-}
+
 /*****************************************************************************
  *                                  METHODS                                  *
  *****************************************************************************/
-
+void Location::locationMatch(const String &path, Location *&location)
+{
+	if (wsu::containsPath(this->__path, path))
+	{
+		for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
+		{
+			if (wsu::samePath(it->second->__path, path))
+			{
+				location = it->second;
+				return ;
+			}
+			else if (wsu::containsPath(it->second->__path, path))
+			{
+				it->second->locationMatch(path, location);
+				return ;
+			}
+		}
+	}
+	location = this;
+}
 void Location::checkNestedLocation(String &path)
 {
 	if (wsu::containsPath(this->__path, path) == false)
 		throw std::runtime_error("location \"" + path + "\" is outside location \"" + __path + "\"");
 	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
 	{
-		if (wsu::samePath(path, it->second->getPath()))
+		if (wsu::samePath(path, it->second->__path))
 			throw std::runtime_error("duplicate location \"" + path + "\"");
 	}
 }
@@ -314,4 +333,44 @@ void Location::parseLocation(String conf)
 	this->__line = conf;
 	parseDirectives();
 	proccessDirectives();
+}
+
+/*******************************************************************************************************
+ *                                               USELESS                                               *
+ *******************************************************************************************************/
+void Location::print()
+{
+	std::cout << "root: " << this->__root << "\n";
+	std::cout << "index: ";
+	for (t_svec::iterator it = __index.begin(); it != __index.end(); it++)
+		std::cout << *it << " ";
+	std::cout << "\n";
+	if (__autoindex == true)
+		std::cout << "autoindex: on\n";
+	else
+		std::cout << "autoindex: off\n";
+	std::cout << "error_pages: " << __errorPages.size() << "\n";
+	for (std::map<int16_t, String>::iterator it = __errorPages.begin(); it != __errorPages.end(); it++)
+		std::cout << "\t" << it->first << " " << it->second << "\n";
+	std::cout << "allowed_methods:\n";
+	for (std::vector<t_method>::iterator it = __allowMethods.begin(); it != __allowMethods.end(); it++)
+	{
+		if (*it == GET)
+			std::cout << "\tGET";
+		if (*it == DELETE)
+			std::cout << "\tDELETE";
+		if (*it == POST)
+			std::cout << "\tPOST";
+		if (*it == PUT)
+			std::cout << "\tPUT";
+		if (*it == OPTIONS)
+			std::cout << "\tOPTIONS";
+		if (*it == TRACE)
+			std::cout << "\tTRACE";
+		if (*it == CONNECT)
+			std::cout << "\tCONNECT";
+	}
+	std::cout << "\n";
+	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
+		it->second->print();
 }

@@ -3,7 +3,6 @@
 ErrorResponse::ErrorResponse()
 {
 }
-
 ErrorResponse::ErrorResponse(int code, String error) : __code(code),
 													   __errorIndication(error)
 {
@@ -19,20 +18,17 @@ ErrorResponse::ErrorResponse(int code, String error) : __code(code),
 	}
 	this->constructErrorPage();
 }
-
 ErrorResponse::ErrorResponse(const ErrorResponse &copy)
 {
 	(void)copy;
 }
-
-ErrorResponse::~ErrorResponse()
-{
-}
-
 ErrorResponse &ErrorResponse::operator=(const ErrorResponse &assign)
 {
 	(void)assign;
 	return *this;
+}
+ErrorResponse::~ErrorResponse()
+{
 }
 /****************************************************************************
  *                               MINI METHODS                               *

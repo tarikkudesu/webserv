@@ -106,6 +106,7 @@ void buildPage()
 	}
 	exit(1);
 }
+
 int main(int ac, char **av)
 {
 	atexit(f);
@@ -124,7 +125,6 @@ int main(int ac, char **av)
 		return 1;
 	}
 	ServerManager webserv(config);
-	webservP = &webserv;
 	webserv.setUpWebserv();
 	return 0;
 }

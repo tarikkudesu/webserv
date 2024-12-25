@@ -4,9 +4,8 @@ import sys
 host = "localhost"
 port = 8080
 
-
-request = ( # invalid method
-    "GET /forum/questions/?tag=networking&order=newest#top HTTP/1.1\r\n"
+request = (
+    "GET /1/12/121 HTTP/1.1\r\n"
     "Host: localhost:8080\r\n"
     "Content-Type: text/plain\r\n"
     "\r\n"

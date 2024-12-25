@@ -28,7 +28,10 @@ ServerManager &ServerManager::operator=(const ServerManager &assign)
 	}
 	return *this;
 }
-
+ServerManager::~ServerManager()
+{
+	clear();
+}
 void ServerManager::clear()
 {
 	if (ServerManager::__connections.empty() == false)
@@ -57,35 +60,6 @@ void ServerManager::clear()
 	}
 }
 
-ServerManager::~ServerManager()
-{
-	// if (ServerManager::__sockets.empty() == false)
-	// {
-	// 	for (t_events::iterator it = ServerManager::__sockets.begin(); it != ServerManager::__sockets.end(); it++)
-	// 	{
-	// 		std::cout << it->fd << " |\n";
-	// 		close(it->fd);
-	// 	}
-	// 	ServerManager::__sockets.clear();
-	// }
-	// if (ServerManager::__connections.empty() == false)
-	// {
-	// 	for (t_Connections::iterator it = ServerManager::__connections.begin(); it != ServerManager::__connections.end(); it++)
-	// 	{
-	// 		std::cout << it->second->getSock();
-	// 	}
-	// 	ServerManager::__connections.clear();
-	// }
-	// if (ServerManager::__servers.empty() == false)
-	// {
-	// 	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
-	// 	{
-	// 		std::cout << it->second->getServerSocket();
-	// 	}
-	// 	ServerManager::__servers.clear();
-	// }
-}
-
 /****************************************************************************
  *                               MINI METHODS                               *
  ****************************************************************************/
@@ -105,7 +79,6 @@ void ServerManager::addConnection(int sd)
 {
 	ServerManager::__connections[sd] = new Connection(sd);
 	ServerManager::__connections[sd]->setServers(ServerManager::__servers);
-	std::cout << "socket " << sd << " connection\n";
 	addSocket(sd, CONNECTION);
 }
 void ServerManager::removeServer(int sd)
@@ -122,9 +95,10 @@ void ServerManager::removeServer(int sd)
 void ServerManager::addServer(Server *server)
 {
 	if (ServerManager::__servers.size() >= MAX_EVENTS)
-		throw std::runtime_error("critical server overload, " + server->getServerHost() + ":" + wsu::intToString(server->getServerPort()) + " non functional");
+		throw std::runtime_error("critical server overload, " \
+			+ server->getServerHost() + ":" + wsu::intToString(server->getServerPort()) \
+			+ " non functional");
 	ServerManager::__servers[server->getServerSocket()] = server;
-	std::cout << "socket " << server->getServerSocket() << " server\n";
 	addSocket(server->getServerSocket(), SERVER);
 }
 void ServerManager::removeSocket(int sd)
@@ -365,12 +339,10 @@ void ServerManager::checkHosts()
 			memset(&hint, 0, sizeof(hint));
 			hint.ai_family = AF_INET;
 			hint.ai_socktype = SOCK_STREAM;
+			hint.ai_protocol = IPPROTO_TCP;
 			int status = getaddrinfo(host.c_str(), NULL, &hint, &result);
 			if (status != 0)
-			{
-				freeaddrinfo(result);
 				throw std::runtime_error("getaddrinfo: couldn't resolve server host name: " + host);
-			}
 			freeaddrinfo(result);
 		}
 	}
@@ -533,7 +505,7 @@ void ServerManager::logServers()
 	t_Server::iterator it = ServerManager::__servers.begin();
 	for (; it != ServerManager::__servers.end(); it++)
 	{
-		wsu::running("Server: " + wsu::intToString(it->second->getServerSocket()) + " " + (*it).second->getServerHost() + ":" + wsu::intToString((*it).second->getServerPort()));
+		wsu::running((*it).second->getServerHost() + ":" + wsu::intToString((*it).second->getServerPort()));
 	}
 }
 void ServerManager::checkConflicts()
@@ -546,7 +518,7 @@ void ServerManager::checkConflicts()
 			for (t_svec::const_iterator match = name + 1; match != serverNames.end(); match++)
 			{
 				if (*match == *name)
-					wsu::warn("conflicting server name " + *name + " on " + it->second->serverIdentity() + ", ignored");
+					wsu::warn("conflicting server name \"" + *name + "\" on " + it->second->serverIdentity() + ", ignored");
 			}
 		}
 	}
@@ -560,7 +532,7 @@ void ServerManager::checkConflicts()
 				for (t_svec::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
 				{
 					if (iter->second->amITheServerYouAreLookingFor(*name))
-						wsu::warn("conflicting server name " + *name + " on " + it->second->serverIdentity() + ", ignored");
+						wsu::warn("conflicting server name \"" + *name + "\" on " + it->second->serverIdentity() + ", ignored");
 				}
 			}
 		}
@@ -579,7 +551,6 @@ void ServerManager::setUpWebserv()
 		checkHosts();
 		initServers();
 		checkConflicts();
-		while (1);
 		logServers();
 		mainLoop();
 	}

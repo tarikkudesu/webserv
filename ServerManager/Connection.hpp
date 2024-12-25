@@ -20,7 +20,6 @@ class Connection
 		String					identifyRequestHeaders();
 		String					identifyRequestLine();
 		void					identifyRequestBody();
-		Location				*identifyLocation();
 		Server					*identifyServer();
 		void					responseBuilder();
 		void					requestParser();

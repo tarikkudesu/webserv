@@ -6,23 +6,16 @@ Connection::Connection() : __sd(-1),
 {
 	wsu::error("Connection constructor");
 }
-
 Connection::Connection(int sd) : __sd(sd),
 								 __erase(0),
 								 __serversP(NULL)
 {
 }
-
 Connection::Connection(const Connection &copy)
 {
 	wsu::error("Connection copy constructor");
 	*this = copy;
 }
-
-Connection::~Connection()
-{
-}
-
 Connection &Connection::operator=(const Connection &assign)
 {
 	wsu::error("Connection copy assignement operator");
@@ -33,6 +26,13 @@ Connection &Connection::operator=(const Connection &assign)
 	}
 	return *this;
 }
+Connection::~Connection()
+{
+}
+
+/****************************************************************************
+ *                               MINI METHODS                               *
+ ****************************************************************************/
 
 void Connection::setServers(t_Server &servers)
 {
@@ -129,11 +129,6 @@ void Connection::requestParser()
 	if (wsu::__criticalOverLoad == true)
 		throw ErrorResponse(503, "critical server overload");
 }
-Location *Connection::identifyLocation()
-{
-	//to be done tomorrow
-	return NULL;
-}
 Server *Connection::identifyServer()
 {
 	wsu::log("identifying server to respond");
@@ -156,7 +151,8 @@ Server *Connection::identifyServer()
 void Connection::responseBuilder()
 {
 	Server *server = identifyServer();
-	Location *location = identifyLocation();
+	std::cout << "identifying Location: " << __request.__URI << "\n";
+	Location &location = server->identifyLocation( __request.__URI );
 	(void)location;
 	Response res(this->__request, *server);
 }
@@ -169,22 +165,14 @@ void Connection::proccessData(String input)
 	{
 		requestParser();
 		responseBuilder();
-		const char *response = "HTTP/1.1 200 OK\n"
-							   "Content-Type: text/html\n"
-							   "Content-Length: 17\n"
-							   "Connection: keep-alive\r\n\r\n"
-							   "<h1>Webserv</h1>\n";
-		this->__responseQueue.push(String(response));
-		wsu::log("response proccessed");
+		throw ErrorResponse(200, "request proccess");
 	}
 	catch (ErrorResponse &e)
 	{
-		wsu::log("response is an error page");
 		this->__responseQueue.push(e.getResponse());
 	}
 	catch (std::exception &e)
 	{
-		wsu::log("continue");
 		this->__erase = 0;
 	}
 }

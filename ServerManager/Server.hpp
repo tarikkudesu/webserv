@@ -33,14 +33,16 @@ class Server
 	public:
 		bool							__valid;
 
-		bool							amITheServerYouAreLookingFor( const String &sN);
 		const t_svec					&getServerNames() const;
 		const String					&getServerHost() const;
 		int								getServerSocket() const;
 		int								getServerPort() const;
 		void							setPort(int port);
-		String							serverIdentity();
 		std::vector< int >				&getPorts();
+		String							serverIdentity();
+
+		bool							amITheServerYouAreLookingFor( const String &sN );
+		Location						&identifyLocation( const String &path );
 		void							setup();
 
 		void							print()
@@ -55,7 +57,6 @@ class Server
 			std::cout << "\tport: " << __port << "\n";
 			this->__rootLocation.print();
 		}
-
 
 		Server( String &line );
 		Server( const Server &copy );
