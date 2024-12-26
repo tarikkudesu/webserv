@@ -51,6 +51,8 @@ class ServerManager
 		ServerManager();
 
 	public:
+		static bool					up;
+
 		void						setUpWebserv();
 		void						clear();
 

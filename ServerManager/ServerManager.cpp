@@ -1,6 +1,7 @@
 
 #include "ServerManager.hpp"
 
+bool ServerManager::up = true;
 int ServerManager::__sockNum = 0;
 t_Server ServerManager::__servers;
 t_events ServerManager::__sockets;
@@ -9,20 +10,24 @@ struct pollfd *ServerManager::__events = NULL;
 
 ServerManager::ServerManager()
 {
+	wsu::debug("ServerManager default constructor");
 }
 
 ServerManager::ServerManager(const String &configutation_file) : __config(configutation_file)
 {
+	wsu::debug("ServerManager single para constructor");
 	wsu::log("configuration file:" + configutation_file);
 }
 
 ServerManager::ServerManager(const ServerManager &copy)
 {
+	wsu::debug("ServerManager copy constructor");
 	*this = copy;
 }
 
 ServerManager &ServerManager::operator=(const ServerManager &assign)
 {
+	wsu::debug("ServerManager copy assignement operator");
 	if (this != &assign)
 	{
 	}
@@ -31,6 +36,7 @@ ServerManager &ServerManager::operator=(const ServerManager &assign)
 ServerManager::~ServerManager()
 {
 	clear();
+	wsu::debug("ServerManager destructor");
 }
 void ServerManager::clear()
 {
@@ -58,6 +64,10 @@ void ServerManager::clear()
 		}
 		ServerManager::__sockets.clear();
 	}
+	ServerManager::__sockNum = 0;
+	ServerManager::__servers.clear();
+	ServerManager::__sockets.clear();
+	ServerManager::__connections.clear();
 }
 
 /****************************************************************************
@@ -285,7 +295,7 @@ void ServerManager::mainLoop()
 
 	try
 	{
-		while (true)
+		while (up)
 		{
 			ServerManager::__events = wsu::data(ServerManager::__sockets);
 			retV = poll(ServerManager::__events, ServerManager::__sockets.size(), timeout);

@@ -10,7 +10,7 @@ class Server
 		int								__port;
 		String							__host;
 		std::vector< int >				__ports;
-		std::vector< Location *>		__locations;
+		std::vector< Location >			__locations;
 		t_svec							__directives;
 		t_svec							__serverNames;
 		long							__clientBodyBufferSize;
@@ -32,7 +32,7 @@ class Server
 	public:
 		bool							__valid;
 
-		Location						*identifyLocation( const String &URI );
+		Location						&identifyLocation( const String &URI );
 		bool							amITheServerYouAreLookingFor( const String &sN );
 		const t_svec					&getServerNames() const;
 		const String					&getServerHost() const;

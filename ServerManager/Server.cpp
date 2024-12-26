@@ -2,6 +2,7 @@
 
 Server::Server()
 {
+	wsu::debug("Server default constructor");
 	throw std::runtime_error(": can not initiate server without port and server_name");
 }
 Server::Server(String line) : __sd(-1),
@@ -9,14 +10,14 @@ Server::Server(String line) : __sd(-1),
 							  __clientBodyBufferSize(-1),
 							  __valid(false)
 {
+	wsu::debug("Server single para constructor");
 	wsu::trimSpaces(line);
 	if (!line.empty())
 		line = line.substr(1, line.length() - 2);
 	wsu::trimSpaces(line);
 	parseServerDirectives(line);
 	proccessServerDirectives();
-	Location *root = new Location(line);
-	this->__locations.push_back(root);
+	this->__locations.push_back(Location(line));
 	parseLocation(line, "/");
 	if (__clientBodyBufferSize == -1)
 		__clientBodyBufferSize = 8000;
@@ -28,10 +29,12 @@ Server::Server(String line) : __sd(-1),
 }
 Server::Server(const Server &copy)
 {
+	wsu::debug("Server copy constructor");
 	*this = copy;
 }
 Server &Server::operator=(const Server &assign)
 {
+	wsu::debug("Server copy assignement operator");
 	if (this != &assign)
 	{
 		__sd = assign.__sd;
@@ -47,6 +50,11 @@ Server &Server::operator=(const Server &assign)
 }
 Server::~Server()
 {
+	__ports.clear();
+	__locations.clear();
+	__directives.clear();
+	__serverNames.clear();
+	wsu::debug("Server destructor");
 }
 
 /****************************************************************************
@@ -90,27 +98,27 @@ String Server::serverIdentity()
 {
 	return String(__host + ":" + wsu::intToString(__port));
 }
-Location *Server::identifyLocation(const String &URI)
+Location &Server::identifyLocation(const String &URI)
 {
 	wsu::log("identifying location");
-	std::vector< Location *> temp;
-	for (std::vector< Location *>::iterator it = __locations.begin(); it != __locations.end(); it++)
+	for (std::vector<Location>::iterator it = __locations.begin(); it != __locations.end(); it++)
 	{
-		if (wsu::samePath(URI, (*it)->__path))
+		if (wsu::samePath(URI, it->__path))
 			return *it;
 	}
-	for (std::vector< Location *>::iterator it = __locations.begin(); it != __locations.end(); it++)
+	std::vector<Location *> temp;
+	for (std::vector<Location>::iterator it = __locations.begin(); it != __locations.end(); it++)
 	{
-		if (wsu::containsPath((*it)->__path, URI))
-			temp.push_back(*it);
+		if (wsu::containsPath(it->__path, URI))
+			temp.push_back(&*it);
 	}
-	Location *loc = *__locations.begin();
-	for (std::vector< Location *>::iterator it = temp.begin(); it != temp.end(); it++)
+	Location *loc = &*__locations.begin();
+	for (std::vector<Location *>::iterator it = temp.begin(); it != temp.end(); it++)
 	{
 		if (wsu::splitByChar((*it)->__path, '/').size() > wsu::splitByChar(loc->__path, '/').size())
 			loc = *it;
 	}
-	return loc;
+	return *loc;
 }
 /***********************************************************************
  *                               METHODS                               *
@@ -271,17 +279,16 @@ void Server::proccessLocation(String &line, size_t pos, String &parent)
 		throw std::runtime_error("unknown block");
 	if (wsu::containsPath(parent, tokens.at(1)) == false)
 		throw std::runtime_error("location \"" + tokens.at(1) + "\" is outside location \"" + parent + "\"");
-	for (std::vector<Location *>::iterator it = __locations.begin(); it != __locations.end(); it++)
+	for (std::vector<Location>::iterator it = __locations.begin(); it != __locations.end(); it++)
 	{
 		if (tokens.at(1) == "/")
 			throw std::runtime_error("use server block to define root \"" + tokens.at(1) + "\" directives");
-		if (wsu::samePath((*it)->__path, tokens.at(1)))
+		if (wsu::samePath(it->__path, tokens.at(1)))
 			throw std::runtime_error("duplicate location \"" + tokens.at(1) + "\"");
 	}
 	String conf = String(line.begin() + pos + 1, line.end() - 2);
 	wsu::log("location: " + tokens.at(1));
-	Location *location = new Location(tokens.at(1), conf);
-	this->__locations.push_back(location);
+	this->__locations.push_back(Location(tokens.at(1), conf));
 	parseLocation(conf, tokens.at(1));
 }
 void Server::addLocation(String &line, size_t pos, String parent)

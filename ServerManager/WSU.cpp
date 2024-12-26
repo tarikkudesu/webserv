@@ -4,16 +4,19 @@ wsu::wsu() {}
 
 wsu::wsu(const wsu &copy) { (void)copy; }
 
-wsu::~wsu() {}
-
 wsu &wsu::operator=(const wsu &assign)
 {
 	(void)assign;
 	return *this;
 }
 
+wsu::~wsu() {}
+
 bool wsu::__criticalOverLoad = false;
 
+/************************************************************************************************
+ *                                             LOGS                                             *
+ ************************************************************************************************/
 String wsu::logDate()
 {
 	char buffer[30];
@@ -22,17 +25,6 @@ String wsu::logDate()
 	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
 	return String(buffer);
 }
-String wsu::buildIMFDate()
-{
-	char buffer[30];
-	std::time_t t = std::time(NULL);
-	std::tm *tm = std::gmtime(&t);
-	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", tm);
-	return String(buffer);
-}
-/************************************************************************************************
- *                                             LOGS                                             *
- ************************************************************************************************/
 void wsu::debug(String __log_message)
 {
 	std::cout << BLUE << wsu::logDate() << MAGENTA << " [DEBUG] " << RESET << __log_message << std::endl;
@@ -70,6 +62,14 @@ void wsu::error(String __log_message)
 {
 	std::cout << BLUE << wsu::logDate() << RED << " [ERROR] " << RESET << __log_message << std::endl;
 	return;
+}
+String wsu::buildIMFDate()
+{
+	char buffer[30];
+	std::time_t t = std::time(NULL);
+	std::tm *tm = std::gmtime(&t);
+	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", tm);
+	return String(buffer);
 }
 /*************************************************************************************************
  *                                           UTILITIES                                           *

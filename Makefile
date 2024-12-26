@@ -14,7 +14,7 @@ NAME	=	webserv
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@c++ -Wall -Wextra -Werror -g -fsanitize=address -std=c++98 $(OBJ) -o $(NAME)
+	@c++ -Wall -Wextra -Werror -g -std=c++98 $(OBJ) -o $(NAME)
 
 %.o: %.cpp	ServerManager/Connection.hpp \
 			ServerManager/ErrorResponse.hpp \
@@ -25,7 +25,7 @@ $(NAME): $(OBJ)
 			ServerManager/Server.hpp \
 			ServerManager/ServerManager.hpp \
 			srcs/webserv.hpp 
-	@c++ -Wall -Wextra -Werror -g -fsanitize=address -std=c++98 -c $< -o $@
+	@c++ -Wall -Wextra -Werror -g -std=c++98 -c $< -o $@
 
 clean:
 	@rm -f $(OBJ)

@@ -25,10 +25,8 @@ void signalHandler(int signal)
 	if (signal == SIGINT)
 	{
 		std::cout << "exiting\n";
-		webservP->clear();
-		exit(0);
+		ServerManager::up = false;
 	}
-	wsu::terr(String("SIGPIPE"));
 }
 
 void buildPage()
@@ -111,7 +109,7 @@ int main(int ac, char **av)
 {
 	atexit(f);
 	signal(SIGINT, signalHandler);
-	signal(SIGPIPE, signalHandler);
+	// signal(SIGPIPE, signalHandler);
 	std::cout << std::unitbuf;
 	std::cerr << std::unitbuf;
 	String config;
@@ -126,5 +124,6 @@ int main(int ac, char **av)
 	}
 	ServerManager webserv(config);
 	webserv.setUpWebserv();
+	webserv.clear();
 	return 0;
 }

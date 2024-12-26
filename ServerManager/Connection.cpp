@@ -4,18 +4,22 @@ Connection::Connection() : __sd(-1),
 						   __erase(0),
 						   __serversP(NULL)
 {
+	wsu::debug("Connection default constructor");
 }
 Connection::Connection(int sd) : __sd(sd),
 								 __erase(0),
 								 __serversP(NULL)
 {
+	wsu::debug("Server single para constructor");
 }
 Connection::Connection(const Connection &copy)
 {
+	wsu::debug("Connection copy constructor");
 	*this = copy;
 }
 Connection &Connection::operator=(const Connection &assign)
 {
+	wsu::debug("Connection copy assignement operator");
 	if (this != &assign)
 	{
 		__sd = assign.__sd;
@@ -25,6 +29,7 @@ Connection &Connection::operator=(const Connection &assign)
 }
 Connection::~Connection()
 {
+	wsu::debug("Connection destructor");
 }
 
 void Connection::setServers(t_Server &servers)
@@ -147,8 +152,8 @@ Server *Connection::identifyServer()
 void Connection::responseBuilder()
 {
 	Server *server = identifyServer();
-	Location *location = server->identifyLocation(__request.__URI);
-	Response res(this->__request, *server, *location);
+	Location &location = server->identifyLocation(__request.__URI);
+	Response res(this->__request, *server, location);
 }
 void Connection::proccessData(String input)
 {

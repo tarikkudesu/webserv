@@ -4,12 +4,14 @@ std::map<int16_t, String> Location::__defaultErrorPages;
 
 Location::Location()
 {
+	wsu::debug("Location default constructor");
 }
 Location::Location(const String &conf) : b__r(true),
 										 __line(conf),
 										 __autoindex(false),
 										 __path("/")
 {
+	wsu::debug("Location single para constructor");
 	parse();
 }
 Location::Location(const String &dir, const String &conf) : b__r(false),
@@ -17,14 +19,17 @@ Location::Location(const String &dir, const String &conf) : b__r(false),
 															__autoindex(false),
 															__path(dir)
 {
+	wsu::debug("Location double para constructor");
 	parse();
 }
 Location::Location(const Location &copy)
 {
+	wsu::debug("Location copy constructor");
 	*this = copy;
 }
 Location &Location::operator=(const Location &assign)
 {
+	wsu::debug("Location copy assignement operator");
 	if (this != &assign)
 	{
 		b__r = assign.b__r;
@@ -38,6 +43,10 @@ Location &Location::operator=(const Location &assign)
 }
 Location::~Location()
 {
+	__directives.clear();
+	__errorPages.clear();
+	__allowMethods.clear();
+	wsu::debug("Location destructor");
 }
 /****************************************************************************
  *                               MINI METHODS                               *
