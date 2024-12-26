@@ -27,15 +27,14 @@ Connection::~Connection()
 {
 }
 
-/****************************************************************************
- *                               MINI METHODS                               *
- ****************************************************************************/
-
 void Connection::setServers(t_Server &servers)
 {
 	this->__serversP = &servers;
 }
-
+int Connection::getSock()
+{
+	return __sd;
+}
 /*****************************************************************************
  *                                  METHODS                                  *
  *****************************************************************************/
@@ -149,10 +148,8 @@ void Connection::responseBuilder()
 {
 	Server *server = identifyServer();
 	Location *location = server->identifyLocation(__request.__URI);
-	(void)location;
-	Response res(this->__request, *server);
+	Response res(this->__request, *server, *location);
 }
-
 void Connection::proccessData(String input)
 {
 	wsu::log("request proccessing");

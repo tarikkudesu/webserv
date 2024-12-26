@@ -5,8 +5,6 @@
 
 typedef std::map< int, Connection* >		t_Connections;
 
-void printLocalAddress(int sockfd);
-
 class ServerManager
 {
 	private :
@@ -19,17 +17,17 @@ class ServerManager
 		static struct pollfd		*__events;
 		static t_Connections		__connections;
 
+		void						proccessPollEvent( int sd, int &retV );
 		static void					addSocket( int sd, t_endian endian );
+		void						acceptNewConnection( int sd );
+		void						readDataFromSocket( int sd );
+		void						writeDataToSocket( int sd );
 		static void					addServer( Server *server );
 		static void					removeConnection( int sd );
+		static bool					isServerSocket( int sd );
 		static void					addConnection( int sd );
 		static void					removeSocket( int sd );
 		static void					removeServer( int sd );
-		static bool					isServerSocket( int sd );
-		void						writeDataToSocket( int sd );
-		void						readDataFromSocket( int sd );
-		void						acceptNewConnection( int sd );
-		void						proccessPollEvent( int sd, int &retV );
 		void						mainLoop();
 
 /*************************************************************************
@@ -42,27 +40,19 @@ class ServerManager
 		void						readFile();
 		void						checkHosts();
 		void						firstCheck();
+		void						logServers();
 		void						checkBraces();
+		void						initServers();
 		void						reduceSpaces();
 		void						setUpServers();
+		void						checkConflicts();
 		void						setUpServer(size_t start);
 		void						checkOuterscope(String outerScope);
-		void						checkConflicts();
-		void						initServers();
-		void						logServers();
-
 		ServerManager();
 
 	public:
 		void						setUpWebserv();
 		void						clear();
-		void						debug()
-		{
-			// t_Server::iterator it = ServerManager::__servers.begin();
-			// for (; it != ServerManager::__servers.end(); it++) {
-			// 	(*it).second->print();
-			// }
-		};
 
 
 		ServerManager( const ServerManager &copy );

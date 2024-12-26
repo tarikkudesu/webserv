@@ -38,6 +38,7 @@ Server &Server::operator=(const Server &assign)
 		__port = assign.__port;
 		__host = assign.__host;
 		__ports = assign.__ports;
+		__locations = assign.__locations;
 		__directives = assign.__directives;
 		__serverNames = assign.__serverNames;
 		__clientBodyBufferSize = assign.__clientBodyBufferSize;
@@ -92,8 +93,24 @@ String Server::serverIdentity()
 Location *Server::identifyLocation(const String &URI)
 {
 	wsu::log("identifying location");
-	(void)URI;
-	return NULL;
+	std::vector< Location *> temp;
+	for (std::vector< Location *>::iterator it = __locations.begin(); it != __locations.end(); it++)
+	{
+		if (wsu::samePath(URI, (*it)->__path))
+			return *it;
+	}
+	for (std::vector< Location *>::iterator it = __locations.begin(); it != __locations.end(); it++)
+	{
+		if (wsu::containsPath((*it)->__path, URI))
+			temp.push_back(*it);
+	}
+	Location *loc = *__locations.begin();
+	for (std::vector< Location *>::iterator it = temp.begin(); it != temp.end(); it++)
+	{
+		if (wsu::splitByChar((*it)->__path, '/').size() > wsu::splitByChar(loc->__path, '/').size())
+			loc = *it;
+	}
+	return loc;
 }
 /***********************************************************************
  *                               METHODS                               *

@@ -5,7 +5,7 @@ host = "localhost"
 port = 8080
 
 request = (
-    "GET /1/12/121 HTTP/1.1\r\n"
+    "GET / HTTP/1.1\r\n"
     "Host: localhost:8080\r\n"
     "Content-Type: text/plain\r\n"
     "\r\n"

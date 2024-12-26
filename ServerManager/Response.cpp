@@ -1,11 +1,15 @@
 #include "Response.hpp"
 
-Response::Response(Request &request, Server &server) : __request(request), __server(server)
+Response::Response(Request &request, Server &server, Location &location) : __server(server),
+																		   __request(request),
+																		   __location(location)
 {
 	build();
 }
 
-Response::Response(const Response &copy) : __request(copy.__request), __server(copy.__server)
+Response::Response(const Response &copy) : __server(copy.__server),
+										   __request(copy.__request),
+										   __location(copy.__location)
 {
 	*this = copy;
 }
@@ -18,8 +22,9 @@ Response &Response::operator=(const Response &assign)
 {
 	if (this != &assign)
 	{
-		this->__request = assign.__request;
 		this->__server = assign.__server;
+		this->__request = assign.__request;
+		this->__location = assign.__location;
 	}
 	return *this;
 }
@@ -30,5 +35,4 @@ Response &Response::operator=(const Response &assign)
 
 void Response::build()
 {
-
 }

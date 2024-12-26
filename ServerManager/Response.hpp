@@ -6,15 +6,15 @@
 class Response
 {
 	private :
-		Request				&__request;
 		Server				&__server;
+		Request				&__request;
+		Location			&__location;
 
 	public:
 
 		void	build();
 
-
-		Response( Request &request, Server &server );
+		Response( Request &request, Server &server, Location &location );
 		Response( const Response &copy );
 		Response	&operator=( const Response &assign );
 		~Response();

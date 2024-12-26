@@ -15,7 +15,6 @@ class Connection
 		Request					__request;
 		t_Server				*__serversP;
 
-
 		String					identifyChunks( String &currBuff );
 		String					identifyRequestHeaders();
 		String					identifyRequestLine();
@@ -23,7 +22,6 @@ class Connection
 		Server					*identifyServer();
 		void					responseBuilder();
 		void					requestParser();
-
 		Connection();
 
 	public:
@@ -31,8 +29,8 @@ class Connection
 
 		void					setServers( t_Server &servers );
 		void					proccessData( String input );
+		int						getSock();
 
-		int						getSock() { return __sd; }
 
 		Connection( int sd );
 		Connection( const Connection &copy );
