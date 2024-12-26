@@ -4,7 +4,6 @@ Connection::Connection() : __sd(-1),
 						   __erase(0),
 						   __serversP(NULL)
 {
-	wsu::error("Connection constructor");
 }
 Connection::Connection(int sd) : __sd(sd),
 								 __erase(0),
@@ -13,12 +12,10 @@ Connection::Connection(int sd) : __sd(sd),
 }
 Connection::Connection(const Connection &copy)
 {
-	wsu::error("Connection copy constructor");
 	*this = copy;
 }
 Connection &Connection::operator=(const Connection &assign)
 {
-	wsu::error("Connection copy assignement operator");
 	if (this != &assign)
 	{
 		__sd = assign.__sd;
@@ -131,7 +128,7 @@ void Connection::requestParser()
 }
 Server *Connection::identifyServer()
 {
-	wsu::log("identifying server to respond");
+	wsu::log("identifying server");
 	t_serVect tmpMapP;
 	t_serVect tmpMapH;
 	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
@@ -151,8 +148,7 @@ Server *Connection::identifyServer()
 void Connection::responseBuilder()
 {
 	Server *server = identifyServer();
-	std::cout << "identifying Location: " << __request.__URI << "\n";
-	Location &location = server->identifyLocation( __request.__URI );
+	Location *location = server->identifyLocation(__request.__URI);
 	(void)location;
 	Response res(this->__request, *server);
 }
@@ -165,7 +161,7 @@ void Connection::proccessData(String input)
 	{
 		requestParser();
 		responseBuilder();
-		throw ErrorResponse(200, "request proccess");
+		throw ErrorResponse(200, "request proccessed");
 	}
 	catch (ErrorResponse &e)
 	{
@@ -176,4 +172,3 @@ void Connection::proccessData(String input)
 		this->__erase = 0;
 	}
 }
-

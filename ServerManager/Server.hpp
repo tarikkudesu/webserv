@@ -8,57 +8,43 @@ class Server
 	private:
 		int								__sd;
 		int								__port;
-		String							__line;
 		String							__host;
 		std::vector< int >				__ports;
-		std::vector< String >			__directives;
-		std::vector< String >			__serverNames;
-		Location						__rootLocation;
-		size_t							__clientBodyBufferSize;
-		bool							b__clientBodyBufferSize;
-		bool							b__host;
+		std::vector< Location *>		__locations;
+		t_svec							__directives;
+		t_svec							__serverNames;
+		long							__clientBodyBufferSize;
 
-		void							proccessClientBodyBufferSizeToken( t_svec &tokens );
-		void							proccessServerNameToken( t_svec &tokens );
-		void							proccessListenToken( t_svec &tokens );
-		void							proccessHostToken( t_svec &tokens );
+		void							proccessServerDirectives();
 		void							proccessToken(t_svec &tokens);
-		void							proccessDirectives();
-		void							LocationBlock( size_t pos );
-		void							addDirective( size_t pos );
-		void							parseDirectives();
-		void							parse();
+		void							proccessHostToken( t_svec &tokens );
+		void							parseServerDirectives( String line );
+		void							proccessListenToken( t_svec &tokens );
+		void							addDirective( String &line, size_t end );
+		void							proccessServerNameToken( t_svec &tokens );
+		void							LocationBlock( String &line, size_t pos );
+		void							parseLocation( String line, String parent );
+		void							proccessClientBodyBufferSizeToken( t_svec &tokens );
+		void							addLocation( String &line, size_t pos, String parent );
+		void							proccessLocation(String &location, size_t pos, String &parent);
 		Server();
 
 	public:
 		bool							__valid;
 
+		Location						*identifyLocation( const String &URI );
+		bool							amITheServerYouAreLookingFor( const String &sN );
 		const t_svec					&getServerNames() const;
 		const String					&getServerHost() const;
 		int								getServerSocket() const;
 		int								getServerPort() const;
 		void							setPort(int port);
-		std::vector< int >				&getPorts();
 		String							serverIdentity();
-
-		bool							amITheServerYouAreLookingFor( const String &sN );
-		Location						&identifyLocation( const String &path );
+		std::vector< int >				&getPorts();
 		void							setup();
 
-		void							print()
-		{
-			std::cout << "Server\n";
-			std::cout << "\thost: " << __host << "\n";
-			std::cout << "\tserver_name: ";
-			for (t_svec::iterator it = __serverNames.begin(); it != __serverNames.end(); it++) {
-				std::cout << *it << " ";
-			} std::cout << "\n";
-			std::cout << "\tclientBodyBufferSize: " << __clientBodyBufferSize << "\n";
-			std::cout << "\tport: " << __port << "\n";
-			this->__rootLocation.print();
-		}
 
-		Server( String &line );
+		Server( String line );
 		Server( const Server &copy );
 		Server	&operator=( const Server &assign );
 		~Server();

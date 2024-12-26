@@ -150,7 +150,7 @@ void ServerManager::writeDataToSocket(int sd)
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
 	{
-		wsu::log("send " + wsu::intToString(sd));
+		wsu::log("response sent");
 	}
 	else
 	{
@@ -164,7 +164,7 @@ void ServerManager::writeDataToSocket(int sd)
 		else
 		{
 			removeConnection(sd);
-			wsu::log("remove " + wsu::intToString(sd));
+			wsu::log("removing connection");
 		}
 	}
 }
@@ -183,7 +183,7 @@ void ServerManager::readDataFromSocket(int sd)
 		t_Connections::iterator iter = ServerManager::__connections.find(sd);
 		if (iter != ServerManager::__connections.end())
 		{
-			wsu::log("recv " + wsu::intToString(sd));
+			wsu::log("receiving data");
 			iter->second->proccessData(String(buff));
 		}
 	}
@@ -199,7 +199,7 @@ void ServerManager::readDataFromSocket(int sd)
 		else
 		{
 			removeConnection(sd);
-			wsu::log("remove " + wsu::intToString(sd));
+			wsu::log("removing connection");
 		}
 	}
 }
@@ -213,7 +213,7 @@ void ServerManager::acceptNewConnection(int sd)
 	newSock = accept(sd, NULL, NULL);
 	if (newSock >= 0)
 	{
-		wsu::log("accept " + wsu::intToString(sd));
+		wsu::log("accepting new connection");
 		addConnection(newSock);
 	}
 	else
@@ -260,6 +260,7 @@ void ServerManager::proccessPollEvent(int sd, int &retV)
 	else if (sockStruct.revents & POLLHUP)
 	{
 		removeConnection(sockStruct.fd);
+		wsu::log("removing connection");
 		retV--;
 	}
 	else if (wsu::__criticalOverLoad == true)
@@ -268,7 +269,7 @@ void ServerManager::proccessPollEvent(int sd, int &retV)
 		if (!ServerManager::isServerSocket(sockStruct.fd))
 		{
 			removeConnection(sockStruct.fd);
-			wsu::log("remove " + wsu::intToString(sockStruct.fd));
+			wsu::log("removing connection");
 		}
 	}
 	if (ServerManager::__servers.size() == ServerManager::__sockets.size())
@@ -321,7 +322,6 @@ void ServerManager::mainLoop()
 		wsu::terr(e.what());
 	}
 }
-
 /*************************************************************************
  *                             SERVER PARSER                             *
  *************************************************************************/
@@ -407,7 +407,7 @@ void ServerManager::firstCheck()
 	if (__lines.empty() || String::npos == __lines.find_first_not_of(" \t\n\r\v\f"))
 		throw std::runtime_error("empty file");
 	if (String::npos == __lines.find_first_of("{}"))
-		throw std::runtime_error("invalid config file 1");
+		throw std::runtime_error("invalid config file");
 	if (String::npos != __lines.find_first_not_of(PRINTABLE))
 		throw std::runtime_error("unknown characters");
 }
@@ -483,7 +483,7 @@ void ServerManager::setUpServers()
 	{
 		size_t pos = this->__lines.find("{");
 		if (pos == String::npos && __lines.find_first_not_of(" \t\n\r\v\f") != String::npos)
-			throw std::runtime_error("invalid config file 4");
+			throw std::runtime_error("invalid config file");
 		else if (pos == String::npos)
 			break;
 		setUpServer(pos);
@@ -494,9 +494,9 @@ void ServerManager::checkOuterscope(String outerScope)
 {
 	wsu::trimSpaces(outerScope);
 	if (outerScope != "server")
-		throw std::runtime_error("invalid config file 2");
+		throw std::runtime_error("invalid config file");
 	if (__lines.find_first_of("{}") == String::npos)
-		throw std::runtime_error("invalid config file 3");
+		throw std::runtime_error("invalid config file ");
 }
 void ServerManager::logServers()
 {

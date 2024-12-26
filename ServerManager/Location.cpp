@@ -2,33 +2,22 @@
 
 std::map<int16_t, String> Location::__defaultErrorPages;
 
-Location::Location() : b__r(true),
-					   b__root(false),
-					   b__index(false),
-					   b__autoindex(false),
-					   b__allowMethods(false),
-					   __autoindex(false),
-					   __path("/")
+Location::Location()
 {
-	this->__allowMethods.push_back(GET);
-	this->__allowMethods.push_back(DELETE);
-	this->__allowMethods.push_back(POST);
-	this->__index.push_back("index.html");
-	addErrPages();
 }
-Location::Location(const String &dir) : b__r(false),
-										b__root(false),
-										b__index(false),
-										b__autoindex(false),
-										b__allowMethods(false),
-										__autoindex(false),
-										__path(dir)
+Location::Location(const String &conf) : b__r(true),
+										 __line(conf),
+										 __autoindex(false),
+										 __path("/")
 {
-	this->__allowMethods.push_back(GET);
-	this->__allowMethods.push_back(DELETE);
-	this->__allowMethods.push_back(POST);
-	this->__index.push_back("index.html");
-	addErrPages();
+	parse();
+}
+Location::Location(const String &dir, const String &conf) : b__r(false),
+															__line(conf),
+															__autoindex(false),
+															__path(dir)
+{
+	parse();
 }
 Location::Location(const Location &copy)
 {
@@ -39,27 +28,16 @@ Location &Location::operator=(const Location &assign)
 	if (this != &assign)
 	{
 		b__r = assign.b__r;
-		__line = assign.__line;
 		__root = assign.__root;
 		__index = assign.__index;
 		__autoindex = assign.__autoindex;
-		__directives = assign.__directives;
 		__errorPages = assign.__errorPages;
 		__allowMethods = assign.__allowMethods;
-		for (std::map<String, Location *>::const_iterator it = assign.__subLocations.begin(); it != assign.__subLocations.end(); it++)
-		{
-			String first = it->first;
-			Location *second = new Location(*it->second);
-			__subLocations.insert(std::make_pair(first, second));
-		}
 	}
 	return *this;
 }
 Location::~Location()
 {
-	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
-		delete it->second;
-	__subLocations.clear();
 }
 /****************************************************************************
  *                               MINI METHODS                               *
@@ -102,104 +80,25 @@ void Location::addErrPages()
 	}
 }
 
-/*****************************************************************************
- *                                  METHODS                                  *
- *****************************************************************************/
-void Location::locationMatch(const String &path, Location *&location)
-{
-	if (wsu::containsPath(this->__path, path))
-	{
-		for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
-		{
-			if (wsu::samePath(it->second->__path, path))
-			{
-				location = it->second;
-				return ;
-			}
-			else if (wsu::containsPath(it->second->__path, path))
-			{
-				it->second->locationMatch(path, location);
-				return ;
-			}
-		}
-	}
-	location = this;
-}
-void Location::checkNestedLocation(String &path)
-{
-	if (wsu::containsPath(this->__path, path) == false)
-		throw std::runtime_error("location \"" + path + "\" is outside location \"" + __path + "\"");
-	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
-	{
-		if (wsu::samePath(path, it->second->__path))
-			throw std::runtime_error("duplicate location \"" + path + "\"");
-	}
-}
-void Location::addLocationBlock(size_t pos)
-{
-	size_t end = pos + 1;
-	size_t tracker = 1;
+/**************************************************************************************************************
+ *                                           PROCCESSING DIRECTIVES                                           *
+ **************************************************************************************************************/
 
-	String outer = String(__line.begin(), __line.begin() + pos);
-	t_svec tokens = wsu::splitBySpaces(outer);
-	wsu::trimSpaces(outer);
-	wsu::log("location: " + outer);
-	if (tokens.size() != 2)
-		throw std::runtime_error("location block error");
-	if (tokens.at(0) != "location")
-		throw std::runtime_error(tokens.at(0) + ": unknown block");
-	do
-	{
-		if (end >= this->__line.length())
-			break;
-		if (this->__line.at(end) == '}')
-			tracker--;
-		if (this->__line.at(end) == '{')
-			tracker++;
-		end++;
-		if (tracker == 0)
-			break;
-	} while (true);
-	String locationBlock(this->__line.begin() + pos, this->__line.begin() + end);
-	wsu::trimSpaces(locationBlock);
-	this->__line.erase(0, end);
-	checkNestedLocation(tokens.at(1));
-	Location *loc = new Location(tokens.at(1));
-	loc->parseLocation(locationBlock);
-	this->__subLocations.insert(std::make_pair(tokens.at(1), loc));
-}
-void Location::addDirective(size_t end)
+void Location::proccessRootDirective(t_svec &tokens)
 {
-	String directive = String(__line.begin(), __line.begin() + end);
-	wsu::trimSpaces(directive);
-	if (directive.empty())
-		throw std::runtime_error("empty directive");
-	this->__directives.push_back(directive);
-	this->__line.erase(0, end + 1);
-	wsu::log("directive: " + directive);
-}
-void Location::rootDirective(t_svec &tokens)
-{
-	if (b__root == true)
+	if (!__root.empty())
 		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
-	b__root = true;
 	if (tokens.size() != 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 	this->__root = tokens.at(1);
 }
-void Location::indexDirective(t_svec &tokens)
+void Location::proccessIndexDirective(t_svec &tokens)
 {
-	if (b__index == false)
-		this->__index.clear();
-	b__index = true;
 	for (t_svec::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
 		this->__index.push_back(*it);
 }
-void Location::autoindexDirective(t_svec &tokens)
+void Location::proccessAutoindexDirective(t_svec &tokens)
 {
-	if (b__autoindex == true)
-		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
-	b__autoindex = true;
 	if (tokens.size() != 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 	if (tokens.at(1) == "on")
@@ -207,7 +106,7 @@ void Location::autoindexDirective(t_svec &tokens)
 	else if (tokens.at(1) != "off")
 		throw std::runtime_error(tokens.at(0) + " invalid value, it must be \"on\" or \"off\"");
 }
-void Location::errorPageDirective(t_svec &tokens)
+void Location::proccessErrorPageDirective(t_svec &tokens)
 {
 	if (tokens.size() <= 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
@@ -221,11 +120,8 @@ void Location::errorPageDirective(t_svec &tokens)
 		this->__errorPages.insert(std::make_pair(code, *(tokens.end() - 1)));
 	}
 }
-void Location::allowMethodsDirective(t_svec &tokens)
+void Location::proccessAllowMethodsDirective(t_svec &tokens)
 {
-	if (b__allowMethods == false)
-		this->__allowMethods.clear();
-	b__allowMethods = true;
 	for (t_svec::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
 	{
 		if (*it != "OPTIONS" && *it != "GET" && *it != "HEAD" && *it != "PUT" && *it != "DELETE" && *it != "TRACE" && *it != "CONNECT" && *it != "POST")
@@ -248,13 +144,13 @@ void Location::allowMethodsDirective(t_svec &tokens)
 			this->__allowMethods.push_back(POST);
 	}
 }
-void Location::returnDirective(t_svec &tokens)
+void Location::proccessReturnDirective(t_svec &tokens)
 {
 	if (tokens.size() != 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 	this->__return = tokens.at(1);
 }
-void Location::cgiPassDirective(t_svec &tokens)
+void Location::proccessCgiPassDirective(t_svec &tokens)
 {
 	if (tokens.size() != 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
@@ -283,19 +179,19 @@ void Location::proccessToken(t_svec &tokens)
 		key != "allow_methods")
 		throw std::runtime_error(key + ": invalid context");
 	if (key == "root")
-		rootDirective(tokens);
+		proccessRootDirective(tokens);
 	else if (key == "index")
-		indexDirective(tokens);
+		proccessIndexDirective(tokens);
 	else if (key == "return")
-		returnDirective(tokens);
+		proccessReturnDirective(tokens);
 	else if (key == "autoindex")
-		autoindexDirective(tokens);
+		proccessAutoindexDirective(tokens);
 	else if (key == "cgi_pass")
-		cgiPassDirective(tokens);
+		proccessCgiPassDirective(tokens);
 	else if (key == "error_page")
-		errorPageDirective(tokens);
+		proccessErrorPageDirective(tokens);
 	else if (key == "allow_methods")
-		allowMethodsDirective(tokens);
+		proccessAllowMethodsDirective(tokens);
 }
 void Location::proccessDirectives()
 {
@@ -310,6 +206,38 @@ void Location::proccessDirectives()
 		}
 	}
 }
+/***************************************************************************************************************
+ **************************************************** PARSE ****************************************************
+ ***************************************************************************************************************/
+void Location::LocationBlock(size_t pos)
+{
+	size_t end = pos + 1;
+	size_t tracker = 1;
+
+	do
+	{
+		if (end >= this->__line.length())
+			break;
+		if (this->__line.at(end) == '}')
+			tracker--;
+		if (this->__line.at(end) == '{')
+			tracker++;
+		end++;
+		if (tracker == 0)
+			break;
+	} while (true);
+	this->__line.erase(0, end);
+}
+void Location::addDirective(size_t end)
+{
+	String directive = String(__line.begin(), __line.begin() + end);
+	wsu::trimSpaces(directive);
+	if (directive.empty())
+		throw std::runtime_error("empty directive");
+	this->__directives.push_back(directive);
+	this->__line.erase(0, end + 1);
+	wsu::log("directive: " + directive);
+}
 void Location::parseDirectives()
 {
 	do
@@ -322,55 +250,25 @@ void Location::parseDirectives()
 		if (__line.at(pos) == ';')
 			addDirective(pos);
 		else if (__line.at(pos) == '{')
-			addLocationBlock(pos);
+			LocationBlock(pos);
 	} while (true);
 }
-void Location::parseLocation(String conf)
+void Location::parse()
 {
-	wsu::trimSpaces(conf);
-	conf = conf.substr(1, conf.length() - 2);
-	wsu::trimSpaces(conf);
-	this->__line = conf;
+	addErrPages();
+	wsu::trimSpaces(__line);
+	if (__line.empty())
+		throw std::runtime_error("empty location block");
 	parseDirectives();
 	proccessDirectives();
-}
-
-/*******************************************************************************************************
- *                                               USELESS                                               *
- *******************************************************************************************************/
-void Location::print()
-{
-	std::cout << "root: " << this->__root << "\n";
-	std::cout << "index: ";
-	for (t_svec::iterator it = __index.begin(); it != __index.end(); it++)
-		std::cout << *it << " ";
-	std::cout << "\n";
-	if (__autoindex == true)
-		std::cout << "autoindex: on\n";
-	else
-		std::cout << "autoindex: off\n";
-	std::cout << "error_pages: " << __errorPages.size() << "\n";
-	for (std::map<int16_t, String>::iterator it = __errorPages.begin(); it != __errorPages.end(); it++)
-		std::cout << "\t" << it->first << " " << it->second << "\n";
-	std::cout << "allowed_methods:\n";
-	for (std::vector<t_method>::iterator it = __allowMethods.begin(); it != __allowMethods.end(); it++)
+	if (__allowMethods.empty())
 	{
-		if (*it == GET)
-			std::cout << "\tGET";
-		if (*it == DELETE)
-			std::cout << "\tDELETE";
-		if (*it == POST)
-			std::cout << "\tPOST";
-		if (*it == PUT)
-			std::cout << "\tPUT";
-		if (*it == OPTIONS)
-			std::cout << "\tOPTIONS";
-		if (*it == TRACE)
-			std::cout << "\tTRACE";
-		if (*it == CONNECT)
-			std::cout << "\tCONNECT";
+		this->__allowMethods.push_back(GET);
+		this->__allowMethods.push_back(DELETE);
+		this->__allowMethods.push_back(POST);
 	}
-	std::cout << "\n";
-	for (std::map<String, Location *>::iterator it = __subLocations.begin(); it != __subLocations.end(); it++)
-		it->second->print();
+	if (__index.empty())
+		this->__index.push_back("index.html");
+	this->__directives.clear();
+	__line.clear();
 }

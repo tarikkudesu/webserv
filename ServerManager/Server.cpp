@@ -4,16 +4,27 @@ Server::Server()
 {
 	throw std::runtime_error(": can not initiate server without port and server_name");
 }
-Server::Server(String &line) : __sd(-1),
-							   __port(-1),
-							   __line(line),
-							   __host("0.0.0.0"),
-							   __clientBodyBufferSize(8000),
-							   b__clientBodyBufferSize(false),
-							   b__host(false),
-							   __valid(false)
+Server::Server(String line) : __sd(-1),
+							  __port(-1),
+							  __clientBodyBufferSize(-1),
+							  __valid(false)
 {
-	parse();
+	wsu::trimSpaces(line);
+	if (!line.empty())
+		line = line.substr(1, line.length() - 2);
+	wsu::trimSpaces(line);
+	parseServerDirectives(line);
+	proccessServerDirectives();
+	Location *root = new Location(line);
+	this->__locations.push_back(root);
+	parseLocation(line, "/");
+	if (__clientBodyBufferSize == -1)
+		__clientBodyBufferSize = 8000;
+	if (__ports.size() == 0)
+		__ports.push_back(8080);
+	if (__host.empty())
+		__host = "0.0.0.0";
+	__directives.clear();
 }
 Server::Server(const Server &copy)
 {
@@ -25,15 +36,11 @@ Server &Server::operator=(const Server &assign)
 	{
 		__sd = assign.__sd;
 		__port = assign.__port;
-		__line = assign.__line;
 		__host = assign.__host;
 		__ports = assign.__ports;
 		__directives = assign.__directives;
 		__serverNames = assign.__serverNames;
-		__rootLocation = assign.__rootLocation;
 		__clientBodyBufferSize = assign.__clientBodyBufferSize;
-		b__clientBodyBufferSize = assign.b__clientBodyBufferSize;
-		b__host = assign.b__host;
 	}
 	return *this;
 }
@@ -82,16 +89,16 @@ String Server::serverIdentity()
 {
 	return String(__host + ":" + wsu::intToString(__port));
 }
+Location *Server::identifyLocation(const String &URI)
+{
+	wsu::log("identifying location");
+	(void)URI;
+	return NULL;
+}
 /***********************************************************************
  *                               METHODS                               *
  ***********************************************************************/
-Location &Server::identifyLocation(const String &path)
-{
-	Location	*l = NULL;
-	this->__rootLocation.locationMatch(path, l);
-	std::cout << "requested path: " << l->__path << " " << &l << "\n";
-	return *l;
-}
+
 void Server::setup()
 {
 	struct sockaddr_in addr;
@@ -144,21 +151,19 @@ void Server::setup()
 	}
 }
 
-/**********************************************************************
- *                            PARSE METHODS                           *
- **********************************************************************/
+/**************************************************************************************************************
+ *                                           PROCCESSING DIRECTIVES                                           *
+ **************************************************************************************************************/
 
 void Server::proccessHostToken(t_svec &tokens)
 {
-	this->__host.clear();
-	if (this->b__host)
+	if (!__host.empty())
 		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
 	if (tokens.size() == 1)
 		throw std::runtime_error(tokens.at(0) + ": no host value");
 	if (tokens.size() > 2)
 		throw std::runtime_error(tokens.at(0) + ": multiple host values");
 	this->__host = tokens.at(1);
-	this->b__host = true;
 	this->__valid = true;
 }
 void Server::proccessListenToken(t_svec &tokens)
@@ -200,7 +205,7 @@ void Server::proccessServerNameToken(t_svec &tokens)
 }
 void Server::proccessClientBodyBufferSizeToken(t_svec &tokens)
 {
-	if (this->b__clientBodyBufferSize)
+	if (this->__clientBodyBufferSize != -1)
 		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
 	if (tokens.size() == 1)
 		throw std::runtime_error(tokens.at(0) + ": no client_body_buffer_size value");
@@ -209,7 +214,6 @@ void Server::proccessClientBodyBufferSizeToken(t_svec &tokens)
 	if (String::npos != tokens.at(1).find_first_not_of("0123456789"))
 		throw std::runtime_error(tokens.at(0) + ": invalid client_body_buffer_size: not a number");
 	this->__clientBodyBufferSize = wsu::stringToInt(tokens.at(1));
-	this->b__clientBodyBufferSize = true;
 }
 
 void Server::proccessToken(t_svec &tokens)
@@ -236,7 +240,75 @@ void Server::proccessToken(t_svec &tokens)
 	else if (key == "client_body_buffer_size")
 		proccessClientBodyBufferSizeToken(tokens);
 }
-void Server::proccessDirectives()
+
+/************************************************************************************************************
+ ********************************************** LOCATION BLOCK **********************************************
+ ************************************************************************************************************/
+
+void Server::proccessLocation(String &line, size_t pos, String &parent)
+{
+	t_svec tokens = wsu::splitBySpaces(String(line.begin(), line.begin() + pos));
+	if (tokens.size() != 2)
+		throw std::runtime_error("invalid block 2");
+	if (tokens.at(0) != "location")
+		throw std::runtime_error("unknown block");
+	if (wsu::containsPath(parent, tokens.at(1)) == false)
+		throw std::runtime_error("location \"" + tokens.at(1) + "\" is outside location \"" + parent + "\"");
+	for (std::vector<Location *>::iterator it = __locations.begin(); it != __locations.end(); it++)
+	{
+		if (tokens.at(1) == "/")
+			throw std::runtime_error("use server block to define root \"" + tokens.at(1) + "\" directives");
+		if (wsu::samePath((*it)->__path, tokens.at(1)))
+			throw std::runtime_error("duplicate location \"" + tokens.at(1) + "\"");
+	}
+	String conf = String(line.begin() + pos + 1, line.end() - 2);
+	wsu::log("location: " + tokens.at(1));
+	Location *location = new Location(tokens.at(1), conf);
+	this->__locations.push_back(location);
+	parseLocation(conf, tokens.at(1));
+}
+void Server::addLocation(String &line, size_t pos, String parent)
+{
+	size_t end = pos + 1;
+	size_t tracker = 1;
+
+	do
+	{
+		if (end >= line.length())
+			break;
+		if (line.at(end) == '}')
+			tracker--;
+		if (line.at(end) == '{')
+			tracker++;
+		end++;
+		if (tracker == 0)
+			break;
+	} while (true);
+	String locationBlock = String(line.begin(), line.begin() + end);
+	proccessLocation(locationBlock, pos, parent);
+	line.erase(0, end);
+}
+void Server::parseLocation(String line, String parent)
+{
+	do
+	{
+		size_t pos = line.find_first_of(";{");
+		if (pos == String::npos && line.find_first_not_of(" \t\n\r\v\f") != String::npos)
+			throw std::runtime_error("invalid block 1");
+		if (pos == String::npos)
+			break;
+		if (line.at(pos) == ';')
+			line.erase(0, pos + 1);
+		else if (line.at(pos) == '{')
+			addLocation(line, pos, parent);
+	} while (true);
+}
+
+/**********************************************************************************************************
+ ********************************************** SERVER BLOCK **********************************************
+ **********************************************************************************************************/
+
+void Server::proccessServerDirectives()
 {
 	for (t_svec::iterator it = this->__directives.begin(); it != this->__directives.end(); it++)
 	{
@@ -247,61 +319,46 @@ void Server::proccessDirectives()
 		}
 	}
 }
-void Server::LocationBlock(size_t pos)
+void Server::LocationBlock(String &line, size_t pos)
 {
 	size_t end = pos + 1;
 	size_t tracker = 1;
-
 	do
 	{
-		if (end >= this->__line.length())
+		if (end >= line.length())
 			break;
-		if (this->__line.at(end) == '}')
+		if (line.at(end) == '}')
 			tracker--;
-		if (this->__line.at(end) == '{')
+		if (line.at(end) == '{')
 			tracker++;
 		end++;
 		if (tracker == 0)
 			break;
 	} while (true);
-	this->__line.erase(0, end);
+	line.erase(0, end);
 }
-void Server::addDirective(size_t end)
+void Server::addDirective(String &line, size_t end)
 {
-	String directive = String(__line.begin(), __line.begin() + end);
+	String directive = String(line.begin(), line.begin() + end);
 	wsu::trimSpaces(directive);
 	if (directive.empty())
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
-	this->__line.erase(0, end + 1);
+	line.erase(0, end + 1);
 	wsu::log("directive: " + directive);
 }
-void Server::parseDirectives()
+void Server::parseServerDirectives(String line)
 {
 	do
 	{
-		size_t pos = __line.find_first_of(";{");
-		if (pos == String::npos && __line.find_first_not_of(" \t\n\r\v\f") != String::npos)
-			throw std::runtime_error("invalid block");
+		size_t pos = line.find_first_of(";{");
+		if (pos == String::npos && line.find_first_not_of(" \t\n\r\v\f") != String::npos)
+			throw std::runtime_error("invalid block 3");
 		if (pos == String::npos)
 			break;
-		if (__line.at(pos) == ';')
-			addDirective(pos);
-		else if (__line.at(pos) == '{')
-			LocationBlock(pos);
+		if (line.at(pos) == ';')
+			addDirective(line, pos);
+		else if (line.at(pos) == '{')
+			LocationBlock(line, pos);
 	} while (true);
-}
-void Server::parse()
-{
-	String line = __line;
-	wsu::trimSpaces(__line);
-	if (!__line.empty())
-		__line = __line.substr(1, __line.length() - 2);
-	wsu::trimSpaces(__line);
-	parseDirectives();
-	proccessDirectives();
-	if (__valid)
-		__rootLocation.parseLocation(line);
-	if (__ports.size() == 0)
-		__ports.push_back(8080);
 }
