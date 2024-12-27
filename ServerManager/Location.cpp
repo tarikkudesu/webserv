@@ -245,7 +245,7 @@ void Location::addDirective(size_t end)
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
 	this->__line.erase(0, end + 1);
-	wsu::log("directive: " + directive);
+	wsu::info("directive: " + directive);
 }
 void Location::parseDirectives()
 {

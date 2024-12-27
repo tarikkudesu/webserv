@@ -100,7 +100,7 @@ String Server::serverIdentity()
 }
 Location &Server::identifyLocation(const String &URI)
 {
-	wsu::log("identifying location");
+	wsu::info("identifying location");
 	for (std::vector<Location>::iterator it = __locations.begin(); it != __locations.end(); it++)
 	{
 		if (wsu::samePath(URI, it->__path))
@@ -134,15 +134,9 @@ void Server::setup()
 	if (this->__sd == -1)
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to create socket ");
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEADDR, (void *)&ra, sizeof(ra)))
-	{
-		close(this->__sd);
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to make reusable address");
-	}
 	if (-1 == setsockopt(__sd, SOL_SOCKET, SO_REUSEPORT, (void *)&rp, sizeof(rp)))
-	{
-		close(this->__sd);
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to make reusable port");
-	}
 	addr.sin_family = AF_INET;
 	{
 		struct addrinfo hint;
@@ -158,22 +152,13 @@ void Server::setup()
 			freeaddrinfo(result);
 		}
 		else
-		{
-			close(this->__sd);
 			throw std::runtime_error(serverIdentity() + ": non functional: couldn't resolve server host name: " + this->__host);
-		}
 	}
 	addr.sin_port = htons(this->__port);
 	if (-1 == bind(this->__sd, (struct sockaddr *)&addr, sizeof(addr)))
-	{
-		close(this->__sd);
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to bind socket");
-	}
 	if (-1 == listen(this->__sd, 10))
-	{
-		close(this->__sd);
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to listen for connections");
-	}
 }
 
 /**************************************************************************************************************
@@ -287,7 +272,7 @@ void Server::proccessLocation(String &line, size_t pos, String &parent)
 			throw std::runtime_error("duplicate location \"" + tokens.at(1) + "\"");
 	}
 	String conf = String(line.begin() + pos + 1, line.end() - 2);
-	wsu::log("location: " + tokens.at(1));
+	wsu::info("location: " + tokens.at(1));
 	this->__locations.push_back(Location(tokens.at(1), conf));
 	parseLocation(conf, tokens.at(1));
 }
@@ -369,7 +354,7 @@ void Server::addDirective(String &line, size_t end)
 		throw std::runtime_error("empty directive");
 	this->__directives.push_back(directive);
 	line.erase(0, end + 1);
-	wsu::log("directive: " + directive);
+	wsu::info("directive: " + directive);
 }
 void Server::parseServerDirectives(String line)
 {

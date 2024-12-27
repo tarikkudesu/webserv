@@ -16,7 +16,7 @@ ServerManager::ServerManager()
 ServerManager::ServerManager(const String &configutation_file) : __config(configutation_file)
 {
 	wsu::debug("ServerManager single para constructor");
-	wsu::log("configuration file:" + configutation_file);
+	wsu::info("configuration file: " + configutation_file);
 }
 
 ServerManager::ServerManager(const ServerManager &copy)
@@ -160,7 +160,7 @@ void ServerManager::writeDataToSocket(int sd)
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
 	{
-		wsu::log("response sent");
+		wsu::info("response sent");
 	}
 	else
 	{
@@ -174,7 +174,7 @@ void ServerManager::writeDataToSocket(int sd)
 		else
 		{
 			removeConnection(sd);
-			wsu::log("removing connection");
+			wsu::info("removing connection");
 		}
 	}
 }
@@ -193,7 +193,7 @@ void ServerManager::readDataFromSocket(int sd)
 		t_Connections::iterator iter = ServerManager::__connections.find(sd);
 		if (iter != ServerManager::__connections.end())
 		{
-			wsu::log("receiving data");
+			wsu::info("receiving data");
 			iter->second->proccessData(String(buff));
 		}
 	}
@@ -209,7 +209,7 @@ void ServerManager::readDataFromSocket(int sd)
 		else
 		{
 			removeConnection(sd);
-			wsu::log("removing connection");
+			wsu::info("removing connection");
 		}
 	}
 }
@@ -223,7 +223,7 @@ void ServerManager::acceptNewConnection(int sd)
 	newSock = accept(sd, NULL, NULL);
 	if (newSock >= 0)
 	{
-		wsu::log("accepting new connection");
+		wsu::info("accepting new connection");
 		addConnection(newSock);
 	}
 	else
@@ -270,16 +270,16 @@ void ServerManager::proccessPollEvent(int sd, int &retV)
 	else if (sockStruct.revents & POLLHUP)
 	{
 		removeConnection(sockStruct.fd);
-		wsu::log("removing connection");
+		wsu::info("removing connection");
 		retV--;
 	}
 	else if (wsu::__criticalOverLoad == true)
 	{
-		wsu::warn("critcal server overload");
+		wsu::fatal("critcal server overload");
 		if (!ServerManager::isServerSocket(sockStruct.fd))
 		{
 			removeConnection(sockStruct.fd);
-			wsu::log("removing connection");
+			wsu::info("removing connection");
 		}
 	}
 	if (ServerManager::__servers.size() == ServerManager::__sockets.size())
@@ -356,7 +356,7 @@ void ServerManager::checkHosts()
 			freeaddrinfo(result);
 		}
 	}
-	wsu::success("resolving hosts");
+	wsu::info("resolving hosts");
 }
 void ServerManager::initServers()
 {
@@ -404,13 +404,13 @@ void ServerManager::readFile()
 			continue;
 		this->__lines.append(line);
 		this->__lines.append(" ");
-		wsu::log(line);
+		wsu::info(line);
 		line.clear();
 		if (fS.eof())
 			break;
 	} while (true);
 	fS.close();
-	wsu::success("reading file content");
+	wsu::info("reading file content");
 }
 void ServerManager::firstCheck()
 {
@@ -498,7 +498,7 @@ void ServerManager::setUpServers()
 			break;
 		setUpServer(pos);
 	} while (!this->__lines.empty());
-	wsu::success("syntax check");
+	wsu::info("syntax check");
 }
 void ServerManager::checkOuterscope(String outerScope)
 {

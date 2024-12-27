@@ -13,18 +13,24 @@ private:
 
 public:
 	static bool __criticalOverLoad;
+	static bool	__debug;
+	static bool	__info;
+	static bool	__warn;
+	static bool	__error;
+	static bool	__fatal;
+
+	static void	logs(std::vector<std::string> &args);
+	static void debug(String __log_message);
+	static void info(String __log_message);
+	static void warn(String __log_message);
+	static void error(String __log_message);
+	static void fatal(String __log_message);
+	static void running(String __log_message);
+	static void terr(String __error_message);
+	static void terr(char *__error_message);
 
 	static String logDate();
 	static String buildIMFDate();
-	static void log(String __log_message);
-	static void warn(String __log_message);
-	static void error(String __log_message);
-	static void terr(char *__error_message);
-	static void debug(String __log_message);
-	static void terr(String __error_message);
-	static void running(String __log_message);
-	static void success(String __log_message);
-
 	static void trimSpaces(String &str);
 	static String intToString(int number);
 	static int hexToInt(const String &str);

@@ -32,8 +32,8 @@ class Server
 	public:
 		bool							__valid;
 
-		Location						&identifyLocation( const String &URI );
 		bool							amITheServerYouAreLookingFor( const String &sN );
+		Location						&identifyLocation( const String &URI );
 		const t_svec					&getServerNames() const;
 		const String					&getServerHost() const;
 		int								getServerSocket() const;

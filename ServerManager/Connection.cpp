@@ -122,7 +122,7 @@ void Connection::requestParser()
 {
 	String requestLine = identifyRequestLine();
 	String requestHeaders = identifyRequestHeaders();
-	wsu::log(requestLine);
+	wsu::info(requestLine);
 	this->__request.parseRequest(requestLine, requestHeaders);
 	identifyRequestBody();
 	this->__buff.erase(0, this->__erase);
@@ -132,7 +132,7 @@ void Connection::requestParser()
 }
 Server *Connection::identifyServer()
 {
-	wsu::log("identifying server");
+	wsu::info("identifying server");
 	t_serVect tmpMapP;
 	t_serVect tmpMapH;
 	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
@@ -157,7 +157,7 @@ void Connection::responseBuilder()
 }
 void Connection::proccessData(String input)
 {
-	wsu::log("request proccessing");
+	wsu::info("request proccessing");
 	this->__buff += input;
 	try
 	{

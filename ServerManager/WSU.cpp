@@ -1,34 +1,114 @@
 #include "WSU.hpp"
 
 wsu::wsu() {}
-
 wsu::wsu(const wsu &copy) { (void)copy; }
-
 wsu &wsu::operator=(const wsu &assign)
 {
 	(void)assign;
 	return *this;
 }
-
 wsu::~wsu() {}
 
 bool wsu::__criticalOverLoad = false;
+bool wsu::__debug = false;
+bool wsu::__info = false;
+bool wsu::__warn = false;
+bool wsu::__error = false;
+bool wsu::__fatal = false;
 
 /************************************************************************************************
  *                                             LOGS                                             *
  ************************************************************************************************/
-String wsu::logDate()
+void wsu::logs(std::vector<String> &args)
 {
-	char buffer[30];
-	std::time_t t = std::time(NULL);
-	std::tm *tm = std::gmtime(&t);
-	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
-	return String(buffer);
+	if (args.size() > 6)
+	{
+		std::cerr << USAGE << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	else if (args.size() == 0)
+		args.push_back("./conf/webserv_default.conf");
+	else if (args.size() == 1)
+		return;
+	else if (args.size() == 2 || args.size() == 3)
+	{
+		if (args.at(0) != "-l" && \
+			args.at(0) != "--logs" && \
+			args.at(1) != "debug" && \
+			args.at(1) != "info" && \
+			args.at(1) != "warn" && \
+			args.at(1) != "error" && \
+			args.at(1) != "fatal" && \
+			args.at(1) != "all")
+		{
+			std::cerr << USAGE << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		if (args.size() == 2)
+			args.push_back("./conf/webserv_default.conf");
+		if (args.at(1) == "all")
+		{
+			wsu::__debug = true;
+			wsu::__info = true;
+			wsu::__warn = true;
+			wsu::__error = true;
+			wsu::__fatal = true;
+			return;
+		}
+	}
+	for (std::vector<String>::const_iterator it = args.begin(); it != args.end(); it++)
+	{
+		if (*it == "debug" && !wsu::__debug)
+			wsu::__debug = true;
+		else if (*it == "info" && !wsu::__info)
+			wsu::__info = true;
+		else if (*it == "warn" && !wsu::__warn)
+			wsu::__warn = true;
+		else if (*it == "error" && !wsu::__error)
+			wsu::__error = true;
+		else if (*it == "fatal" && !wsu::__fatal)
+			wsu::__fatal = true;
+		else if (it == args.end() - 1)
+			;
+		else if (it == args.begin() && (args.at(0) == "-l" || args.at(0) == "--logs"))
+			;
+		else
+		{
+			std::cerr << USAGE << std::endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+	std::cout << std::unitbuf;
+	std::cerr << std::unitbuf;
 }
 void wsu::debug(String __log_message)
 {
-	std::cout << BLUE << wsu::logDate() << MAGENTA << " [DEBUG] " << RESET << __log_message << std::endl;
-	return;
+	if (wsu::__debug)
+		std::cout << BLUE << wsu::logDate() << MAGENTA << " [DEBUG] " << RESET << __log_message << std::endl;
+}
+void wsu::info(String __log_message)
+{
+	if (wsu::__info)
+		std::cout << BLUE << wsu::logDate() << GREEN << " [INFO] " << RESET << __log_message << std::endl;
+}
+void wsu::warn(String __log_message)
+{
+	if (wsu::__warn)
+		std::cout << BLUE << wsu::logDate() << YELLOW << " [WARN] " << RESET << __log_message << std::endl;
+}
+void wsu::error(String __log_message)
+{
+	if (wsu::__error)
+		std::cout << BLUE << wsu::logDate() << RED << " [ERROR] " << RESET << __log_message << std::endl;
+}
+void wsu::fatal(String __log_message)
+{
+	if (wsu::__fatal)
+		std::cout << BLUE << wsu::logDate() << RED << " [FATAL] " << RESET << __log_message << std::endl;
+}
+void wsu::running(String __log_message)
+{
+	std::cout << BLUE << wsu::logDate() << GREEN << " [RUNNING] " << RESET << __log_message << std::endl;
 }
 void wsu::terr(char *__error_message)
 {
@@ -38,30 +118,16 @@ void wsu::terr(String __error_message)
 {
 	std::cerr << RED << "error: " << RESET << __error_message << std::endl;
 }
-void wsu::log(String __log_message)
+/*************************************************************************************************
+ *                                           UTILITIES                                           *
+ *************************************************************************************************/
+String wsu::logDate()
 {
-	std::cout << BLUE << wsu::logDate() << RESET << " " << __log_message << std::endl;
-	return;
-}
-void wsu::success(String __log_message)
-{
-	std::cout << BLUE << wsu::logDate() << GREEN << " [SUCCESS] " << RESET << __log_message << std::endl;
-	return;
-}
-void wsu::running(String __log_message)
-{
-	std::cout << BLUE << wsu::logDate() << GREEN << " [RUNNING] " << RESET << __log_message << std::endl;
-	return;
-}
-void wsu::warn(String __log_message)
-{
-	std::cout << BLUE << wsu::logDate() << YELLOW << " [WARN] " << RESET << __log_message << std::endl;
-	return;
-}
-void wsu::error(String __log_message)
-{
-	std::cout << BLUE << wsu::logDate() << RED << " [ERROR] " << RESET << __log_message << std::endl;
-	return;
+	char buffer[30];
+	std::time_t t = std::time(NULL);
+	std::tm *tm = std::gmtime(&t);
+	std::strftime(buffer, sizeof(buffer), "[%d/%b/%Y:%H:%M:%S]", tm);
+	return String(buffer);
 }
 String wsu::buildIMFDate()
 {
@@ -71,9 +137,6 @@ String wsu::buildIMFDate()
 	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", tm);
 	return String(buffer);
 }
-/*************************************************************************************************
- *                                           UTILITIES                                           *
- *************************************************************************************************/
 void wsu::trimSpaces(String &str)
 {
 	if (str.empty())

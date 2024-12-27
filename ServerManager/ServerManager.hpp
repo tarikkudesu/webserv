@@ -54,7 +54,7 @@ class ServerManager
 		static bool					up;
 
 		void						setUpWebserv();
-		void						clear();
+		static void					clear();
 
 
 		ServerManager( const ServerManager &copy );
