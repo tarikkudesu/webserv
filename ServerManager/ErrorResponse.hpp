@@ -6,31 +6,30 @@
 class ErrorResponse
 {
 	private :
+		String								__page;
 		int16_t								__code;
-		String								__reasonPhrase;
-		String								__errorIndication;
-		String								__finalResponse;
-		String								__StatusLine;
-		String								__headers;
 		String								__Body;
+		String								__headers;
+		Location							*__location;
+		String								__StatusLine;
+		String 								__indication;
+		String								__reasonPhrase;
+		static String						__errPage;
 
+		static void							initErrorCodes();
 		void								buildStatusLine();
 		void								buildHeaderFeilds();
 		void								buildResponseBody();
-
+		void								constructErrorPage();
 		ErrorResponse();
 
-	protected :
-		static std::map< int16_t, String >	__errCode;
-		static String						__errPage;
-
 	public:
-		const String		&getResponse();
-		static	void		initErrorCodes();
-		void				constructErrorPage();
+		static std::map< int16_t, String >	__errCode;
+		String								getResponse() const;
 
 
-		ErrorResponse( int code, String error );
+		ErrorResponse( int code, String indication );
+		ErrorResponse( int code, Location &location, String indication );
 		ErrorResponse( const ErrorResponse &copy );
 		ErrorResponse	&operator=( const ErrorResponse &assign );
 		~ErrorResponse();

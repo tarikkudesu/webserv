@@ -7,19 +7,19 @@ Location::Location()
 	wsu::debug("Location default constructor");
 }
 Location::Location(const String &conf) : b__r(true),
+										 __path("/"),
 										 __line(conf),
 										 __autoindex(false),
-										 __clientBodyBufferSize(-1),
-										 __path("/")
+										 __clientBodyBufferSize(-1)
 {
 	wsu::debug("Location single para constructor");
 	parse();
 }
 Location::Location(const String &dir, const String &conf) : b__r(false),
+															__path(dir),
 															__line(conf),
 															__autoindex(false),
-															__clientBodyBufferSize(-1),
-															__path(dir)
+															__clientBodyBufferSize(-1)
 {
 	wsu::debug("Location double para constructor : " + dir);
 	parse();
@@ -56,7 +56,7 @@ Location::~Location()
  ****************************************************************************/
 void Location::addErrPages()
 {
-	if (Location::__defaultErrorPages.empty() == false)
+	if (Location::__defaultErrorPages.empty())
 	{
 		__defaultErrorPages.insert(std::make_pair(300, "./Content/300.html"));
 		__defaultErrorPages.insert(std::make_pair(301, "./Content/301.html"));

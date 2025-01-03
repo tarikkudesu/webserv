@@ -1,21 +1,17 @@
 #include "ErrorResponse.hpp"
 
-ErrorResponse::ErrorResponse()
-{
-}
-ErrorResponse::ErrorResponse(int code, String error) : __code(code),
-													   __errorIndication(error)
+ErrorResponse::ErrorResponse(int code, String indication) : __code(code),
+															__location(NULL),
+															__indication(indication)
 {
 	initErrorCodes();
-	std::map<int16_t, String>::iterator it = ErrorResponse::__errCode.find(this->__code);
-	if (it != ErrorResponse::__errCode.end())
-	{
-		this->__reasonPhrase = it->second;
-	}
-	else
-	{
-		this->__reasonPhrase = "Error";
-	}
+	this->constructErrorPage();
+}
+ErrorResponse::ErrorResponse(int code, Location &location, String indication) : __code(code),
+																				__location(&location),
+																				__indication(indication)
+{
+	initErrorCodes();
 	this->constructErrorPage();
 }
 ErrorResponse::ErrorResponse(const ErrorResponse &copy)
@@ -34,48 +30,81 @@ ErrorResponse::~ErrorResponse()
  *                               MINI METHODS                               *
  ****************************************************************************/
 
-const String &ErrorResponse::getResponse()
+String ErrorResponse::getResponse() const
 {
-	return this->__finalResponse;
+	return this->__StatusLine + this->__headers + this->__Body;
 }
 
 /*****************************************************************************
  *                                  METHODS                                  *
  *****************************************************************************/
-void ErrorResponse::buildStatusLine()
-{
-	std::stringstream ss;
-	ss << this->__code;
-	this->__StatusLine = PROTOCOLE_V " " + ss.str() + " " + this->__reasonPhrase + "\r\n";
-}
 void ErrorResponse::buildResponseBody()
 {
-	this->__Body = ErrorResponse::__errPage;
-	std::stringstream ss;
-	ss << this->__code;
-	wsu::replaceString(this->__Body, "CODE", ss.str());
-	wsu::replaceString(this->__Body, "REASON_PHRASE", this->__reasonPhrase);
-	wsu::replaceString(this->__Body, "MESSAGE", this->__errorIndication);
+	try
+	{
+		if (this->__page.empty())
+			throw std::runtime_error("");
+		std::fstream fS;
+		String line;
+		fS.open(this->__page.c_str());
+		if (!fS.is_open())
+			throw std::runtime_error("");
+		do
+		{
+			std::getline(fS, line, '\n');
+			if (fS.fail())
+				throw std::runtime_error("");
+			this->__Body += line;
+			if (fS.eof())
+				break;
+			line.clear();
+		} while (true);
+		fS.close();
+	}
+	catch (std::exception &e)
+	{
+		this->__Body = ErrorResponse::__errPage;
+		wsu::replaceString(this->__Body, "CODE", wsu::intToString(this->__code));
+		wsu::replaceString(this->__Body, "REASON_PHRASE", this->__reasonPhrase);
+		wsu::replaceString(this->__Body, "MESSAGE", this->__indication);
+	}
 }
 void ErrorResponse::buildHeaderFeilds()
 {
 	this->__headers += "Accept-Ranges: none\r\n";
 	this->__headers += "Connection: keep-alive\r\n";
-	size_t conLen = this->__Body.length();
-	std::stringstream ss;
-	ss << conLen;
-	this->__headers += "Content-Length: " + ss.str() + "\r\n";
+	this->__headers += "Content-Length: " + wsu::intToString(this->__Body.length()) + "\r\n";
 	this->__headers += "Content-Type: text/html; charset=UTF-8\r\n";
 	this->__headers += "Server: Webserv\r\n";
 	this->__headers += "Date: " + wsu::buildIMFDate() + "\r\n";
 	this->__headers += "\r\n";
 }
+void ErrorResponse::buildStatusLine()
+{
+	this->__StatusLine = PROTOCOLE_V " " + wsu::intToString(this->__code) + " " + this->__reasonPhrase + "\r\n";
+}
 void ErrorResponse::constructErrorPage()
 {
+	std::map<int16_t, String>::iterator it = ErrorResponse::__errCode.find(this->__code);
+	if (it != ErrorResponse::__errCode.end())
+		this->__reasonPhrase = it->second;
+	else
+		this->__reasonPhrase = "Error";
+	if (__location)
+	{
+		std::map<int16_t, String>::iterator it = __location->__errorPages.find(this->__code);
+		if (it != __location->__errorPages.end())
+			this->__page = __location->__errorPages[this->__code];
+	}
+	if (this->__page.empty())
+	{
+		std::map<int16_t, String>::iterator it = Location::__defaultErrorPages.find(this->__code);
+		if (it != __location->__errorPages.end())
+			this->__page = Location::__defaultErrorPages[this->__code];
+	}
 	buildStatusLine();
 	buildResponseBody();
 	buildHeaderFeilds();
-	this->__finalResponse = this->__StatusLine + this->__headers + this->__Body;
 }
 /***********************************************************************
  *                            STATIC METHODS                           *
@@ -92,8 +121,7 @@ String ErrorResponse::__errPage = "<!DOCTYPE html><html lang=\"en\"><head><meta 
 								  "</h1><h2 style=\"font-size: 25px; font-family: sans-serif; text-align: center; padding: 0px 0px 10px 0px; margin: 0px; color: rgb(210, 215, 223);\">\n"
 								  "REASON_PHRASE\n"
 								  "</h2><p style=\"font-size: 16px; font-family: sans-serif; text-align: center; padding: 0px 0px 30px 0px; margin: 0px; color: rgb(90, 139, 223);\">\n"
-								  "MESSAGE\n"
-								  "</p></div></body></html>";
+								  "MESSAGE\n</p></div></body></html>";
 
 void ErrorResponse::initErrorCodes()
 {

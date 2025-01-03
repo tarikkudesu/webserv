@@ -163,7 +163,7 @@ void Connection::proccessData(String input)
 	{
 		requestParser();
 		responseBuilder();
-		throw ErrorResponse(200, "request proccessed");
+		throw ErrorResponse(404, "request proccessed");
 	}
 	catch (ErrorResponse &e)
 	{
