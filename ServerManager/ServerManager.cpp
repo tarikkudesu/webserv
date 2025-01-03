@@ -166,12 +166,8 @@ void ServerManager::writeDataToSocket(int sd)
 	{
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
-					   &sockErr, sizeof(sockErr)) == 0 &&
-			sockErr == 0)
-		{
-			return;
-		}
-		else
+					   &sockErr, sizeof(sockErr)) != 0 ||
+			sockErr != 0)
 		{
 			removeConnection(sd);
 			wsu::info("removing connection");
@@ -201,12 +197,8 @@ void ServerManager::readDataFromSocket(int sd)
 	{
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
-					   &sockErr, sizeof(sockErr)) == 0 &&
-			sockErr == 0)
-		{
-			return;
-		}
-		else
+					   &sockErr, sizeof(sockErr)) != 0 ||
+			sockErr != 0) // surprise
 		{
 			removeConnection(sd);
 			wsu::info("removing connection");
@@ -230,12 +222,8 @@ void ServerManager::acceptNewConnection(int sd)
 	{
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
-					   &sockErr, sizeof(sockErr)) == 0 &&
-			sockErr == 0)
-		{
-			return;
-		}
-		else
+					   &sockErr, sizeof(sockErr)) != 0 ||
+			sockErr != 0)
 		{
 			removeServer(sd);
 		}
@@ -299,16 +287,7 @@ void ServerManager::mainLoop()
 		{
 			ServerManager::__events = wsu::data(ServerManager::__sockets);
 			retV = poll(ServerManager::__events, ServerManager::__sockets.size(), timeout);
-			if (retV == -1)
-			{
-				delete[] ServerManager::__events;
-			}
-			else if (retV == 0)
-			{
-				delete[] ServerManager::__events;
-				continue;
-			}
-			else
+			if (retV != 0)
 			{
 				for (int sd = 0; sd < ServerManager::__sockNum && retV; sd++)
 				{
@@ -323,8 +302,8 @@ void ServerManager::mainLoop()
 						wsu::terr(e.what());
 					}
 				}
-				delete[] ServerManager::__events;
 			}
+			delete[] ServerManager::__events;
 		}
 	}
 	catch (std::exception &e)

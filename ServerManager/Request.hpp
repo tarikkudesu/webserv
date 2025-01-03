@@ -21,7 +21,6 @@ class Request
 		String							__host;
 		int								__port;
 		t_method						__method;
-		t_svec							__URIpath;
 		String							__fragement;
 		String							__protocole;
 		std::map< String, String >		__headerFeilds;

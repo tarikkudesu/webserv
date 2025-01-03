@@ -18,7 +18,9 @@ class Location
 		std::map< int16_t, String >			__errorPages;
 		std::vector< t_method >				__allowMethods;
 		static std::map< int16_t, String >	__defaultErrorPages;
+		long								__clientBodyBufferSize;
 
+		void								proccessClientBodyBufferSizeToken( t_svec &tokens );
 		void								proccessAllowMethodsDirective( t_svec &tokens );
 		void								proccessErrorPageDirective( t_svec &tokens );
 		void								proccessAutoindexDirective( t_svec &tokens );

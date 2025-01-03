@@ -13,7 +13,6 @@ class Server
 		std::vector< Location >			__locations;
 		t_svec							__directives;
 		t_svec							__serverNames;
-		long							__clientBodyBufferSize;
 
 		void							proccessServerDirectives();
 		void							proccessToken(t_svec &tokens);
@@ -24,7 +23,6 @@ class Server
 		void							proccessServerNameToken( t_svec &tokens );
 		void							LocationBlock( String &line, size_t pos );
 		void							parseLocation( String line, String parent );
-		void							proccessClientBodyBufferSizeToken( t_svec &tokens );
 		void							addLocation( String &line, size_t pos, String parent );
 		void							proccessLocation(String &location, size_t pos, String &parent);
 		Server();

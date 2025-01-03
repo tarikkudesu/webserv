@@ -9,6 +9,7 @@ Location::Location()
 Location::Location(const String &conf) : b__r(true),
 										 __line(conf),
 										 __autoindex(false),
+										 __clientBodyBufferSize(-1),
 										 __path("/")
 {
 	wsu::debug("Location single para constructor");
@@ -17,6 +18,7 @@ Location::Location(const String &conf) : b__r(true),
 Location::Location(const String &dir, const String &conf) : b__r(false),
 															__line(conf),
 															__autoindex(false),
+															__clientBodyBufferSize(-1),
 															__path(dir)
 {
 	wsu::debug("Location double para constructor : " + dir);
@@ -38,6 +40,7 @@ Location &Location::operator=(const Location &assign)
 		__autoindex = assign.__autoindex;
 		__errorPages = assign.__errorPages;
 		__allowMethods = assign.__allowMethods;
+		__clientBodyBufferSize = assign.__clientBodyBufferSize;
 	}
 	return *this;
 }
@@ -165,6 +168,18 @@ void Location::proccessCgiPassDirective(t_svec &tokens)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 	this->__cgiPass = tokens.at(1);
 }
+void Location::proccessClientBodyBufferSizeToken(t_svec &tokens)
+{
+	if (this->__clientBodyBufferSize != -1)
+		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
+	if (tokens.size() == 1)
+		throw std::runtime_error(tokens.at(0) + ": no client_body_buffer_size value");
+	if (tokens.size() > 2)
+		throw std::runtime_error(tokens.at(0) + ": multiple client_body_buffer_size values");
+	if (String::npos != tokens.at(1).find_first_not_of("0123456789"))
+		throw std::runtime_error(tokens.at(0) + ": invalid client_body_buffer_size: not a number");
+	this->__clientBodyBufferSize = wsu::stringToInt(tokens.at(1));
+}
 void Location::proccessToken(t_svec &tokens)
 {
 	String &key = tokens.at(0);
@@ -185,7 +200,8 @@ void Location::proccessToken(t_svec &tokens)
 		key != "index" &&
 		key != "autoindex" &&
 		key != "error_page" &&
-		key != "allow_methods")
+		key != "allow_methods" &&
+		key != "client_body_buffer_size")
 		throw std::runtime_error(key + ": invalid context");
 	if (key == "root")
 		proccessRootDirective(tokens);
@@ -201,6 +217,8 @@ void Location::proccessToken(t_svec &tokens)
 		proccessErrorPageDirective(tokens);
 	else if (key == "allow_methods")
 		proccessAllowMethodsDirective(tokens);
+	else if (key == "client_body_buffer_size")
+		proccessClientBodyBufferSizeToken(tokens);
 }
 void Location::proccessDirectives()
 {
@@ -278,6 +296,8 @@ void Location::parse()
 	}
 	if (__index.empty())
 		this->__index.push_back("index.html");
+	if (__clientBodyBufferSize == -1)
+		__clientBodyBufferSize = 8000;
 	this->__directives.clear();
 	__line.clear();
 }

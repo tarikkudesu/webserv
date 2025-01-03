@@ -34,14 +34,14 @@ void wsu::logs(std::vector<String> &args)
 		return;
 	else if (args.size() == 2)
 	{
-		if ((args.at(0) != "-l" && \
-			args.at(0) != "--logs") || \
-			(args.at(1) != "debug" && \
-			args.at(1) != "info" && \
-			args.at(1) != "warn" && \
-			args.at(1) != "error" && \
-			args.at(1) != "fatal" && \
-			args.at(1) != "all"))
+		if ((args.at(0) != "-l" &&
+			 args.at(0) != "--logs") ||
+			(args.at(1) != "debug" &&
+			 args.at(1) != "info" &&
+			 args.at(1) != "warn" &&
+			 args.at(1) != "error" &&
+			 args.at(1) != "fatal" &&
+			 args.at(1) != "all"))
 		{
 			std::cerr << USAGE << std::endl;
 			exit(EXIT_FAILURE);
@@ -50,13 +50,15 @@ void wsu::logs(std::vector<String> &args)
 	}
 	else
 	{
-		if (*(args.end() - 1) == "debug" || \
-			*(args.end() - 1) == "info" || \
-			*(args.end() - 1) == "warn" || \
-			*(args.end() - 1) == "error" || \
-			*(args.end() - 1) == "fatal" || \
+		if (*(args.end() - 1) == "debug" ||
+			*(args.end() - 1) == "info" ||
+			*(args.end() - 1) == "warn" ||
+			*(args.end() - 1) == "error" ||
+			*(args.end() - 1) == "fatal" ||
 			*(args.end() - 1) == "all")
+		{
 			args.push_back("./conf/webserv_default.conf");
+		}
 	}
 	for (std::vector<String>::const_iterator it = args.begin(); it != args.end(); it++)
 	{

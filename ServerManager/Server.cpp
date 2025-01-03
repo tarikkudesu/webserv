@@ -7,7 +7,6 @@ Server::Server()
 }
 Server::Server(String line) : __sd(-1),
 							  __port(-1),
-							  __clientBodyBufferSize(-1),
 							  __valid(false)
 {
 	wsu::debug("Server single para constructor");
@@ -19,8 +18,6 @@ Server::Server(String line) : __sd(-1),
 	proccessServerDirectives();
 	this->__locations.push_back(Location(line));
 	parseLocation(line, "/");
-	if (__clientBodyBufferSize == -1)
-		__clientBodyBufferSize = 8000;
 	if (__ports.size() == 0)
 		__ports.push_back(8080);
 	if (__host.empty())
@@ -44,7 +41,6 @@ Server &Server::operator=(const Server &assign)
 		__locations = assign.__locations;
 		__directives = assign.__directives;
 		__serverNames = assign.__serverNames;
-		__clientBodyBufferSize = assign.__clientBodyBufferSize;
 	}
 	return *this;
 }
@@ -213,18 +209,6 @@ void Server::proccessServerNameToken(t_svec &tokens)
 		throw std::runtime_error(tokens.at(0) + ": no server_name value");
 	this->__valid = true;
 }
-void Server::proccessClientBodyBufferSizeToken(t_svec &tokens)
-{
-	if (this->__clientBodyBufferSize != -1)
-		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
-	if (tokens.size() == 1)
-		throw std::runtime_error(tokens.at(0) + ": no client_body_buffer_size value");
-	if (tokens.size() > 2)
-		throw std::runtime_error(tokens.at(0) + ": multiple client_body_buffer_size values");
-	if (String::npos != tokens.at(1).find_first_not_of("0123456789"))
-		throw std::runtime_error(tokens.at(0) + ": invalid client_body_buffer_size: not a number");
-	this->__clientBodyBufferSize = wsu::stringToInt(tokens.at(1));
-}
 
 void Server::proccessToken(t_svec &tokens)
 {
@@ -247,8 +231,6 @@ void Server::proccessToken(t_svec &tokens)
 		proccessListenToken(tokens);
 	else if (key == "server_name")
 		proccessServerNameToken(tokens);
-	else if (key == "client_body_buffer_size")
-		proccessClientBodyBufferSizeToken(tokens);
 }
 
 /************************************************************************************************************
