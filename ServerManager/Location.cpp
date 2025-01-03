@@ -19,10 +19,10 @@ Location::Location(const String &dir, const String &conf) : b__r(false),
 															__autoindex(false),
 															__path(dir)
 {
-	wsu::debug("Location double para constructor");
+	wsu::debug("Location double para constructor : " + dir);
 	parse();
 }
-Location::Location(const Location &copy)
+Location::Location(const Location &copy) : __path(copy.__path)
 {
 	wsu::debug("Location copy constructor");
 	*this = copy;

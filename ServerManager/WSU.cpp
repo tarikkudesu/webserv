@@ -21,6 +21,8 @@ bool wsu::__fatal = false;
  ************************************************************************************************/
 void wsu::logs(std::vector<String> &args)
 {
+	std::cout << std::unitbuf;
+	std::cerr << std::unitbuf;
 	if (args.size() > 6)
 	{
 		std::cerr << USAGE << std::endl;
@@ -30,31 +32,31 @@ void wsu::logs(std::vector<String> &args)
 		args.push_back("./conf/webserv_default.conf");
 	else if (args.size() == 1)
 		return;
-	else if (args.size() == 2 || args.size() == 3)
+	else if (args.size() == 2)
 	{
-		if (args.at(0) != "-l" && \
-			args.at(0) != "--logs" && \
-			args.at(1) != "debug" && \
+		if ((args.at(0) != "-l" && \
+			args.at(0) != "--logs") || \
+			(args.at(1) != "debug" && \
 			args.at(1) != "info" && \
 			args.at(1) != "warn" && \
 			args.at(1) != "error" && \
 			args.at(1) != "fatal" && \
-			args.at(1) != "all")
+			args.at(1) != "all"))
 		{
 			std::cerr << USAGE << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		if (args.size() == 2)
+		args.push_back("./conf/webserv_default.conf");
+	}
+	else
+	{
+		if (*(args.end() - 1) == "debug" || \
+			*(args.end() - 1) == "info" || \
+			*(args.end() - 1) == "warn" || \
+			*(args.end() - 1) == "error" || \
+			*(args.end() - 1) == "fatal" || \
+			*(args.end() - 1) == "all")
 			args.push_back("./conf/webserv_default.conf");
-		if (args.at(1) == "all")
-		{
-			wsu::__debug = true;
-			wsu::__info = true;
-			wsu::__warn = true;
-			wsu::__error = true;
-			wsu::__fatal = true;
-			return;
-		}
 	}
 	for (std::vector<String>::const_iterator it = args.begin(); it != args.end(); it++)
 	{
@@ -68,6 +70,14 @@ void wsu::logs(std::vector<String> &args)
 			wsu::__error = true;
 		else if (*it == "fatal" && !wsu::__fatal)
 			wsu::__fatal = true;
+		else if (*it == "all")
+		{
+			wsu::__debug = true;
+			wsu::__info = true;
+			wsu::__warn = true;
+			wsu::__error = true;
+			wsu::__fatal = true;
+		}
 		else if (it == args.end() - 1)
 			;
 		else if (it == args.begin() && (args.at(0) == "-l" || args.at(0) == "--logs"))
@@ -78,8 +88,6 @@ void wsu::logs(std::vector<String> &args)
 			exit(EXIT_FAILURE);
 		}
 	}
-	std::cout << std::unitbuf;
-	std::cerr << std::unitbuf;
 }
 void wsu::debug(String __log_message)
 {

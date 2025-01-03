@@ -259,7 +259,7 @@ void Server::proccessLocation(String &line, size_t pos, String &parent)
 {
 	t_svec tokens = wsu::splitBySpaces(String(line.begin(), line.begin() + pos));
 	if (tokens.size() != 2)
-		throw std::runtime_error("invalid block 2");
+		throw std::runtime_error("multiple directive");
 	if (tokens.at(0) != "location")
 		throw std::runtime_error("unknown block");
 	if (wsu::containsPath(parent, tokens.at(1)) == false)
