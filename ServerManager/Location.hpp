@@ -48,4 +48,7 @@ class Location
 		~Location();
 };
 
+String methodToString(t_method t);
+std::ostream &operator<<( std::ostream &o, const Location &loc );
+
 #endif

@@ -41,6 +41,7 @@ public:
 	static struct pollfd *data(t_events &events);
 	static std::vector<String> splitBySpaces(const String &input);
 	static bool samePath(const String &path1, const String &path2);
+	static String joinPaths(const String &path1, const String &path2);
 	static bool containsPath(const String &path, const String &subPath);
 	static String mergeByChar(const std::vector<String> &input, char del);
 	static std::vector<String> splitByChar(const String &input, char del);

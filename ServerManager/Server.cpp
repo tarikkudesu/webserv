@@ -69,17 +69,9 @@ void Server::setPort(int port)
 {
 	this->__port = port;
 }
-std::vector<int> &Server::getPorts()
-{
-	return this->__ports;
-}
 const String &Server::getServerHost() const
 {
 	return this->__host;
-}
-const t_svec &Server::getServerNames() const
-{
-	return this->__serverNames;
 }
 bool Server::amITheServerYouAreLookingFor(const String &sN)
 {
@@ -90,7 +82,7 @@ bool Server::amITheServerYouAreLookingFor(const String &sN)
 	}
 	return false;
 }
-String Server::serverIdentity()
+String Server::serverIdentity() const
 {
 	return String(__host + ":" + wsu::intToString(__port));
 }
@@ -279,7 +271,7 @@ void Server::addLocation(String &line, size_t pos, String parent)
 	proccessLocation(locationBlock, pos, parent);
 	line.erase(0, end);
 }
-void Server::parseLocation(String line, String parent)
+void Server::parseLocation(String line, String parent, String root)
 {
 	do
 	{
@@ -352,4 +344,17 @@ void Server::parseServerDirectives(String line)
 		else if (line.at(pos) == '{')
 			LocationBlock(line, pos);
 	} while (true);
+}
+
+std::ostream &operator<<( std::ostream &o, const Server &ser )
+{
+	std::cout << "server: " << ser.serverIdentity() << "\n";
+	std::cout << "\tserver_name: ";
+	for (t_svec::const_iterator it = ser.__serverNames.begin(); it != ser.__serverNames.end(); it++) {
+		std::cout << *it << " ";
+	} std::cout << "\n";
+	for (std::vector< Location >::const_iterator it = ser.__locations.begin(); it != ser.__locations.end(); it++) {
+		std::cout << *it;
+	} std::cout << "\n";
+	return o;
 }

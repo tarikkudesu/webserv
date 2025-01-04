@@ -346,7 +346,7 @@ void ServerManager::initServers()
 		Server *tmp = *it;
 		if (!tmp->__valid)
 			continue;
-		std::vector<int> &ports = tmp->getPorts();
+		std::vector<int> &ports = tmp->__ports;
 		for (std::vector<int>::iterator it = ports.begin(); it != ports.end(); it++)
 		{
 			Server *newServer = new Server(*tmp);
@@ -498,12 +498,15 @@ void ServerManager::logServers()
 	{
 		wsu::running((*it).second->getServerHost() + ":" + wsu::intToString((*it).second->getServerPort()));
 	}
+	it = ServerManager::__servers.begin();
+	for (; it != ServerManager::__servers.end(); it++)
+		std::cout << *(it->second);
 }
 void ServerManager::checkConflicts()
 {
 	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
 	{
-		const t_svec &serverNames = it->second->getServerNames();
+		const t_svec &serverNames = it->second->__serverNames;
 		for (t_svec::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
 		{
 			for (t_svec::const_iterator match = name + 1; match != serverNames.end(); match++)
@@ -519,7 +522,7 @@ void ServerManager::checkConflicts()
 		{
 			if (it->second->getServerPort() == iter->second->getServerPort())
 			{
-				const t_svec &serverNames = it->second->getServerNames();
+				const t_svec &serverNames = it->second->__serverNames;
 				for (t_svec::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
 				{
 					if (iter->second->amITheServerYouAreLookingFor(*name))

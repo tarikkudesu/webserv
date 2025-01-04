@@ -35,7 +35,7 @@
     - syntax: root path
     - multiple directives: no
     - multiple values: no
-    - default: ./Content
+    - default: /
     - required: no
 
 ### index:
