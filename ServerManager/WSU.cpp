@@ -284,8 +284,16 @@ bool wsu::containsPath(const String &path, const String &subPath)
 }
 String wsu::joinPaths(const String &path1, const String &path2)
 {
-	if (*(path1.end() - 1) != '/' && *(path2.end() - 1) != '/')
+	if (path1.empty() && path2.empty())
+		return "";
+	else if (path2.empty())
+		return path1;
+	else if (path1.empty())
+		return path2;
+	if (*(path1.end() - 1) != '/' && *(path2.begin()) != '/')
 		return path1 + "/" + path2;
+	if (*(path1.end() - 1) == '/' && *(path2.begin()) == '/')
+		return path1 + path2.substr(1, path2.length());
 	return path1 + path2;
 }
 struct pollfd *wsu::data(t_events &events)

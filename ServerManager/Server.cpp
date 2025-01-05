@@ -15,9 +15,8 @@ Server::Server(String line) : __sd(-1),
 		line = line.substr(1, line.length() - 2);
 	wsu::trimSpaces(line);
 	parseServerDirectives(line);
-	proccessServerDirectives();
-	this->__locations.push_back(Location(line));
-	parseLocation(line, "/");
+	this->__locations.push_back(Location(line, this->__root));
+	parseLocations(line, "/");
 	if (__ports.size() == 0)
 		__ports.push_back(8080);
 	if (__host.empty())
@@ -153,6 +152,16 @@ void Server::setup()
  *                                           PROCCESSING DIRECTIVES                                           *
  **************************************************************************************************************/
 
+void Server::proccessRootToken(t_svec &tokens)
+{
+	if (!__root.empty())
+		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
+	if (tokens.size() == 1)
+		throw std::runtime_error(tokens.at(0) + ": no root value");
+	if (tokens.size() > 2)
+		throw std::runtime_error(tokens.at(0) + ": multiple root values");
+	this->__root = tokens.at(1);
+}
 void Server::proccessHostToken(t_svec &tokens)
 {
 	if (!__host.empty())
@@ -219,6 +228,8 @@ void Server::proccessToken(t_svec &tokens)
 		throw std::runtime_error(key + ": unknown directive");
 	if (key == "host")
 		proccessHostToken(tokens);
+	else if (key == "root")
+		proccessRootToken(tokens);
 	else if (key == "listen")
 		proccessListenToken(tokens);
 	else if (key == "server_name")
@@ -229,7 +240,7 @@ void Server::proccessToken(t_svec &tokens)
  ********************************************** LOCATION BLOCK **********************************************
  ************************************************************************************************************/
 
-void Server::proccessLocation(String &line, size_t pos, String &parent)
+void Server::proccessLocationBlock(String &line, size_t pos, String &parent)
 {
 	t_svec tokens = wsu::splitBySpaces(String(line.begin(), line.begin() + pos));
 	if (tokens.size() != 2)
@@ -247,10 +258,10 @@ void Server::proccessLocation(String &line, size_t pos, String &parent)
 	}
 	String conf = String(line.begin() + pos + 1, line.end() - 2);
 	wsu::info("location: " + tokens.at(1));
-	this->__locations.push_back(Location(tokens.at(1), conf));
-	parseLocation(conf, tokens.at(1));
+	this->__locations.push_back(Location(tokens.at(1), conf, this->__root));
+	parseLocations(conf, tokens.at(1));
 }
-void Server::addLocation(String &line, size_t pos, String parent)
+void Server::addLocationBlock(String &line, size_t pos, String parent)
 {
 	size_t end = pos + 1;
 	size_t tracker = 1;
@@ -268,10 +279,10 @@ void Server::addLocation(String &line, size_t pos, String parent)
 			break;
 	} while (true);
 	String locationBlock = String(line.begin(), line.begin() + end);
-	proccessLocation(locationBlock, pos, parent);
+	proccessLocationBlock(locationBlock, pos, parent);
 	line.erase(0, end);
 }
-void Server::parseLocation(String line, String parent, String root)
+void Server::parseLocations(String line, String parent)
 {
 	do
 	{
@@ -283,7 +294,7 @@ void Server::parseLocation(String line, String parent, String root)
 		if (line.at(pos) == ';')
 			line.erase(0, pos + 1);
 		else if (line.at(pos) == '{')
-			addLocation(line, pos, parent);
+			addLocationBlock(line, pos, parent);
 	} while (true);
 }
 
@@ -301,8 +312,10 @@ void Server::proccessServerDirectives()
 			proccessToken(tokens);
 		}
 	}
+	if (this->__root.empty())
+		this->__root = "./Content/";
 }
-void Server::LocationBlock(String &line, size_t pos)
+void Server::skipLocationBlock(String &line, size_t pos)
 {
 	size_t end = pos + 1;
 	size_t tracker = 1;
@@ -320,7 +333,7 @@ void Server::LocationBlock(String &line, size_t pos)
 	} while (true);
 	line.erase(0, end);
 }
-void Server::addDirective(String &line, size_t end)
+void Server::addServerDirective(String &line, size_t end)
 {
 	String directive = String(line.begin(), line.begin() + end);
 	wsu::trimSpaces(directive);
@@ -340,21 +353,26 @@ void Server::parseServerDirectives(String line)
 		if (pos == String::npos)
 			break;
 		if (line.at(pos) == ';')
-			addDirective(line, pos);
+			addServerDirective(line, pos);
 		else if (line.at(pos) == '{')
-			LocationBlock(line, pos);
+			skipLocationBlock(line, pos);
 	} while (true);
+	proccessServerDirectives();
 }
 
-std::ostream &operator<<( std::ostream &o, const Server &ser )
+std::ostream &operator<<(std::ostream &o, const Server &ser)
 {
 	std::cout << "server: " << ser.serverIdentity() << "\n";
 	std::cout << "\tserver_name: ";
-	for (t_svec::const_iterator it = ser.__serverNames.begin(); it != ser.__serverNames.end(); it++) {
+	for (t_svec::const_iterator it = ser.__serverNames.begin(); it != ser.__serverNames.end(); it++)
+	{
 		std::cout << *it << " ";
-	} std::cout << "\n";
-	for (std::vector< Location >::const_iterator it = ser.__locations.begin(); it != ser.__locations.end(); it++) {
+	}
+	std::cout << "\n";
+	for (std::vector<Location>::const_iterator it = ser.__locations.begin(); it != ser.__locations.end(); it++)
+	{
 		std::cout << *it;
-	} std::cout << "\n";
+	}
+	std::cout << "\n";
 	return o;
 }

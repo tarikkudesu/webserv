@@ -6,7 +6,7 @@
 class Location
 {
 	private :
-		bool								b__r;
+		bool								b__r; // temporary usage
 
 		void								proccessClientBodyBufferSizeToken( t_svec &tokens );
 		void								proccessAllowMethodsDirective( t_svec &tokens );
@@ -26,7 +26,7 @@ class Location
 
 	public:
 		const String						__path;
-		String								__line;
+		String								__line; // temporary usage
 		String								__root;
 		t_svec								__index;
 		String								__return;
@@ -41,9 +41,9 @@ class Location
 		static void							addErrPages();
 
 
-		Location( const String &conf );
 		Location( const Location &copy );
-		Location( const String &dir, const String &conf );
+		Location( const String &conf, const String &root );
+		Location( const String &dir, const String &conf, const String &root );
 		Location	&operator=( const Location &assign );
 		~Location();
 };

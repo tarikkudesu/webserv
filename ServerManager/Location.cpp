@@ -6,20 +6,22 @@ Location::Location()
 {
 	wsu::debug("Location default constructor");
 }
-Location::Location(const String &conf) : b__r(true),
-										 __path("/"),
-										 __line(conf),
-										 __autoindex(false),
-										 __clientBodyBufferSize(-1)
+Location::Location(const String &conf, const String &root) : b__r(true),
+															 __path("/"),
+															 __line(conf),
+															 __root(root),
+															 __autoindex(false),
+															 __clientBodyBufferSize(-1)
 {
 	wsu::debug("Location single para constructor");
 	parse();
 }
-Location::Location(const String &dir, const String &conf) : b__r(false),
-															__path(dir),
-															__line(conf),
-															__autoindex(false),
-															__clientBodyBufferSize(-1)
+Location::Location(const String &dir, const String &conf, const String &root) : b__r(false),
+																				__path(dir),
+																				__line(conf),
+																				__root(root),
+																				__autoindex(false),
+																				__clientBodyBufferSize(-1)
 {
 	wsu::debug("Location double para constructor : " + dir);
 	parse();
@@ -98,8 +100,6 @@ void Location::addErrPages()
 
 void Location::proccessRootDirective(t_svec &tokens)
 {
-	if (!__root.empty())
-		throw std::runtime_error(tokens.at(0) + " directive is duplicate");
 	if (tokens.size() != 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
 	this->__root = tokens.at(1);
@@ -306,56 +306,62 @@ String methodToString(t_method t)
 {
 	switch (t)
 	{
-		case GET:
-			return "GET";
-			break;
-		case OPTIONS:
-			return "OPTIONS";
-			break;
-		case HEAD:
-			return "HEAD";
-			break;
-		case POST:
-			return "POST";
-			break;
-		case PUT:
-			return "PUT";
-			break;
-		case DELETE:
-			return "DELETE";
-			break;
-		case TRACE:
-			return "TRACE";
-			break;
-		case CONNECT:
-			return "CONNECT";
-			break;
-		default:
-			break;
+	case GET:
+		return "GET";
+		break;
+	case OPTIONS:
+		return "OPTIONS";
+		break;
+	case HEAD:
+		return "HEAD";
+		break;
+	case POST:
+		return "POST";
+		break;
+	case PUT:
+		return "PUT";
+		break;
+	case DELETE:
+		return "DELETE";
+		break;
+	case TRACE:
+		return "TRACE";
+		break;
+	case CONNECT:
+		return "CONNECT";
+		break;
+	default:
+		break;
 	}
 	return "NONE";
 }
 
-std::ostream &operator<<( std::ostream &o, const Location &loc )
+std::ostream &operator<<(std::ostream &o, const Location &loc)
 {
 	std::cout << "\tlocation: " << loc.__path << "\n";
 	std::cout << "\t\troot: [" << loc.__root << "]\n";
 	std::cout << "\t\tindex: ";
-	for (t_svec::const_iterator it = loc.__index.begin(); it != loc.__index.end(); it++) {
+	for (t_svec::const_iterator it = loc.__index.begin(); it != loc.__index.end(); it++)
+	{
 		std::cout << *it << " ";
-	} std::cout << "\n";
+	}
+	std::cout << "\n";
 	std::cout << "\t\tautoindex: ";
 	loc.__autoindex ? std::cout << "on\n" : std::cout << "off\n";
 	std::cout << "\t\tcgi_pass: " << loc.__cgiPass << "\n";
 	std::cout << "\t\treturn: " << loc.__return << "\n";
 	std::cout << "\t\tallow_methods: ";
-	for (std::vector< t_method >::const_iterator it = loc.__allowMethods.begin(); it != loc.__allowMethods.end(); it++) {
+	for (std::vector<t_method>::const_iterator it = loc.__allowMethods.begin(); it != loc.__allowMethods.end(); it++)
+	{
 		std::cout << methodToString(*it) << " ";
-	} std::cout << "\n";
+	}
+	std::cout << "\n";
 	std::cout << "\t\terror_pages: ";
-	for (std::map< int16_t, String >::const_iterator it = loc.__errorPages.begin(); it != loc.__errorPages.end(); it++) {
+	for (std::map<int16_t, String>::const_iterator it = loc.__errorPages.begin(); it != loc.__errorPages.end(); it++)
+	{
 		std::cout << it->second << " ";
-	} std::cout << "\n";
+	}
+	std::cout << "\n";
 	std::cout << "\t\tclient_body_buffer_size: " << loc.__clientBodyBufferSize << "\n";
 	return o;
 }
