@@ -31,14 +31,6 @@ void signalHandler(int signal)
 
 int main(int ac, char **av)
 {
-	t_svec t;
-	t.push_back("1");
-	t.push_back("2");
-	t.push_back("3");
-	t.push_back("4");
-	t.push_back("5");
-	std::cout << wsu::buildListingBody(t) << "\n";
-	exit(1);
 	atexit(f);
 	signal(SIGINT, signalHandler);
 	std::vector<String> args;
