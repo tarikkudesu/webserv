@@ -1,6 +1,8 @@
 # Prerequisites
 *.d
 
+cgi-bin
+
 .logs
 tester
 webserv
