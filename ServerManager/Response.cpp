@@ -3,15 +3,13 @@
 Response::Response(Request &request, Server &server, Location &location) : __server(server),
 									   __request(request),
 									   __location(location),
-									   ressource(request.__URI), isCgi(false), isDir(false), isDone(false), code(200), codeMessage("Ok"),
-									   protocole(request.__protocole), body("")
+									   ressource(request.__URI), isDir(false), isDone(false), code(200),
+									   codeMessage("Ok"), protocole(request.__protocole), body("")
 {
 	if (!validateMethod() || !validateRequest())
 		throw ErrorResponse(code, codeMessage);
-	if (!location.__cgiPass.empty())
-		isCgi = true;
-	if (fileFound())
-		isFound = true;
+	!location.__cgiPass.empty() ? isCgi = true : isCgi = false;
+	fileFound() ? isFound = true : throw ErrorResponse(404, "Ressource not found");
 	buildResponse();
 }
 
@@ -51,43 +49,19 @@ bool	Response::validateMethod()
 bool	Response::validateRequest()
 {
 	if (__request.__protocole != "HTTP/1.1")
-	{
-        	setCode(505);
-		setCodeMessage("HTTP Version not supported");
-		return false;
-	}
+		throw ErrorResponse(505, "HTTP Version not supported");
 	if (__request.__host.empty())
-	{
-        	setCode(400);
-		setCodeMessage("Bad Request");
-		return false;
-	}
+		throw ErrorResponse(400, "Bad Request");
 	if (__request.__URI.find("../") != String::npos)
-	{
-        	setCode(403);
-		setCodeMessage("Forbidden");
-        	return false;
-    	}
+		throw ErrorResponse(403, "Forbidden");
     	if (__request.__method == POST)
 	{
         	if (__request.__contentLength == 0) 
-		{
-            		setCode(411);
-			setCodeMessage("Length Required");
-            		return false;
-        	}
+			throw ErrorResponse(411, "Length Required");
         	if (__request.__contentLength > __location.__clientBodyBufferSize)
-		{
-        	    	setCode(413);
-			setCodeMessage("Request Entity Too Large");
-        	    	return false;
-        	}
+			throw ErrorResponse(413, "Request Entity Too Large");
         	if (__request.__requestbody.length() != __request.__contentLength)
-		{
-        	    	setCode(400);
-			setCodeMessage("Bad Request");
-        	    	return false;
-        	}
+			throw ErrorResponse(400, "Bad Request");
     	}
 	return true;
 }
@@ -102,13 +76,7 @@ void	Response::setCodeMessage( String message )
 	this->codeMessage = message;
 }
 
-void	Response::init_headers()
-{
-	header["content_type"] = content_type;
-	header["content_length"] = content_length;
-}
-
-const std::map<String, String>& 	Response::getHeaders() const
+const std::map<String, String>& 	Response::getHeaders()
 {
 	return header;
 }
@@ -117,18 +85,6 @@ String	Response::buildStartLine( String protocole, int code, String codeMessage 
 {
 	return protocole + " " + std::to_string(code) + " " + codeMessage;
 }
-
-void	Response::handleError( int errorCode )
-{
-
-}
-
-// void executeCgi()
-// {
-// 	Cgi cgi =  new  Cgi(ressource, __request);
-// 	body = cgi.getBody();
-
-// }
 
 void	Response::buildResponse()
 {
@@ -148,7 +104,7 @@ void	Response::buildResponse()
 			handleDELETE();
 	}
 }
-  
+
 String	Response::combinePaths( const String &root, const String &path )
 {
 	String fullPath;
@@ -182,7 +138,7 @@ t_svec	Response::listDir( String &dirPath )
 
 	dir = opendir(dirPath.c_str());
 	if (!dir)
-		return (perror("opendir"), "");
+		return (dirs);
 	entry = readdir(dir);
 	while (entry)
 	{
@@ -227,18 +183,10 @@ bool	Response::fileFound()
 			autoIndex = listDir( fullPath );
 			return true;
 		}
-		setCode(404);
-		setCodeMessage("Ressource not found");
-		return false;
+		throw ErrorResponse(404, "Ressource not found");
 	}
-	struct stat	fileStat;
-
 	if (!isReadable(fullPath.c_str()))
-	{
-		setCode(404);
-		setCodeMessage("Ressource not found");
-		return false;
-	}
+		throw ErrorResponse(404, "Ressource not found");
 	ressource = fullPath;
     	return true;
 }
@@ -255,11 +203,7 @@ bool Response::dirFound()
     	   	return false;
 
     	if (access(fullPath.c_str(), R_OK) != 0)
-	{
-		setCode(401);
-		setCodeMessage("Unauthorized");
-    		return false;
-	}
+		return false;
 
     	isDir = true;
     	if (ressource[ressource.length() - 1] != '/')
@@ -277,6 +221,8 @@ String	Response::readFile( const String &fullPath )
 	String 		line;
 	String		output;
 
+	if (!f.is_open())
+		throw ErrorResponse(401, "Unauthorized");
 	while (std::getline(f, line))
 	{
 		output += line;
@@ -284,6 +230,51 @@ String	Response::readFile( const String &fullPath )
 	}
 	if (!output.empty() && output.back() == '\n')
         	output.pop_back();
+	f.close();
+	return output;
+}
+
+bool	Response::writeFile(const String& path, const String& content )
+{
+	std::ofstream	file(path);
+
+	if (!file.is_open())
+		throw ErrorResponse(401, "Unauthorized");
+	file << content;
+	file.close();
+	return true;
+}
+
+bool	Response::deleteFile( const String &path )
+{
+	if (unlink(path.c_str()) != 0) {
+        switch (errno)
+	{
+        	case EACCES:
+            	case EPERM:
+                	setCode(403);
+			setCodeMessage("Forbidden - no permission to delete");
+                	break;
+                
+            	case EBUSY:
+                	setCode(409);
+			setCodeMessage("Conflict - file is in use");
+                	break;
+                
+            	case EROFS:
+                	setCode(403);
+			setCodeMessage("Forbidden - read-only filesystem");
+                	break;
+                
+            	default:
+               	 	setCode(500);
+			setCodeMessage("Internal Server Error");
+                	break;
+        }
+	throw ErrorResponse(code, codeMessage);
+    }
+    setCode(204);
+    return true;
 }
 
 void	Response::handleGET()
@@ -291,47 +282,87 @@ void	Response::handleGET()
 	if (isDone)
 		return ;
 	if (isFound && !isCgi)
-		readFile(ressource);
+		body = readFile(ressource);
 	else
-	{
-		setCode(404);
-		setCodeMessage("Ressource not found");
-	}
+		throw ErrorResponse(404, "Ressource not found");
 }
 
 void	Response::handlePOST()
 {
 	if (isDone)
 		return ;
-	
-	
+	if (isFound && !isCgi)
+		writeFile(ressource, __request.__requestbody);
+	else
+		throw ErrorResponse(404, "Ressource not found");
 }
 
 void	Response::handleDELETE()
 {
 	if (isDone)
 		return ;
-	
+	if (isFound && !isCgi)
+		deleteFile(ressource);
+	else
+		throw ErrorResponse(404, "Ressource not found");
 }
 
 void	Response::buildResponseHeaders()
 {
-
+	header["server"] = "webserv/1.0\r\n";
+	header["date"] = wsu::buildIMFDate() + "\r\n";
+	header["content_type"] = wsu::getContentType(ressource) + "\r\n";
+	header["content_length"] = body.length() + "\r\n";
 }
 
 void	Response::buildResponseBody()
 {
+	switch (__request.__method) {
+        case GET:
+            if (isAutoIndex)
+                ;
+            break;
 
+        case POST:
+            break;
+
+        case DELETE:
+            body.clear();
+            break;
+
+        default:
+            body = "Method not implemented\n";
+            break;
+    }
 }
 
-
-String	Response::buildFullResponse()
+String		Response::getStartLine()
 {
-	String	fullResponse;
+	return buildStartLine(PROTOCOLE_V, code, codeMessage) + "\r\n";
+}
 
-	fullResponse = buildStartLine(__request.__protocole, code, codeMessage);
-	buildResponseHeaders();
+String  	Response::getResponseBody()
+{
 	buildResponseBody();
+	return body;
+}
 
+const std::map<String, String>&	Response::getHeaders()
+{
+	buildResponseHeaders();
+	return header;
+}
+
+String	Response::getResponse()
+{
+	String fullResponse;	
+	fullResponse = getStartLine();	
+	const std::map<String, String>& headers = getHeaders();
+	for (std::map<String, String>::const_iterator it = headers.begin(); it != headers.end(); ++it)
+	    fullResponse += it->first + ": " + it->second + "\r\n";
+	fullResponse += "\r\n";	
+	String responseBody = getResponseBody();
+	if (!responseBody.empty())
+	    fullResponse += responseBody;
 	return fullResponse;
 }

@@ -45,6 +45,7 @@ public:
 	static String mergeByChar(const std::vector<String> &input, char del);
 	static std::vector<String> splitByChar(const String &input, char del);
 	static void replaceString(String &original, const String toReplace, const String replacement);
+	static String	getContentType(const String& uri);
 };
 
 #endif

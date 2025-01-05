@@ -162,6 +162,35 @@ void wsu::trimSpaces(String &str)
 	else
 		str = str.substr(start, end - start + 1);
 }
+
+String wsu::getContentType(const String& uri)
+{
+    size_t dot_pos = uri.rfind('.');
+    if (dot_pos == String::npos)
+        return "text/plain";
+    String ext = uri.substr(dot_pos);
+    static std::map<String, String> mimeTypes =
+    {
+        {".html", "text/html"},
+        {".htm", "text/html"},
+        {".css", "text/css"},
+        {".js", "application/javascript"},
+        {".json", "application/json"},
+        {".jpg", "image/jpeg"},
+        {".jpeg", "image/jpeg"},
+        {".png", "image/png"},
+        {".gif", "image/gif"},
+        {".svg", "image/svg+xml"},
+        {".txt", "text/plain"},
+        {".pdf", "application/pdf"},
+        {".xml", "application/xml"}
+    };
+    std::map<String, String>::iterator it = mimeTypes.find(ext);
+    if (it != mimeTypes.end())
+        return it->second;
+    return "application/octet-stream";
+}
+
 std::vector<String> wsu::splitBySpaces(const String &input)
 {
 	String word;
@@ -203,6 +232,7 @@ int wsu::stringToInt(const String &str)
 	iss >> number;
 	return number;
 }
+
 int wsu::hexToInt(const String &str)
 {
 	int number = 0;

@@ -31,9 +31,8 @@ class	Response
     		bool                       		isAutoIndex;
     		bool                       		isDir;
 		bool					isFound;
-		t_svec					listDir( String &dirPath );
+
     		/*  helper methods */
-     		void    				init_headers();
     		void    				setCode(int code);
     		void    				setCodeMessage(String message);
     		bool    				fileFound();
@@ -48,10 +47,8 @@ class	Response
     		/*  Response building helper */
     		void    				buildResponseHeaders();
     		void    				buildResponseBody();
-    		String  				buildFullResponse();
     		void  					buildResponse();
 		String					buildStartLine( String protocle, int code, String codeMessage );
-    		void    				handleError(  int errorCode );
 
     		/*  File operations */
     		String  				readFile(const String& path);
@@ -70,20 +67,16 @@ class	Response
     		bool    				validateMethod();
 
     		/*  Resource path resolution 	*/
-    		String  				resolveResourcePath();
     		String  				combinePaths(const String& base, const String& relative);
 
 	public:
 
-    		void    				processRequest();
+		t_svec					listDir( String &dirPath );
     		String  				getResponse();
+    		String					getStartLine();
+    		String  				getResponseBody();
+    		const std::map<String, String>& 	getHeaders();
 
-    		// Getters for response components
-    		int     				getStatusCode() const;
-    		String  				getResponseBody() const;
-    		const std::map<String, String>& 	getHeaders() const;
-
-		/* Constructors */
     		Response(Request& request, Server& server, Location& location);
     		Response(const Response& copy);
     		Response& operator=(const Response& assign);
