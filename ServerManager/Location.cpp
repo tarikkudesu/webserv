@@ -15,6 +15,8 @@ Location::Location(const String &conf, const String &root) : b__r(true),
 {
 	wsu::debug("Location single para constructor");
 	parse();
+	wsu::resolvePath(__path);
+	wsu::resolvePath(__root);
 }
 Location::Location(const String &dir, const String &conf, const String &root) : b__r(false),
 																				__path(dir),
@@ -25,6 +27,8 @@ Location::Location(const String &dir, const String &conf, const String &root) : 
 {
 	wsu::debug("Location double para constructor : " + dir);
 	parse();
+	wsu::resolvePath(__path);
+	wsu::resolvePath(__root);
 }
 Location::Location(const Location &copy) : __path(copy.__path)
 {
@@ -102,12 +106,12 @@ void Location::proccessRootDirective(t_svec &tokens)
 {
 	if (tokens.size() != 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
-	this->__root = tokens.at(1);
+	this->__root = wsu::resolvePath(tokens.at(1));
 }
 void Location::proccessIndexDirective(t_svec &tokens)
 {
 	for (t_svec::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
-		this->__index.push_back(*it);
+		this->__index.push_back(wsu::resolvePath(*it));
 }
 void Location::proccessAutoindexDirective(t_svec &tokens)
 {
@@ -122,6 +126,7 @@ void Location::proccessErrorPageDirective(t_svec &tokens)
 {
 	if (tokens.size() <= 2)
 		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
+	String path = wsu::resolvePath(*(tokens.end() - 1));
 	for (t_svec::iterator it = tokens.begin() + 1; it != tokens.end() && it != tokens.end() - 1; it++)
 	{
 		if (it->find_first_not_of("0123456789") != String::npos)
@@ -129,7 +134,7 @@ void Location::proccessErrorPageDirective(t_svec &tokens)
 		int code = wsu::stringToInt(*it);
 		if (code < 300 || code > 599)
 			throw std::runtime_error(tokens.at(0) + " value \"" + *it + "\" must be between 300 and 599");
-		this->__errorPages.insert(std::make_pair(code, *(tokens.end() - 1)));
+		this->__errorPages.insert(std::make_pair(code, path));
 	}
 }
 void Location::proccessAllowMethodsDirective(t_svec &tokens)
@@ -304,35 +309,22 @@ void Location::parse()
 
 String methodToString(t_method t)
 {
-	switch (t)
-	{
-	case GET:
+	if (t == GET)
 		return "GET";
-		break;
-	case OPTIONS:
+	else if (t == OPTIONS)
 		return "OPTIONS";
-		break;
-	case HEAD:
+	else if (t == HEAD)
 		return "HEAD";
-		break;
-	case POST:
+	else if (t == POST)
 		return "POST";
-		break;
-	case PUT:
+	else if (t == PUT)
 		return "PUT";
-		break;
-	case DELETE:
+	else if (t == DELETE)
 		return "DELETE";
-		break;
-	case TRACE:
+	else if (t == TRACE)
 		return "TRACE";
-		break;
-	case CONNECT:
+	else if (t == CONNECT)
 		return "CONNECT";
-		break;
-	default:
-		break;
-	}
 	return "NONE";
 }
 

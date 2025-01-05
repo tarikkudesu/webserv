@@ -162,7 +162,7 @@ void Request::proccessURI()
 		this->__fragement = String(this->__URI.begin() + end + 1, this->__URI.end());
 	else
 		end = __URI.size();
-	this->__URI = __URI.substr(0, start);
+	this->__URI = wsu::resolvePath(__URI.substr(0, start));
 	String query = String(__URI.begin() + start, __URI.begin() + end);
 	{
 		t_svec queris = wsu::splitByChar(query, '&');
@@ -220,4 +220,21 @@ void Request::parseRequest(const String &requestLine, const String &requestHeade
 	connectionType();
 	contentLength();
 	hostAndPort();
+}
+
+std::ostream &operator<<(std::ostream &o, const Request &req )
+{
+	std::cout << "Request: \n";
+	std::cout << "\tprotocole: " << req.__protocole << "\n";
+	std::cout << "\tmethod: " << methodToString(req.__method) << "\n";
+	std::cout << "\tURI: " << req.__URI << "\n";
+	std::cout << "\tquery: ";
+	for (std::map< String, String >::const_iterator it = req.__queryVariables.begin(); it != req.__queryVariables.end(); it++) {
+		std::cout << it->first << "=" << it->second << ", ";
+	} std::cout << "\n";
+	std::cout << "\tFragement: " << req.__fragement << "\n";
+	std::cout << "\theaders: \n";
+	for (std::map< String, String >::const_iterator it = req.__headerFeilds.begin(); it != req.__headerFeilds.end(); it++)
+		std::cout << "\t\t" << it->first << ": " << it->second << "\n";
+	return o;
 }

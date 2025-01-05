@@ -498,9 +498,12 @@ void ServerManager::logServers()
 	{
 		wsu::running((*it).second->getServerHost() + ":" + wsu::intToString((*it).second->getServerPort()));
 	}
-	it = ServerManager::__servers.begin();
-	for (; it != ServerManager::__servers.end(); it++)
-		std::cout << *(it->second);
+	/********************
+	 * PRINT ALL SERVER *
+	 ********************/
+	// it = ServerManager::__servers.begin();
+	// for (; it != ServerManager::__servers.end(); it++)
+	// 	std::cout << *(it->second);
 }
 void ServerManager::checkConflicts()
 {

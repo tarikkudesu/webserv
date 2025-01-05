@@ -41,4 +41,6 @@ class Request
 		~Request();
 };
 
+std::ostream &operator<<(std::ostream &o, const Request &req );
+
 #endif

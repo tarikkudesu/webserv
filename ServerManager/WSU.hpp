@@ -39,6 +39,7 @@ public:
 	static void toLowerString(String &input);
 	static int stringToInt(const String &str);
 	static struct pollfd *data(t_events &events);
+	static String resolvePath(const String &path);
 	static std::vector<String> splitBySpaces(const String &input);
 	static bool samePath(const String &path1, const String &path2);
 	static String joinPaths(const String &path1, const String &path2);
@@ -46,6 +47,7 @@ public:
 	static String mergeByChar(const std::vector<String> &input, char del);
 	static std::vector<String> splitByChar(const String &input, char del);
 	static void replaceString(String &original, const String toReplace, const String replacement);
+	static String buildListingBody(const t_svec &list);
 };
 
 #endif

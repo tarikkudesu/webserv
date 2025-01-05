@@ -74,7 +74,6 @@ void wsu::logs(std::vector<String> &args)
 			wsu::__fatal = true;
 		else if (*it == "all")
 		{
-			wsu::__debug = true;
 			wsu::__info = true;
 			wsu::__warn = true;
 			wsu::__error = true;
@@ -296,10 +295,45 @@ String wsu::joinPaths(const String &path1, const String &path2)
 		return path1 + path2.substr(1, path2.length());
 	return path1 + path2;
 }
+String wsu::resolvePath(const String &path)
+{
+	t_svec vPath = wsu::splitByChar(path, '/');
+	t_svec newPath;
+	for (t_svec::iterator it = vPath.begin(); it != vPath.end(); it++)
+	{
+		if (*it == ".." && !newPath.empty())
+			newPath.pop_back();
+		else
+			newPath.push_back(*it);
+	}
+	if (newPath.empty())
+		return "./";
+	return wsu::mergeByChar(newPath, '/');
+}
 struct pollfd *wsu::data(t_events &events)
 {
 	struct pollfd *arr = new struct pollfd[events.size()];
 	for (size_t i = 0; i < events.size(); ++i)
 		arr[i] = events[i];
 	return arr;
+}
+String wsu::buildListingBody(const t_svec &list)
+{
+	String	body = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
+					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+					"<title>Document</title><style>"
+					"a {display: block;color: rgb(136, 138, 141);text-decoration: none;letter-spacing: 0.8px; padding: 5px;}"
+					"a:hover {color: rgb(255, 183, 16);text-decoration: underline;}</style></head>"
+					"<body style=\"background-color: rgb(35, 40, 47);\">"
+					"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
+					"LISTING</div></body></html>";
+	String anchor = "<a href=\"LINK\">LINK</a>";
+	String listing;
+	for (t_svec::const_iterator it = list.begin(); it != list.end(); it++)
+	{
+		listing += anchor;
+		wsu::replaceString(listing, "LINK", *it);
+	}
+	wsu::replaceString(body, "LISTING", listing);
+	return body;
 }
