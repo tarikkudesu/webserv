@@ -60,6 +60,7 @@ class	Response
     		/*  Validation */
     		bool    				validateRequest();
     		bool    				validateMethod();
+		bool					isValidCgi();
 
     		/*  Resource path resolution 	*/
     		String  				combinePaths(const String& base, const String& relative);

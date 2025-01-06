@@ -6,8 +6,8 @@ Response::Response(Request &request, Server &server, Location &location) : __ser
 									   ressource(request.__URI), isDir(false), isDone(false), code(200),
 									   codeMessage("Ok"), protocole(request.__protocole), body("")
 {
-	if (!validateMethod() || !validateRequest())
-		throw ErrorResponse(code, codeMessage);
+	validateMethod();
+	validateRequest();
 	isCgi = isValidCgi();
 	isFound = fileFound();
 	buildResponse();
@@ -43,7 +43,7 @@ bool	Response::validateMethod()
 {
 	if (__request.__method == GET || __request.__method == POST || __request.__method == DELETE)
 		return true;
-	return false;
+	throw ErrorResponse(405, "Method Not Allowed");
 }
 
 bool	Response::validateRequest()
@@ -97,9 +97,7 @@ bool	Response::isValidCgi()
 
 void	Response::executeCgi()
 {
-	Cgi *cgi = new Cgi(__request, ressource);
-	body = cgi->getBody();
-	delete cgi;
+	throw Cgi(__request, __location, ressource);
 }
 
 void	Response::buildResponse()
