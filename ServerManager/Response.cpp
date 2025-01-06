@@ -96,12 +96,19 @@ void	Response::buildResponse()
 	}
 	else
 	{
-		if (__request.__method == GET)
-			handleGET();
-		else if (__request.__method == POST)
-			handlePOST();
-		else if (__request.__method == DELETE)
-			handleDELETE();
+		switch(__request.__method)
+		{
+			case GET :
+				handleGET();
+				break;
+			case POST :
+				handlePOST();
+				break;
+			case DELETE :
+				handleDELETE();
+				break;
+			default
+		}
 	}
 }
 
@@ -207,11 +214,7 @@ bool Response::dirFound()
 
     	isDir = true;
     	if (ressource[ressource.length() - 1] != '/')
-    	{
-    	    	setCode(301);
-    	    	header["Location"] = ressource + "/";
-    	    	return false;
-    	}
+    	    	throw ErrorResponse(301, "Ressource Moved");
     	return true;
 }
 
