@@ -8,8 +8,8 @@ Response::Response(Request &request, Server &server, Location &location) : __ser
 {
 	if (!validateMethod() || !validateRequest())
 		throw ErrorResponse(code, codeMessage);
-	!location.__cgiPass.empty() ? isCgi = true : isCgi = false;
-	fileFound() ? isFound = true : throw ErrorResponse(404, "Ressource not found");
+	isCgi = isValidCgi();
+	isFound = fileFound();
 	buildResponse();
 }
 
@@ -86,14 +86,28 @@ String	Response::buildStartLine( String protocole, int code, String codeMessage 
 	return protocole + " " + std::to_string(code) + " " + codeMessage;
 }
 
+bool	Response::isValidCgi()
+{
+	if (__location.__cgiPass.empty())
+		return false;
+	if (wsu::endWith(ressource, ".java") || wsu::endWith(ressource, ".pyhton"))
+		return true;
+	return false;
+}
+
+void	Response::executeCgi()
+{
+	Cgi *cgi = new Cgi(__request, ressource);
+	body = cgi->getBody();
+	delete cgi;
+}
+
 void	Response::buildResponse()
 {
 	if (isDone)
 		return ;
 	if (isCgi && isFound)
-	{
 		executeCgi();
-	}
 	else
 	{
 		switch(__request.__method)
@@ -107,7 +121,8 @@ void	Response::buildResponse()
 			case DELETE :
 				handleDELETE();
 				break;
-			default
+			default :
+				throw ErrorResponse(405, "Method Not Allowed");
 		}
 	}
 }
@@ -227,12 +242,7 @@ String	Response::readFile( const String &fullPath )
 	if (!f.is_open())
 		throw ErrorResponse(401, "Unauthorized");
 	while (std::getline(f, line))
-	{
-		output += line;
-		output += '\n';
-	}
-	if (!output.empty() && output.back() == '\n')
-        	output.pop_back();
+		!f.eof() ? output += line + "\n" : output += line;
 	f.close();
 	return output;
 }
@@ -250,33 +260,10 @@ bool	Response::writeFile(const String& path, const String& content )
 
 bool	Response::deleteFile( const String &path )
 {
-	if (unlink(path.c_str()) != 0) {
-        switch (errno)
-	{
-        	case EACCES:
-            	case EPERM:
-                	setCode(403);
-			setCodeMessage("Forbidden - no permission to delete");
-                	break;
-                
-            	case EBUSY:
-                	setCode(409);
-			setCodeMessage("Conflict - file is in use");
-                	break;
-                
-            	case EROFS:
-                	setCode(403);
-			setCodeMessage("Forbidden - read-only filesystem");
-                	break;
-                
-            	default:
-               	 	setCode(500);
-			setCodeMessage("Internal Server Error");
-                	break;
-        }
+	if (unlink(path.c_str()) != 0)
 	throw ErrorResponse(code, codeMessage);
-    }
     setCode(204);
+    setCodeMessage("No Content");
     return true;
 }
 
@@ -312,10 +299,10 @@ void	Response::handleDELETE()
 
 void	Response::buildResponseHeaders()
 {
-	header["server"] = "webserv/1.0\r\n";
-	header["date"] = wsu::buildIMFDate() + "\r\n";
-	header["content_type"] = wsu::getContentType(ressource) + "\r\n";
-	header["content_length"] = body.length() + "\r\n";
+	header["server"] = "webserv/1.0";
+	header["date"] = wsu::buildIMFDate();
+	header["content_type"] = wsu::getContentType(ressource);
+	header["content_length"] = body.length();
 }
 
 void	Response::buildResponseBody()
@@ -359,12 +346,12 @@ const std::map<String, String>&	Response::getHeaders()
 String	Response::getResponse()
 {
 	String fullResponse;	
+	String responseBody = getResponseBody();
 	fullResponse = getStartLine();	
 	const std::map<String, String>& headers = getHeaders();
 	for (std::map<String, String>::const_iterator it = headers.begin(); it != headers.end(); ++it)
 	    fullResponse += it->first + ": " + it->second + "\r\n";
 	fullResponse += "\r\n";	
-	String responseBody = getResponseBody();
 	if (!responseBody.empty())
 	    fullResponse += responseBody;
 	return fullResponse;

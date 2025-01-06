@@ -5,6 +5,7 @@
 # include <sys/stat.h>
 # include <unistd.h>
 # include <dirent.h>
+# include "Cgi.hpp"
 
 class	Response
 {
@@ -13,7 +14,6 @@ class	Response
     		Request&                    		__request;
     		Location&                  		__location;
 		t_svec					autoIndex;
-		// Cgi&					__cgi;
 
     		/*  Response components */
 		String					ressource;
@@ -38,11 +38,13 @@ class	Response
     		bool    				fileFound();
     		bool    				dirFound();
 		bool					isReadable( const char *str );
+		bool					isValidCgi();
 
     		/*  Method handlers */
     		void					handleGET();
     		void    				handlePOST();
     		void    				handleDELETE();
+		void					executeCgi();
 
     		/*  Response building helper */
     		void    				buildResponseHeaders();
@@ -54,13 +56,6 @@ class	Response
     		String  				readFile(const String& path);
     		bool    				writeFile(const String& path, const String& content);
     		bool    				deleteFile(const String& path);
-
-    		/*  Directory operations */
-    		String  				generateDirectoryListing(const String& path);
-
-    		/*  CGI handling */
-    		void	  				executeCgi();
-    		void    				processCgiResponse( const String& cgiOutput );
 
     		/*  Validation */
     		bool    				validateRequest();
