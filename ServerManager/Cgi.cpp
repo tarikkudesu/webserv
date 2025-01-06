@@ -4,7 +4,6 @@ Cgi::Cgi(/* args */)
 {
 }
 
-
 Cgi::Cgi(Request request, String ressource) :
 __request(request),
 __ressource(ressource),
@@ -17,29 +16,18 @@ Cgi::~Cgi()
 {
 }
 
-bool Cgi::endWith(std::string& file, const char* extension)
-{
-    int fileLen = file.length();
-    int exLen = strlen(extension);
-
-    if (fileLen < exLen)
-        return false;
-
-    return file.compare(fileLen - exLen, exLen, extension) == 0;
-}
-
 void    Cgi::execute(const char* bin, const char *path, int fd)
 {
-    if (dup2(STDOUT_FILENO, fd))
-    return wsu::error("dup2() syscall failed");
+    if (dup2(STDOUT_FILENO, fd) < 0)
+    	throw ErrorResponse(500, "internal server error");
 	execve(bin, (char *const *)&path, NULL);
     close(fd);
-	wsu::error("execve() syscall failed");
+	throw ErrorResponse(500, "internal server error");
 }
 
 const char     *Cgi::getBin(void)
 {
-    if (endWith(__ressource, ".java"))
+    if (wsu::endWith(__ressource, ".java"))
         return JAVABIN;
     return PYTHONBIN;
 }
@@ -62,16 +50,17 @@ void            Cgi::cgiProcess(void)
     /*itterate through the request headers to set them to the process environement*/
 	for (mapIterator it = __request.__headerFeilds.begin(); it != __request.__headerFeilds.end(); it++)
 		setenv(it->first.c_str(), it->second.c_str(), 0);
-	if (!access(__ressource.c_str(), F_OK))
-		return ;
+	// if (!access(__ressource.c_str(), F_OK))
+	// 	return ;
+	// this part of looking if the file exist, already treated by @omghazi  
     /*----------------------------------------------------------------------------*/
 
 	int pip[2], pid;
 	if (pipe(pip) < 0)
-		return wsu::error("pipe() syscall failed");
+		throw ErrorResponse(500, "internal server error");
 	pid = fork();
 	if (pid < 0)
-		return wsu::error("fork() syscall fail");
+		throw ErrorResponse(500, "internal server error");
 
 	if (!pid)
 		close(pip[0]), execute(getBin(), __ressource.c_str(), pip[1]);

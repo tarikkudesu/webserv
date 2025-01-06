@@ -19,6 +19,18 @@ bool wsu::__fatal = false;
 /************************************************************************************************
  *                                             LOGS                                             *
  ************************************************************************************************/
+
+bool wsu::endWith(std::string& file, const char* extension)
+{
+    int fileLen = file.length();
+    int exLen = strlen(extension);
+
+    if (fileLen < exLen)
+        return false;
+
+    return file.compare(fileLen - exLen, exLen, extension) == 0;
+}
+
 void wsu::logs(std::vector<String> &args)
 {
 	std::cout << std::unitbuf;
