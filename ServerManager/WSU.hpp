@@ -29,6 +29,7 @@ public:
 	static void terr(String __error_message);
 	static void terr(char *__error_message);
 
+
 	static String logDate();
 	static String buildIMFDate();
 	static void trimSpaces(String &str);
@@ -38,6 +39,7 @@ public:
 	static void toUpperString(String &input);
 	static void toLowerString(String &input);
 	static int stringToInt(const String &str);
+	static bool endWith(std::string& file, const char* extension);
 	static struct pollfd *data(t_events &events);
 	static std::vector<String> splitBySpaces(const String &input);
 	static bool samePath(const String &path1, const String &path2);
