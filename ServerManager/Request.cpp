@@ -96,8 +96,7 @@ void Request::contentLength()
 {
 	try
 	{
-		std::istringstream ss(getHeaderFeildValue("content-length"));
-		ss >> this->__contentLength;
+		this->__contentLength = wsu::stringToInt(getHeaderFeildValue("content-length"));
 	}
 	catch (std::exception &e)
 	{
