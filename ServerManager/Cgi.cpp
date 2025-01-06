@@ -1,76 +1,99 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Cgi.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ooulcaid <ooulcaid@student.42.fr>          #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-01-06 17:28:02 by ooulcaid          #+#    #+#             */
+/*   Updated: 2025-01-06 17:28:02 by ooulcaid         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "./Cgi.hpp"
 
-Cgi::Cgi(/* args */)
+/*=---------------------constructors-----------------------*/
+
+Cgi::Cgi()
 {
 }
 
-Cgi::Cgi(Request request, String ressource) :
-__request(request),
-__ressource(ressource),
-__body("")
+Cgi::Cgi(Request __request, Location &location, String ressource) : __body(""),
+																	__request(__request),
+																	__location(location),
+																	__ressource(ressource)
 {
-    cgiProcess();
+	cgiProcess();
 }
 
 Cgi::~Cgi()
 {
 }
 
-void    Cgi::execute(const char* bin, const char *path, int fd)
+/*----------------------business logic------------------------*/
+
+void Cgi::execute(const char *bin, const char *path, int fd)
 {
-    if (dup2(STDOUT_FILENO, fd) < 0)
-    	throw ErrorResponse(500, "internal server error");
+	if (dup2(STDOUT_FILENO, fd) < 0)
+		exit(1);
 	execve(bin, (char *const *)&path, NULL);
-    close(fd);
-	throw ErrorResponse(500, "internal server error");
+	close(fd);
+	exit(1);
 }
 
-const char     *Cgi::getBin(void)
+const char *Cgi::getBin(void)
 {
-    if (wsu::endWith(__ressource, ".java"))
-        return JAVABIN;
-    return PYTHONBIN;
+	if (wsu::endWith(__ressource, ".java"))
+		return JAVABIN;
+	return PYTHONBIN;
 }
 
-String          &Cgi::readFromPipe(int fd)
+void Cgi::readFromPipe(int fd)
 {
-	String str("");
-	char buffer[1024];
-	int size;
-	while ((size = read(fd, buffer, 1023)))
+	char buffer[1024] = {0};
+	while (read(fd, buffer, 1023))
 	{
-		buffer[size] = '\0';
-		str.append(buffer);
-	} 
-	return str;
+		__body.append(buffer);
+		bzero(buffer, 1024);
+	}
 }
 
-void            Cgi::cgiProcess(void)
+void Cgi::setCgiEnvironement()
 {
-    /*itterate through the request headers to set them to the process environement*/
+	/*itterate through the request headers to set them to the process environement*/
 	for (mapIterator it = __request.__headerFeilds.begin(); it != __request.__headerFeilds.end(); it++)
 		setenv(it->first.c_str(), it->second.c_str(), 0);
-	// if (!access(__ressource.c_str(), F_OK))
-	// 	return ;
-	// this part of looking if the file exist, already treated by @omghazi  
-    /*----------------------------------------------------------------------------*/
+}
 
-	int pip[2], pid;
+void Cgi::cgiProcess(void)
+{
+	setCgiEnvironement();
+	
+	int child, status, pip[2], pid;
 	if (pipe(pip) < 0)
-		throw ErrorResponse(500, "internal server error");
+		throw ErrorResponse(500, __location, "internal server error");
 	pid = fork();
 	if (pid < 0)
-		throw ErrorResponse(500, "internal server error");
+		throw ErrorResponse(500, __location, "internal server error");
 
 	if (!pid)
 		close(pip[0]), execute(getBin(), __ressource.c_str(), pip[1]);
-
+	
 	close(pip[1]);
-	__body = readFromPipe(pip[0]);
-    close(pip[0]);
+
+	while (!(child = waitpid(pid, &status, WNOHANG)) && start - std::clock_t() < TIMEOUT)
+		;
+	if (!child)
+		kill(pid, SIGKILL), throw ErrorResponse(408, __location, "Request Time-out");
+	if (WEXITSTATUS(status))
+		throw ErrorResponse(500, __location, "internal server error");
+	readFromPipe(pip[0]);
+	close(pip[0]);
 }
 
-String&     Cgi::getBody()
+/*-----------------------getters----------------------------*/
+
+String &Cgi::getBody()
 {
-    return __body;
+	return __body;
 }

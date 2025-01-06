@@ -29,6 +29,7 @@
 #include <poll.h>
 #include <signal.h>
 #include <netdb.h>
+#include <sys/wait.h>
 
 typedef std::string String;
 typedef std::vector<pollfd> t_events;
