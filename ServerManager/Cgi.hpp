@@ -30,7 +30,7 @@ class Cgi
     /*________________ACCESSIBLE FUNCTIONS______________*/
     public:
         ~Cgi();
-        Cgi::Cgi(Request __request, Location __location, String ressource);
+        Cgi::Cgi(Request __request, String ressource);
 
         String&     getBody();
 };
