@@ -6,6 +6,7 @@ class Delete
 {
         private:
                 RessourceHandler&       explorer;
+                void                    deleteFile( void );
 
         public:
 

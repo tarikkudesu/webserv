@@ -1,6 +1,8 @@
 #pragma once
 
 # include "Request.hpp"
+# include <dirent.h>
+# include <sys/types.h>
 
 class Get
 {
@@ -8,10 +10,10 @@ class Get
 
                 bool                    isIndexing;
                 RessourceHandler&       explorer;
-                String                 body;
+                String                  body;
 
-                String&                 readFile( void );
-                t_svec                  autoIndexing( void );
+                void                 readFile( void );
+                void                 autoIndexing( void );
 
         public:
 
