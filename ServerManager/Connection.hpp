@@ -26,6 +26,7 @@ class Connection
 
 	public:
 		std::queue< String >	__responseQueue;
+		std::queue< pid_t >		__cgiProcesses;
 
 		void					setServers( t_Server &servers );
 		void					proccessData( String input );
