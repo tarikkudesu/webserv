@@ -92,6 +92,7 @@ void Request::hostAndPort()
 		throw ErrorResponse(400, "No Host header feild");
 	}
 }
+
 void Request::contentLength()
 {
 	try
@@ -102,6 +103,7 @@ void Request::contentLength()
 	{
 	}
 }
+
 void Request::connectionType()
 {
 	try
@@ -114,6 +116,7 @@ void Request::connectionType()
 	{
 	}
 }
+
 void Request::transferEncoding()
 {
 	try

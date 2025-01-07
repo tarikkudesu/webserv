@@ -19,6 +19,18 @@ bool wsu::__fatal = false;
 /************************************************************************************************
  *                                             LOGS                                             *
  ************************************************************************************************/
+
+bool wsu::endWith(std::string& file, const char* extension)
+{
+    int fileLen = file.length();
+    int exLen = strlen(extension);
+
+    if (fileLen < exLen)
+        return false;
+
+    return file.compare(fileLen - exLen, exLen, extension) == 0;
+}
+
 void wsu::logs(std::vector<String> &args)
 {
 	std::cout << std::unitbuf;
@@ -202,6 +214,7 @@ int wsu::stringToInt(const String &str)
 	iss >> number;
 	return number;
 }
+
 int wsu::hexToInt(const String &str)
 {
 	int number = 0;
@@ -336,4 +349,31 @@ String wsu::buildListingBody(const t_svec &list)
 	}
 	wsu::replaceString(body, "LISTING", listing);
 	return body;
+}
+String wsu::getContentType(const String& uri)
+{
+    size_t dot_pos = uri.rfind('.');
+    if (dot_pos == String::npos)
+        return "text/plain";
+    String ext = uri.substr(dot_pos);
+    static std::map<String, String> mimeTypes =
+    {
+        {".html", "text/html"},
+        {".htm", "text/html"},
+        {".css", "text/css"},
+        {".js", "application/javascript"},
+        {".json", "application/json"},
+        {".jpg", "image/jpeg"},
+        {".jpeg", "image/jpeg"},
+        {".png", "image/png"},
+        {".gif", "image/gif"},
+        {".svg", "image/svg+xml"},
+        {".txt", "text/plain"},
+        {".pdf", "application/pdf"},
+        {".xml", "application/xml"}
+    };
+    std::map<String, String>::iterator it = mimeTypes.find(ext);
+    if (it != mimeTypes.end())
+        return it->second;
+    return "application/octet-stream";
 }
