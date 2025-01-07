@@ -203,6 +203,7 @@ void Location::proccessToken(t_svec &tokens)
 	if (b__r == false &&
 		key != "root" &&
 		key != "index" &&
+		key != "cgi_pass" &&
 		key != "autoindex" &&
 		key != "error_page" &&
 		key != "allow_methods" &&

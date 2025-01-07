@@ -1,6 +1,6 @@
 #pragma once
 
-# include "Request.hpp"
+# include "Post.hpp"
 
 class Delete
 {

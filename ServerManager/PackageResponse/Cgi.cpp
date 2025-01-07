@@ -19,8 +19,8 @@ Cgi::Cgi(RessourceHandler &explorer,
 		 Location &location) : __request(request),
 							   __explorer(explorer),
 							   __location(location),
-							   __body(""),
-							   __start(std::clock_t())
+							   __start(std::clock_t()),
+							   __body("")
 
 {
 	cgiProcess();
@@ -44,7 +44,7 @@ void Cgi::execute(const char *bin, const char *path, int fd)
 const char *Cgi::getBin(void)
 {
 	if (wsu::endWith(__explorer.getPath(), ".java"))
-		return "/usr/bin/java";//will be gotten from the config file
+		return "/usr/bin/java"; // will be gotten from the config file
 	return "/usr/bin/java";
 }
 
@@ -63,8 +63,8 @@ void Cgi::setCgiEnvironement()
 	/*itterate through the request headers to set them to the process environement*/
 	for (mapIterator it = __request.__headerFeilds.begin(); it != __request.__headerFeilds.end(); it++)
 		setenv(it->first.c_str(), it->second.c_str(), 0);
-	//setenv() not allowed, the code above will be replaced by the argv to give it as argument of the cgi script 
-	//"(String [] args)in case of java for example"  
+	// setenv() not allowed, the code above will be replaced by the argv to give it as argument of the cgi script
+	//"(String [] args)in case of java for example"
 }
 
 void Cgi::cgiProcess(void)

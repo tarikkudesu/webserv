@@ -1,8 +1,7 @@
 #ifndef __CGI_HPP__
 #define __CGI_HPP__
 
-# include "../Request.hpp"
-# include "./RessourceHandler.hpp"
+# include "Get.hpp"
 
 class Cgi
 {
@@ -10,8 +9,8 @@ class Cgi
                 Request&                __request;
                 RessourceHandler&       __explorer;
                 Location&               __location;
-                String                  __body;
                 std::clock_t            __start;
+                String                  __body;
 
 
                 void                    execute(const char *bin, const char *path, int fd);

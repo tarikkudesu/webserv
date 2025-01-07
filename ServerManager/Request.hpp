@@ -1,8 +1,7 @@
 #ifndef __REQUEST_HPP__
 # define __REQUEST_HPP__
 
-# include "ErrorResponse.hpp"
-# include "PackageResponse/Response.hpp"
+# include "PackageResponse/ErrorResponse.hpp"
 
 class Request
 {

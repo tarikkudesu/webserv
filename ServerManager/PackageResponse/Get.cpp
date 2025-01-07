@@ -4,7 +4,7 @@ Get::Get(bool isIndexing, RessourceHandler &explorer) : isIndexing(isIndexing), 
 {
         if (isIndexing)
                 autoIndexing();
-        else if (explorer.getType() == FILE)
+        else if (explorer.getType() == FILE_)
                 readFile();
         else
                 throw ErrorResponse(403, "Forbidden");
@@ -37,7 +37,7 @@ String  Get::getBody( void )
 
 void    Get::readFile( void )
 {
-        std::ifstream   file(explorer.getPath(), std::ios::binary);
+        std::ifstream   file(explorer.getPath().c_str(), std::ios::binary);
         if (!file.is_open())
                 throw   ErrorResponse(500, "Internal Server Error");
         std::ostringstream buff;

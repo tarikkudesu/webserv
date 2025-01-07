@@ -1,12 +1,16 @@
-SRC		=	./ServerManager/ErrorResponse.cpp \
+SRC		=	./ServerManager/Connection.cpp \
 			./ServerManager/Location.cpp \
 			./ServerManager/Request.cpp \
-			./ServerManager/Response.cpp \
+			./ServerManager/WSU.cpp \
+			./ServerManager/PackageResponse/RessourceHandler.cpp \
+			./ServerManager/PackageResponse/Delete.cpp \
+			./ServerManager/PackageResponse/Post.cpp \
+			./ServerManager/PackageResponse/Response.cpp \
+			./ServerManager/PackageResponse/Get.cpp \
+			./ServerManager/PackageResponse/Cgi.cpp \
 			./ServerManager/Server.cpp \
 			./ServerManager/ServerManager.cpp \
-			./ServerManager/Cgi.cpp \
-			./ServerManager/Connection.cpp \
-			./ServerManager/WSU.cpp \
+			./ServerManager/PackageResponse/ErrorResponse.cpp \
 			./srcs/main.cpp
 
 OBJ		=	$(SRC:.cpp=.o)
@@ -17,15 +21,19 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	@g++ -Wall -Wextra -Werror -g -fsanitize=address -std=c++98 $(OBJ) -o $(NAME)
 
-%.o: %.cpp	./ServerManager/ErrorResponse.hpp \
+%.o: %.cpp	./ServerManager/Location.hpp \
 			./ServerManager/ServerManager.hpp \
-			./ServerManager/Cgi.hpp \
-			./ServerManager/WSU.hpp \
 			./ServerManager/Connection.hpp \
-			./ServerManager/Location.hpp \
 			./ServerManager/Request.hpp \
-			./ServerManager/Response.hpp \
+			./ServerManager/PackageResponse/RessourceHandler.hpp \
+			./ServerManager/PackageResponse/Response.hpp \
+			./ServerManager/PackageResponse/Delete.hpp \
+			./ServerManager/PackageResponse/Cgi.hpp \
+			./ServerManager/PackageResponse/Get.hpp \
+			./ServerManager/PackageResponse/Post.hpp \
 			./ServerManager/Server.hpp \
+			./ServerManager/PackageResponse/ErrorResponse.hpp \
+			./ServerManager/WSU.hpp \
 			./srcs/webserv.hpp
 	@g++ -Wall -Wextra -Werror -g -std=c++98 -c $< -o $@
 
@@ -38,6 +46,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: clean
-
-
-

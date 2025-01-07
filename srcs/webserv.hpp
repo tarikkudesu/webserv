@@ -32,6 +32,7 @@
 #include <netdb.h>
 #include <sys/wait.h>
 #include <dirent.h>
+#include <sys/types.h>
 
 #ifndef TIMEOUT
 #define TIMEOUT 5000000
@@ -84,6 +85,12 @@ typedef enum e_method
 	TRACE,
 	CONNECT,
 } t_method;
+
+typedef enum e_type
+{
+        FILE_,
+        FOLDER
+} t_type;
 
 typedef enum e_connectionType
 {

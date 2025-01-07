@@ -1,8 +1,6 @@
 #pragma once
 
-# include "Request.hpp"
-# include <dirent.h>
-# include <sys/types.h>
+# include "Delete.hpp"
 
 class Get
 {

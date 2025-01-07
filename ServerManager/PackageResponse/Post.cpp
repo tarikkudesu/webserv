@@ -7,6 +7,7 @@ Post::Post(RessourceHandler &explorer, String requestbody) : explorer(explorer),
 
 Post::Post( const Post &copy ) : explorer(copy.explorer)
 {
+        *this = copy;
 }
 
 Post&    Post::operator=(const Post &assign)
@@ -26,7 +27,7 @@ Post::~Post()
 void    Post::writeFile( void )
 {
         String path = wsu::joinPaths("/uploads", explorer.getPath());
-        std::ofstream   file(path);
+        std::ofstream   file(path.c_str());
 
         if (!file.is_open())
                 throw   ErrorResponse(500, "Internal Server Error");

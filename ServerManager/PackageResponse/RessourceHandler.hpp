@@ -1,7 +1,6 @@
 #pragma once
 
-# include "Request.hpp"
-# include "PackageResponse/Response.hpp"
+# include "../Request.hpp"
 
 class RessourceHandler
 {
@@ -10,19 +9,31 @@ class RessourceHandler
                 Location&               __location;
                 String&                 __URI;
                 String                  __fullPath;
-                Type                    __type;
+                t_type                  __type;
 
                 void                    loadPathExploring(void);
-                Type                    loadType(const char* path);
+                void                    loadType(const char* path);
 
 
         public:
 
                 String  getPath() const;
-                Type    getType() const;
+                t_type    getType() const;
 
                 RessourceHandler(Location& location, String& uri);
-		RessourceHandler(const RessourceHandler &copy);
-		RessourceHandler &operator=(const RessourceHandler &assign);
-		~RessourceHandler();
+		RessourceHandler(const RessourceHandler &copy) : __location(copy.__location), __URI(copy.__URI)
+                {
+                        *this = copy;
+                }
+		RessourceHandler &operator=(const RessourceHandler &assign)
+                {
+                        if (this != &assign) {
+                                __location = assign.__location;
+                                __fullPath = assign.__fullPath;
+                                __URI = assign.__URI;
+                                __type = assign.__type;
+                        }
+                        return *this;
+                }
+		~RessourceHandler() {}
 };
