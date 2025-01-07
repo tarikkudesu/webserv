@@ -20,7 +20,7 @@ bool wsu::__fatal = false;
  *                                             LOGS                                             *
  ************************************************************************************************/
 
-bool wsu::endWith(std::string &file, const char *extension)
+bool wsu::endWith(const std::string &file, const char *extension)
 {
 	int fileLen = file.length();
 	int exLen = strlen(extension);

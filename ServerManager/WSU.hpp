@@ -43,7 +43,7 @@ public:
 	static String getContentType(const String &uri);
 	static String buildListingBody(const t_svec &list);
 	static std::vector<String> splitBySpaces(const String &input);
-	static bool endWith(std::string &file, const char *extension);
+	static bool endWith(const std::string &file, const char *extension);
 	static bool samePath(const String &path1, const String &path2);
 	static String joinPaths(const String &path1, const String &path2);
 	static bool containsPath(const String &path, const String &subPath);

@@ -10,7 +10,7 @@
 typedef enum
 {
         FILE,
-        DIR
+        FOLDER
 } Type;
 
 class Response

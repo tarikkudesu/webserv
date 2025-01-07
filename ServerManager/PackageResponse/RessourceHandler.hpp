@@ -1,6 +1,7 @@
 #pragma once
 
 # include "Request.hpp"
+# include "Response.hpp"
 
 class RessourceHandler
 {
@@ -9,6 +10,11 @@ class RessourceHandler
                 Location&               __location;
                 String&                 __URI;
                 String                  __fullPath;
+                Type                    __type;
+
+                void                    loadPathExploring(void);
+                Type                    loadType(const char* path);
+
 
         public:
 

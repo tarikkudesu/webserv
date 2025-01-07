@@ -34,7 +34,7 @@
 #include <dirent.h>
 
 #ifndef TIMEOUT
-#define TIMEOUT 10000000
+#define TIMEOUT 5000000
 #endif
 
 #ifndef JAVABIN

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ooulcaid <ooulcaid@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-01-06 17:28:02 by ooulcaid          #+#    #+#             */
-/*   Updated: 2025-01-06 17:28:02 by ooulcaid         ###   ########.fr       */
+/*   Created: 2025-01-07 16:33:08 by ooulcaid          #+#    #+#             */
+/*   Updated: 2025-01-07 16:33:08 by ooulcaid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,14 @@
 
 /*=---------------------constructors-----------------------*/
 
-Cgi::Cgi(Request &__request, Location &location, String ressource) : __body(""),
-																	__request(__request),
-																	__location(location),
-																	__ressource(ressource)
+Cgi::Cgi(RessourceHandler &explorer,
+		 Request &request,
+		 Location &location) : __request(request),
+							   __explorer(explorer),
+							   __location(location),
+							   __body(""),
+							   __start(std::clock_t())
+
 {
 	cgiProcess();
 }
@@ -39,9 +43,9 @@ void Cgi::execute(const char *bin, const char *path, int fd)
 
 const char *Cgi::getBin(void)
 {
-	if (wsu::endWith(__ressource, ".java"))
-		return JAVABIN;
-	return PYTHONBIN;
+	if (wsu::endWith(__explorer.getPath(), ".java"))
+		return "/usr/bin/java";//will be gotten from the config file
+	return "/usr/bin/java";
 }
 
 void Cgi::readFromPipe(int fd)
@@ -59,12 +63,14 @@ void Cgi::setCgiEnvironement()
 	/*itterate through the request headers to set them to the process environement*/
 	for (mapIterator it = __request.__headerFeilds.begin(); it != __request.__headerFeilds.end(); it++)
 		setenv(it->first.c_str(), it->second.c_str(), 0);
+	//setenv() not allowed, the code above will be replaced by the argv to give it as argument of the cgi script 
+	//"(String [] args)in case of java for example"  
 }
 
 void Cgi::cgiProcess(void)
 {
 	setCgiEnvironement();
-	
+
 	int child, status, pip[2], pid;
 	if (pipe(pip) < 0)
 		throw ErrorResponse(500, __location, "internal server error");
@@ -73,11 +79,11 @@ void Cgi::cgiProcess(void)
 		throw ErrorResponse(500, __location, "internal server error");
 
 	if (!pid)
-		close(pip[0]), execute(getBin(), __ressource.c_str(), pip[1]);
-	
+		close(pip[0]), execute(getBin(), __explorer.getPath().c_str(), pip[1]);
+
 	close(pip[1]);
 
-	while (!(child = waitpid(pid, &status, WNOHANG)) && start - std::clock_t() < TIMEOUT)
+	while (!(child = waitpid(pid, &status, WNOHANG)) && __start - std::clock_t() < TIMEOUT)
 		;
 	if (!child)
 		kill(pid, SIGKILL), throw ErrorResponse(408, __location, "Request Time-out");
