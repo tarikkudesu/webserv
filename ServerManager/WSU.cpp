@@ -356,22 +356,20 @@ String wsu::getContentType(const String& uri)
     if (dot_pos == String::npos)
         return "text/plain";
     String ext = uri.substr(dot_pos);
-    static std::map<String, String> mimeTypes =
-    {
-        {".html", "text/html"},
-        {".htm", "text/html"},
-        {".css", "text/css"},
-        {".js", "application/javascript"},
-        {".json", "application/json"},
-        {".jpg", "image/jpeg"},
-        {".jpeg", "image/jpeg"},
-        {".png", "image/png"},
-        {".gif", "image/gif"},
-        {".svg", "image/svg+xml"},
-        {".txt", "text/plain"},
-        {".pdf", "application/pdf"},
-        {".xml", "application/xml"}
-    };
+    std::map<String, String> mimeTypes;
+	mimeTypes.insert(std::make_pair(".html", "text/html"));
+	mimeTypes.insert(std::make_pair(".htm", "text/html"));
+	mimeTypes.insert(std::make_pair(".css", "text/css"));
+	mimeTypes.insert(std::make_pair(".js", "application/javascript"));
+	mimeTypes.insert(std::make_pair(".json", "application/json"));
+	mimeTypes.insert(std::make_pair(".jpg", "image/jpeg"));
+	mimeTypes.insert(std::make_pair(".jpeg", "image/jpeg"));
+	mimeTypes.insert(std::make_pair(".png", "image/png"));
+	mimeTypes.insert(std::make_pair(".gif", "image/gif"));
+	mimeTypes.insert(std::make_pair(".svg", "image/svg+x"));
+	mimeTypes.insert(std::make_pair(".txt", "text/plain"));
+	mimeTypes.insert(std::make_pair(".pdf", "application/pdf"));
+	mimeTypes.insert(std::make_pair(".xml", "application/xml"));
     std::map<String, String>::iterator it = mimeTypes.find(ext);
     if (it != mimeTypes.end())
         return it->second;

@@ -14,7 +14,7 @@
 
 /*=---------------------constructors-----------------------*/
 
-Cgi::Cgi(Request __request, Location &location, String ressource) : __body(""),
+Cgi::Cgi(Request &__request, Location &location, String ressource) : __body(""),
 																	__request(__request),
 																	__location(location),
 																	__ressource(ressource)

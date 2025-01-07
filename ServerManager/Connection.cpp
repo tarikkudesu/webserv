@@ -162,9 +162,7 @@ void Connection::proccessData(String input)
 	try
 	{
 		requestParser();
-		// std::cout << this->__request;
 		responseBuilder();
-		throw ErrorResponse(404, "request proccessed");
 	}
 	catch (ErrorResponse &e)
 	{

@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <ctype.h>
@@ -30,10 +31,24 @@
 #include <signal.h>
 #include <netdb.h>
 #include <sys/wait.h>
+#include <dirent.h>
+
+#ifndef TIMEOUT
+#define TIMEOUT 10000000
+#endif
+
+#ifndef JAVABIN
+#define JAVABIN "/usr/bin/java"
+#endif
+
+#ifndef PYTHONBIN
+#define PYTHONBIN "/usr/bin/php"
+#endif
 
 typedef std::string String;
 typedef std::vector<pollfd> t_events;
 typedef std::vector<String> t_svec;
+typedef std::map<String, String>::iterator mapIterator;
 
 #define RED "\033[1;31m"
 #define BLUE "\033[1;34m"

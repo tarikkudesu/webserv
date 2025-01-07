@@ -1,10 +1,6 @@
 #ifndef __RESPONSE_HPP__
 #define __RESPONSE_HPP__
 
-#include "Request.hpp"
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
 #include "Cgi.hpp"
 
 class Response
@@ -15,54 +11,53 @@ class Response
 		Location&					__location;
 		t_svec						autoIndex;
 	
-		/*  Response components */
-		String						ressource;
+		/*	Response components */
 		int							code;
+		String						ressource;
 		String						codeMessage;
+		String						content_type;
+		size_t						content_length;
 		String						protocole;
 		std::map<String, String>	header;
 		String						body;
-		String						content_type;
-		size_t						content_length;
 	
-		/*  flags  */
-		bool						isDone;
+		/*	flags  */
 		bool						isCgi;
-		bool						isAutoIndex;
 		bool						isDir;
+		bool						isDone;
 		bool						isFound;
+		bool						isAutoIndex;
 	
-		/*  helper methods */
+		/*	helper methods */
 		void						setCode(int code);
 		void						setCodeMessage(String message);
 		bool						fileFound();
 		bool						dirFound();
 		bool						isReadable(const char *str);
-		bool						isValidCgi();
 	
-		/*  Method handlers */
+		/*	Method handlers */
 		void						handleGET();
 		void						handlePOST();
 		void						handleDELETE();
 		void						executeCgi();
 	
-		/*  Response building helper */
+		/*	Response building helper */
 		void						buildResponseHeaders();
-		void						buildResponseBody();
+		// void						buildResponseBody();
 		void						buildResponse();
 		String						buildStartLine(String protocle, int code, String codeMessage);
 	
-		/*  File operations */
+		/*	File operations */
 		String						readFile(const String &path);
 		bool						writeFile(const String &path, const String &content);
 		bool						deleteFile(const String &path);
 	
-		/*  Validation */
-		bool						validateRequest();
+		/*	Validation */
+		// bool						validateRequest();
 		bool						validateMethod();
 		bool						isValidCgi();
 	
-		/*  Resource path resolution 	*/
+		/*	Resource path resolution	*/
 		String						combinePaths(const String &base, const String &relative);
 	
 	public:
@@ -70,7 +65,7 @@ class Response
 		String						getResponse();
 		String						getStartLine();
 		String						getResponseBody();
-		const						std::map<String, String> &getHeaders();
+		// const						std::map<String, String> &getHeaders();
 
 
 		Response(Request &request, Server &server, Location &location);

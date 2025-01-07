@@ -1,12 +1,13 @@
-SRC		=	ServerManager/Connection.cpp \
-			ServerManager/ErrorResponse.cpp \
-			ServerManager/Location.cpp \
-			ServerManager/WSU.cpp \
-			ServerManager/Request.cpp \
-			ServerManager/Response.cpp \
-			ServerManager/Server.cpp \
-			ServerManager/ServerManager.cpp \
-			srcs/main.cpp 
+SRC		=	./ServerManager/ErrorResponse.cpp \
+			./ServerManager/Location.cpp \
+			./ServerManager/Request.cpp \
+			./ServerManager/Response.cpp \
+			./ServerManager/Server.cpp \
+			./ServerManager/ServerManager.cpp \
+			./ServerManager/Cgi.cpp \
+			./ServerManager/Connection.cpp \
+			./ServerManager/WSU.cpp \
+			./srcs/main.cpp
 
 OBJ		=	$(SRC:.cpp=.o)
 NAME	=	webserv
@@ -16,15 +17,16 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	@c++ -Wall -Wextra -Werror -g -fsanitize=address -std=c++98 $(OBJ) -o $(NAME)
 
-%.o: %.cpp	ServerManager/Connection.hpp \
-			ServerManager/ErrorResponse.hpp \
-			ServerManager/Location.hpp \
-			ServerManager/WSU.hpp \
-			ServerManager/Request.hpp \
-			ServerManager/Response.hpp \
-			ServerManager/Server.hpp \
-			ServerManager/ServerManager.hpp \
-			srcs/webserv.hpp 
+%.o: %.cpp	./ServerManager/ErrorResponse.hpp \
+			./ServerManager/ServerManager.hpp \
+			./ServerManager/Cgi.hpp \
+			./ServerManager/WSU.hpp \
+			./ServerManager/Connection.hpp \
+			./ServerManager/Location.hpp \
+			./ServerManager/Request.hpp \
+			./ServerManager/Response.hpp \
+			./ServerManager/Server.hpp \
+			./srcs/webserv.hpp
 	@c++ -Wall -Wextra -Werror -g -std=c++98 -c $< -o $@
 
 clean:
@@ -36,3 +38,6 @@ fclean: clean
 re: fclean all
 
 .PHONY: clean
+
+
+
