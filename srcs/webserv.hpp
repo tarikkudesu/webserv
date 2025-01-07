@@ -58,7 +58,7 @@ typedef std::map<String, String>::iterator mapIterator;
 #define MAGENTA "\033[1;35m"
 #define RESET "\033[1;0m"
 
-#define MAX_EVENTS 9
+#define MAX_EVENTS 1024
 #define READ_SIZE 4096
 
 #define PROTOCOLE_V "HTTP/1.1"

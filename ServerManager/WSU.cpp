@@ -20,15 +20,15 @@ bool wsu::__fatal = false;
  *                                             LOGS                                             *
  ************************************************************************************************/
 
-bool wsu::endWith(std::string& file, const char* extension)
+bool wsu::endWith(std::string &file, const char *extension)
 {
-    int fileLen = file.length();
-    int exLen = strlen(extension);
+	int fileLen = file.length();
+	int exLen = strlen(extension);
 
-    if (fileLen < exLen)
-        return false;
+	if (fileLen < exLen)
+		return false;
 
-    return file.compare(fileLen - exLen, exLen, extension) == 0;
+	return file.compare(fileLen - exLen, exLen, extension) == 0;
 }
 
 void wsu::logs(std::vector<String> &args)
@@ -332,14 +332,14 @@ struct pollfd *wsu::data(t_events &events)
 }
 String wsu::buildListingBody(const t_svec &list)
 {
-	String	body = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
-					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
-					"<title>Document</title><style>"
-					"a {display: block;color: rgb(136, 138, 141);text-decoration: none;letter-spacing: 0.8px; padding: 5px;}"
-					"a:hover {color: rgb(255, 183, 16);text-decoration: underline;}</style></head>"
-					"<body style=\"background-color: rgb(35, 40, 47);\">"
-					"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
-					"LISTING</div></body></html>";
+	String body = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
+				  "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+				  "<title>Document</title><style>"
+				  "a {display: block;color: rgb(136, 138, 141);text-decoration: none;letter-spacing: 0.8px; padding: 5px;}"
+				  "a:hover {color: rgb(255, 183, 16);text-decoration: underline;}</style></head>"
+				  "<body style=\"background-color: rgb(35, 40, 47);\">"
+				  "<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
+				  "LISTING</div></body></html>";
 	String anchor = "<a href=\"LINK\">LINK</a>";
 	String listing;
 	for (t_svec::const_iterator it = list.begin(); it != list.end(); it++)
@@ -350,13 +350,13 @@ String wsu::buildListingBody(const t_svec &list)
 	wsu::replaceString(body, "LISTING", listing);
 	return body;
 }
-String wsu::getContentType(const String& uri)
+String wsu::getContentType(const String &uri)
 {
-    size_t dot_pos = uri.rfind('.');
-    if (dot_pos == String::npos)
-        return "text/plain";
-    String ext = uri.substr(dot_pos);
-    std::map<String, String> mimeTypes;
+	size_t dot_pos = uri.rfind('.');
+	if (dot_pos == String::npos)
+		return "text/plain";
+	String ext = uri.substr(dot_pos);
+	std::map<String, String> mimeTypes;
 	mimeTypes.insert(std::make_pair(".html", "text/html"));
 	mimeTypes.insert(std::make_pair(".htm", "text/html"));
 	mimeTypes.insert(std::make_pair(".css", "text/css"));
@@ -370,8 +370,8 @@ String wsu::getContentType(const String& uri)
 	mimeTypes.insert(std::make_pair(".txt", "text/plain"));
 	mimeTypes.insert(std::make_pair(".pdf", "application/pdf"));
 	mimeTypes.insert(std::make_pair(".xml", "application/xml"));
-    std::map<String, String>::iterator it = mimeTypes.find(ext);
-    if (it != mimeTypes.end())
-        return it->second;
-    return "application/octet-stream";
+	std::map<String, String>::iterator it = mimeTypes.find(ext);
+	if (it != mimeTypes.end())
+		return it->second;
+	return "application/octet-stream";
 }

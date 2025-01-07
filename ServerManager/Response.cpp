@@ -8,6 +8,7 @@ Response::Response(Request &request, Server &server, Location &location) : __ser
 																		   isDir(false),
 																		   isDone(false)
 {
+	wsu::info("matched location " + location.__path);
 	validateMethod();
 	// validateRequest();
 	isCgi = isValidCgi();
@@ -43,8 +44,11 @@ Response &Response::operator=(const Response &assign)
 
 bool Response::validateMethod()
 {
-	if (__request.__method == GET || __request.__method == POST || __request.__method == DELETE)
-		return true;
+	for (std::vector< t_method >::iterator it = __location.__allowMethods.begin(); it != __location.__allowMethods.end(); it++)
+	{
+		if (__request.__method == *it)
+			return true;
+	}
 	throw ErrorResponse(501, "The server does not support the HTTP method used in your request");
 }
 
@@ -127,16 +131,16 @@ void Response::buildResponse()
 	}
 }
 
-String Response::combinePaths(const String &root, const String &path)
-{
-	String fullPath;
+// String Response::wsu::joinPaths(const String &root, const String &path)
+// {
+// 	String fullPath;
 
-	if (path[0] == '/')
-		fullPath = root + path;
-	else
-		fullPath = root + "/" + path;
-	return fullPath;
-}
+// 	if (path[0] == '/')
+// 		fullPath = root + path;
+// 	else
+// 		fullPath = root + "/" + path;
+// 	return fullPath;
+// }
 
 bool Response::isReadable(const char *str)
 {
@@ -179,14 +183,15 @@ t_svec Response::listDir(String &dirPath)
 
 bool Response::fileFound()
 {
-	String fullPath = combinePaths(__location.__root, ressource);
+	String fullPath = wsu::joinPaths(__location.__root, ressource);
+	std::cout << fullPath << " --- \n";
 	int flag = 0;
 	if (dirFound())
 	{
 		t_svec::iterator it = __location.__index.begin();
 		for (; it != __location.__index.end(); it++)
 		{
-			String indexPath = combinePaths(fullPath, *it);
+			String indexPath = wsu::joinPaths(fullPath, *it);
 			if (!isReadable(indexPath.c_str()))
 				continue;
 			else
@@ -197,7 +202,7 @@ bool Response::fileFound()
 		}
 		if (flag)
 		{
-			ressource = combinePaths(ressource, *it);
+			ressource = wsu::joinPaths(ressource, *it);
 			return true;
 		}
 		if (__location.__autoindex)
@@ -205,7 +210,7 @@ bool Response::fileFound()
 			autoIndex = listDir(fullPath);
 			return true;
 		}
-		throw ErrorResponse(404, "Ressource not found");
+		// throw ErrorResponse(404, "Ressource not found");
 	}
 	if (!isReadable(fullPath.c_str()))
 		throw ErrorResponse(404, "Ressource not found");
@@ -215,8 +220,7 @@ bool Response::fileFound()
 
 bool Response::dirFound()
 {
-	String fullPath = combinePaths(__location.__root, ressource.substr(__location.__path.length()));
-
+	String fullPath = wsu::joinPaths(__location.__root, ressource.substr(0, __location.__path.length()));
 	struct stat dirStat;
 	if (stat(fullPath.c_str(), &dirStat) != 0)
 		return false;
@@ -238,12 +242,19 @@ String Response::readFile(const String &fullPath)
 	std::ifstream f(fullPath.c_str());
 	String line;
 	String output;
-
+	std::cout << "file: " << fullPath << "\n";
 	if (!f.is_open())
-		throw ErrorResponse(401, "Unauthorized");
+		throw ErrorResponse(401, "couldn't open file");
 	while (std::getline(f, line))
-		!f.eof() ? output += line + "\n" : output += line;
+	{
+		if (f.eof())
+			break ;
+		body += line;
+		std::cout << line << "\n";
+		// !f.eof() ? output += line + "\n" : output += line;
+	}
 	f.close();
+	body = output;
 	return output;
 }
 
@@ -272,7 +283,7 @@ void Response::handleGET()
 	if (isDone)
 		return;
 	if (isFound && !isCgi)
-		body = readFile(ressource);
+		body = readFile(wsu::joinPaths(__location.__root, ressource));
 	else
 		throw ErrorResponse(404, "Ressource not found");
 }
@@ -299,33 +310,34 @@ void Response::handleDELETE()
 
 void Response::buildResponseHeaders()
 {
+	std::cout << body << "\n";
 	header["server"] = "webserv/1.0";
 	header["date"] = wsu::buildIMFDate();
 	header["content_type"] = wsu::getContentType(ressource);
-	header["content_length"] = body.length();
+	header["content_length"] = wsu::intToString(body.length());
 }
 
-// void Response::buildResponseBody()
-// {
-// 	switch (__request.__method)
-// 	{
-// 	case GET:
-// 		if (isAutoIndex)
-// 			;
-// 		break;
+void Response::buildResponseBody()
+{
+	switch (__request.__method)
+	{
+	case GET:
+		if (isAutoIndex)
+			body = wsu::buildListingBody(autoIndex);
+		break;
 
-// 	case POST:
-// 		break;
+	case POST:
+		break;
 
-// 	case DELETE:
-// 		body.clear();
-// 		break;
+	case DELETE:
+		body.clear();
+		break;
 
-// 	default:
-// 		body = "Method not implemented\n";
-// 		break;
-// 	}
-// }
+	default:
+		body = "Method not implemented\n";
+		break;
+	}
+}
 
 String Response::getStartLine()
 {
@@ -334,26 +346,26 @@ String Response::getStartLine()
 
 String Response::getResponseBody()
 {
-	// buildResponseBody();
 	return body;
 }
 
-// const std::map<String, String> &Response::getHeaders()
-// {
-// 	buildResponseHeaders();
-// 	return header;
-// }
+const std::map<String, String> &Response::getHeaders()
+{
+	return header;
+}
 
 String Response::getResponse()
 {
 	String fullResponse;
-	String responseBody = getResponseBody();
+	buildResponseBody();
 	fullResponse = getStartLine();
-	// const std::map<String, String> &headers = getHeaders();
+	buildResponseHeaders();
 	for (std::map<String, String>::const_iterator it = header.begin(); it != header.end(); ++it)
 		fullResponse += it->first + ": " + it->second + "\r\n";
 	fullResponse += "\r\n";
-	if (!responseBody.empty())
-		fullResponse += responseBody;
+	fullResponse += body;
+	fullResponse += "\r\n";
+
+	std::cout << fullResponse << "\n";
 	return fullResponse;
 }

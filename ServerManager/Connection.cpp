@@ -93,7 +93,6 @@ void Connection::identifyRequestBody()
 			this->__erase += contentLen;
 		}
 		this->__request.__requestbody = body;
-		std::cout << MAGENTA << body << RESET << "\n";
 	}
 }
 String Connection::identifyRequestHeaders()
@@ -153,7 +152,9 @@ void Connection::responseBuilder()
 {
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
+	// identifyType();
 	Response res(this->__request, *server, location);
+	this->__responseQueue.push(res.getResponse());
 }
 void Connection::proccessData(String input)
 {
@@ -164,6 +165,10 @@ void Connection::proccessData(String input)
 		requestParser();
 		responseBuilder();
 	}
+	// catch (Cgi &e)
+	// {
+	// 	this->__responseQueue.push(e.getResponse());
+	// }
 	catch (ErrorResponse &e)
 	{
 		this->__responseQueue.push(e.getResponse());

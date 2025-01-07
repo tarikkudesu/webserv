@@ -78,9 +78,9 @@
     - default: -
     - required: no
 
-### cgi_pass :
+### cgi_extension :
     - context: location
-    - syntax: cgi_pass path
+    - syntax: cgi_extension path
     - multiple directives: yes
     - multiple values: no
     - default: -

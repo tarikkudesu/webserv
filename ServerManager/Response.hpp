@@ -43,7 +43,7 @@ class Response
 	
 		/*	Response building helper */
 		void						buildResponseHeaders();
-		// void						buildResponseBody();
+		void						buildResponseBody();
 		void						buildResponse();
 		String						buildStartLine(String protocle, int code, String codeMessage);
 	
@@ -58,15 +58,14 @@ class Response
 		bool						isValidCgi();
 	
 		/*	Resource path resolution	*/
-		String						combinePaths(const String &base, const String &relative);
+		// String						combinePaths(const String &base, const String &relative);
 	
 	public:
 		t_svec						listDir(String &dirPath);
 		String						getResponse();
 		String						getStartLine();
 		String						getResponseBody();
-		// const						std::map<String, String> &getHeaders();
-
+		const						std::map<String, String> &getHeaders();
 
 		Response(Request &request, Server &server, Location &location);
 		Response(const Response &copy);

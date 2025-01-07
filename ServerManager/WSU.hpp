@@ -13,13 +13,13 @@ private:
 
 public:
 	static bool __criticalOverLoad;
-	static bool	__debug;
-	static bool	__info;
-	static bool	__warn;
-	static bool	__error;
-	static bool	__fatal;
+	static bool __debug;
+	static bool __info;
+	static bool __warn;
+	static bool __error;
+	static bool __fatal;
 
-	static void	logs(std::vector<std::string> &args);
+	static void logs(std::vector<std::string> &args);
 	static void debug(String __log_message);
 	static void info(String __log_message);
 	static void warn(String __log_message);
@@ -28,7 +28,6 @@ public:
 	static void running(String __log_message);
 	static void terr(String __error_message);
 	static void terr(char *__error_message);
-
 
 	static String logDate();
 	static String buildIMFDate();
@@ -39,18 +38,18 @@ public:
 	static void toUpperString(String &input);
 	static void toLowerString(String &input);
 	static int stringToInt(const String &str);
-	static bool endWith(std::string& file, const char* extension);
 	static struct pollfd *data(t_events &events);
 	static String resolvePath(const String &path);
+	static String getContentType(const String &uri);
+	static String buildListingBody(const t_svec &list);
 	static std::vector<String> splitBySpaces(const String &input);
+	static bool endWith(std::string &file, const char *extension);
 	static bool samePath(const String &path1, const String &path2);
 	static String joinPaths(const String &path1, const String &path2);
 	static bool containsPath(const String &path, const String &subPath);
 	static String mergeByChar(const std::vector<String> &input, char del);
 	static std::vector<String> splitByChar(const String &input, char del);
 	static void replaceString(String &original, const String toReplace, const String replacement);
-	static String buildListingBody(const t_svec &list);
-	static String getContentType(const String& uri);
 };
 
 #endif
