@@ -6,7 +6,6 @@ RessourceHandler::RessourceHandler(Location &location, String &uri) : __location
                                                                       __type(FILE)
 {
     loadPathExploring();
-    loadType(__fullPath.c_str());
 }
 
 Type    RessourceHandler::loadType(const char* path)
@@ -18,11 +17,26 @@ Type    RessourceHandler::loadType(const char* path)
         __type = FILE;
     else if (S_ISDIR(file_stat.st_mode))
         __type = FOLDER;
+    else
+        throw ErrorResponse(404, "Ressource not found");
 }
 
 void    RessourceHandler::loadPathExploring(void)
 {
-    
+    __fullPath = wsu::joinPaths(__location.__root, __URI);
+    loadType(__fullPath.c_str());
+    if (__type == FOLDER)
+    {
+        for (t_svec::iterator it = __location.__index.begin(); it != __location.__index.end(); ++it)
+        {
+            String  s = wsu::joinPaths(__fullPath, *it);
+            if (!access(s.c_str(), F_OK))
+            {
+                __fullPath = s;
+                return;
+            }
+        }
+    }
 }
 
 String  RessourceHandler::getPath() const

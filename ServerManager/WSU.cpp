@@ -297,7 +297,7 @@ bool wsu::containsPath(const String &path, const String &subPath)
 String wsu::joinPaths(const String &path1, const String &path2)
 {
 	if (path1.empty() && path2.empty())
-		return "";
+		return "/";
 	else if (path2.empty())
 		return path1;
 	else if (path1.empty())

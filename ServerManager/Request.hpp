@@ -2,6 +2,7 @@
 # define __REQUEST_HPP__
 
 # include "ErrorResponse.hpp"
+# include "PackageResponse/Response.hpp"
 
 class Request
 {

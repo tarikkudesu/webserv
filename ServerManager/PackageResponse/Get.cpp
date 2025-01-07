@@ -2,9 +2,12 @@
 
 Get::Get(bool isIndexing, RessourceHandler &explorer) : isIndexing(isIndexing), explorer(explorer)
 {
-        readFile();
         if (isIndexing)
                 autoIndexing();
+        else if (explorer.getType() == FILE)
+                readFile();
+        else
+                throw ErrorResponse(403, "Forbidden");
 }
 
 Get::Get( const Get &copy ) : explorer(copy.explorer)
