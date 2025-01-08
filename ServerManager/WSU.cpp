@@ -457,7 +457,7 @@ String wsu::buildListingBody(String path, const t_svec &list)
 					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Document</title>"
 					"<style>a {display: block;font-family: sans-serif;color: rgb(184, 186, 190);text-decoration: none;letter-spacing: 0.8px;padding: 5px 10px;font-weight: 500;margin: 4px;}"
 					"a:hover {border-radius: 2px;color: white;background-color: rgb(35, 40, 47);}"
-					".path {color: white;font-size: 25px;font-weight: 700;padding: 5px 10px;font-family: sans-serif;}"
+					".path {color: white;font-size: 25px;font-weight: 700;padding: 5px 10px;font-family: sans-serif;margin-bottom: 10px;border-bottom: 1px solid rgba(210, 215, 223, 0.26);}"
 					"</style></head><body style=\"background-color: rgb(35, 40, 47);\">"
 					"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
 					"<div class=\"path\">PATH</div>"
@@ -472,15 +472,19 @@ String wsu::buildListingBody(String path, const t_svec &list)
 		String listing;
 		if (it->empty() || String::npos == it->find_first_not_of(" \t\n\r\v\f"))
 			continue;
-		if (*it == ".")
+		if (*it == "." || *it == "..")
 			continue;
+		String p;
+		t_svec tmp = wsu::splitByChar(path, '/');
+		if (!tmp.empty() && *it != "..")
+			p = *(tmp.end() - 1);
 		listing = anchor;
-		wsu::replaceString(listing, "LINK", wsu::joinPaths(path, *it));
+		wsu::replaceString(listing, "LINK", wsu::joinPaths(p, *it));
 		wsu::replaceString(listing, "NAME", *it);
-		if (*it == "..")
-			back = listing;
-		else
-			ss << listing;
+		// if (*it == "..")
+		// 	back = listing;
+		// else
+		ss << listing;
 	}
 	wsu::replaceString(body, "PATH", path);
 	wsu::replaceString(body, "LISTING", back + ss.str());
