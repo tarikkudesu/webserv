@@ -62,7 +62,7 @@ void Response::__check_methods()
 			executeDelete();
 			break;
 		default:
-			throw ErrorResponse(405, "Method Not Allowed");
+			throw ErrorResponse(405, __location, "Server does not implement this method");
 			break;
 		}
 	}
@@ -76,6 +76,7 @@ void Response::executeCgi()
 
 void Response::executeGet()
 {
+	explorer.loadPathExploring();
 	Get get(__location.__autoindex, explorer);
 	body = get.getBody();
 	code = 200;

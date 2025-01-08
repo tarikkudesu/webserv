@@ -46,6 +46,7 @@ public:
 	static int stringToInt(const String &str);
 	static struct pollfd *data(t_events &events);
 	static String resolvePath(const String &path);
+	static String getParentPath(const String &path);
 	static String getContentType(const String &uri);
 	static std::vector<String> splitBySpaces(const String &input);
 	static bool samePath(const String &path1, const String &path2);

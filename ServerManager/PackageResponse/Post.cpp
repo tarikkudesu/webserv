@@ -2,6 +2,7 @@
 
 Post::Post(RessourceHandler &explorer, String requestbody) : explorer(explorer), __requestbody(requestbody)
 {
+        std::cout << RED << "POST\n" << RESET;
         writeFile();
 }
 
@@ -26,13 +27,14 @@ Post::~Post()
 
 void    Post::writeFile( void )
 {
-        String path = wsu::joinPaths("/uploads", explorer.getPath());
-        std::ofstream   file(path.c_str());
+        String path = wsu::joinPaths("uploads/", explorer.getURI());
+        std::ofstream   file;
 
-        if (!file.is_open())
-                throw   ErrorResponse(500, "Internal Server Error");
+        file.open(path.c_str());
+        if (!file)
+                throw   ErrorResponse(500, explorer.__location, "Internal Server Error");
         file << __requestbody;
         if (file.fail()) {
-                throw ErrorResponse(500, "Internal Server Error: Failed to write to file " + path);
+                throw ErrorResponse(500, explorer.__location, "Internal Server Error: Failed to write to file " + path);
     }
 }

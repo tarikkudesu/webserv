@@ -40,16 +40,7 @@ void ErrorResponse::buildResponseBody()
 {
 	try
 	{
-		/******************************
-		 * THIS THROW IS TO BE REMOVE *
-		 ******************************/
-		/******************************
-		 * THIS THROW IS TO BE REMOVE *
-		 ******************************/
-		/******************************
-		 * THIS THROW IS TO BE REMOVE *
-		 ******************************/
-		throw std::runtime_error(""); 
+		throw std::runtime_error("");
 		if (this->__page.empty())
 			throw std::runtime_error("");
 		std::fstream fS;
@@ -107,7 +98,6 @@ void ErrorResponse::constructErrorPage()
 	if (this->__page.empty())
 	{
 		std::map<int16_t, String>::iterator it = wsu::__defaultErrorPages.find(this->__code);
-		std::cout << RED << it->second << RESET << "\n";
 		if (it != __location->__errorPages.end())
 			this->__page = it->second;
 	}
@@ -134,8 +124,7 @@ void ErrorResponse::print() const
 {
 	std::cout << GREEN << "*******************************************************************\n";
 	std::cout << GREEN << this->__StatusLine + this->__headers + this->__Body << "\n";
-	std::cout << "*****************************Response******************************\n"
-			  << RESET;
+	std::cout << "*****************************Response******************************\n"<< RESET;
 }
 std::ostream &operator<<(std::ostream &o, const ErrorResponse &r)
 {

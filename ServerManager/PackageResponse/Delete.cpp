@@ -23,5 +23,5 @@ Delete::~Delete()
 void    Delete::deleteFile( void )
 {
         if (unlink(explorer.getPath().c_str()) != 0)
-                throw   ErrorResponse(500, "Internal Server Error");
+                throw ErrorResponse(500, explorer.__location, "Internal Server Error");
 }

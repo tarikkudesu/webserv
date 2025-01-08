@@ -251,6 +251,8 @@ void Location::parse()
 		throw std::runtime_error("empty location block");
 	parseDirectives();
 	proccessDirectives();
+	for (std::map<int16_t, String>::iterator it = __errorPages.begin(); it != __errorPages.end(); it++)
+		it->second = wsu::joinPaths(this->__root, it->second);
 	if (__allowMethods.empty())
 	{
 		this->__allowMethods.push_back(GET);

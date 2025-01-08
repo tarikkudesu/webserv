@@ -39,7 +39,7 @@ void Get::readFile(void)
 {
         std::ifstream file(explorer.getPath().c_str(), std::ios::binary);
         if (!file.is_open())
-                throw ErrorResponse(500, "Internal Server Error");
+                throw ErrorResponse(500, explorer.__location, "Internal Server Error");
         std::ostringstream buff;
         char buffer[4096];
         while (file.read(buffer, sizeof(buffer)))
@@ -55,7 +55,7 @@ void Get::autoIndexing(void)
         t_svec directories;
         DIR *dir = opendir(explorer.getPath().c_str());
         if (!dir)
-                throw ErrorResponse(500, "could not open directory");
+                throw ErrorResponse(500, explorer.__location, "could not open directory");
         struct dirent *entry;
         while ((entry = readdir(dir)))
         {

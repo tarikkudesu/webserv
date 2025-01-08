@@ -2,13 +2,15 @@
 
 Connection::Connection() : __sd(-1),
 						   __erase(0),
-						   __serversP(NULL)
+						   __serversP(NULL),
+						   __readable(true)
 {
 	wsu::debug("Connection default constructor");
 }
 Connection::Connection(int sd) : __sd(sd),
 								 __erase(0),
-								 __serversP(NULL)
+								 __serversP(NULL),
+								 __readable(false)
 {
 	wsu::debug("Server single para constructor");
 }
@@ -24,6 +26,8 @@ Connection &Connection::operator=(const Connection &assign)
 	{
 		__sd = assign.__sd;
 		__serversP = assign.__serversP;
+		__readable = assign.__readable;
+		__responseQueue = assign.__responseQueue;
 	}
 	return *this;
 }
@@ -87,7 +91,10 @@ void Connection::identifyRequestBody()
 		else
 		{
 			size_t contentLen = this->__request.__contentLength;
-			if (currBuff.length() <= contentLen)
+			std::cout << contentLen << "\n";
+			if (contentLen >= READ_SIZE)
+				this->__readable = true;
+			if (currBuff.length() < contentLen)
 				throw std::exception();
 			body = String(currBuff.begin(), currBuff.begin() + contentLen);
 			this->__erase += contentLen;
@@ -126,6 +133,8 @@ void Connection::requestParser()
 	identifyRequestBody();
 	this->__buff.erase(0, this->__erase);
 	this->__erase = 0;
+	this->__readable = false;
+	wsu::info(this->__request.__requestbody);
 	if (wsu::__criticalOverLoad == true)
 		throw ErrorResponse(503, "critical server overload");
 }
@@ -150,11 +159,11 @@ Server *Connection::identifyServer()
 }
 void Connection::responseBuilder()
 {
-	std::cout << YELLOW << __request << "\n";
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);
-	std::cout << res;
+	// std::cout << YELLOW << __request << "\n";
+	// std::cout << res;
 	this->__responseQueue.push(res.getResponse());
 }
 void Connection::proccessData(String input)
@@ -163,20 +172,19 @@ void Connection::proccessData(String input)
 	this->__buff += input;
 	try
 	{
+		// std::cout << __buff << "\n";
 		requestParser();
 		responseBuilder();
 	}
-	// catch (Cgi &e)
-	// {
-	// 	this->__responseQueue.push(e.getResponse());
-	// }
 	catch (ErrorResponse &e)
 	{
-		std::cout << e;
+		// std::cout << e;
 		this->__responseQueue.push(e.getResponse());
 	}
 	catch (std::exception &e)
 	{
+		this->__readable = true;
+		wsu::error(e.what());
 		this->__erase = 0;
 	}
 }

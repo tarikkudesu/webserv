@@ -10,7 +10,6 @@ class Connection
 {
 	private :
 		int						__sd;
-		String					__buff;
 		size_t					__erase;
 		Request					__request;
 		t_Server				*__serversP;
@@ -25,8 +24,9 @@ class Connection
 		Connection();
 
 	public:
+		String					__buff;
 		std::queue< String >	__responseQueue;
-		std::queue< pid_t >		__cgiProcesses;
+		bool					__readable;
 
 		void					setServers( t_Server &servers );
 		void					proccessData( String input );

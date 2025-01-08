@@ -308,6 +308,15 @@ bool wsu::containsPath(const String &path, const String &subPath)
 	}
 	return true;
 }
+String wsu::getParentPath(const String &path)
+{
+	if (path.empty())
+		return "";
+	t_svec vPath = wsu::splitByChar(path, '/');
+	if (!vPath.empty())
+		return *(vPath.end() - 1);
+	return "";
+}
 String wsu::joinPaths(const String &path1, const String &path2)
 {
 	if (path1.empty() && path2.empty())
@@ -453,40 +462,28 @@ void wsu::loadMimeTypes(void)
 
 String wsu::buildListingBody(String path, const t_svec &list)
 {
-	String body =	"<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
-					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Document</title>"
-					"<style>a {display: block;font-family: sans-serif;color: rgb(184, 186, 190);text-decoration: none;letter-spacing: 0.8px;padding: 5px 10px;font-weight: 500;margin: 4px;}"
-					"a:hover {border-radius: 2px;color: white;background-color: rgb(35, 40, 47);}"
-					".path {color: white;font-size: 25px;font-weight: 700;padding: 5px 10px;font-family: sans-serif;margin-bottom: 10px;border-bottom: 1px solid rgba(210, 215, 223, 0.26);}"
-					"</style></head><body style=\"background-color: rgb(35, 40, 47);\">"
-					"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
-					"<div class=\"path\">PATH</div>"
-					"LISTING"
-					"</div></body></html>";
+	String body = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
+				  "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Document</title>"
+				  "<style>a {display: block;font-family: sans-serif;color: rgb(184, 186, 190);text-decoration: none;letter-spacing: 0.8px;padding: 5px 10px;font-weight: 500;margin: 4px;}"
+				  "a:hover {border-radius: 2px;color: white;background-color: rgb(35, 40, 47);}"
+				  ".path {color: white;font-size: 25px;font-weight: 700;padding: 5px 10px;font-family: sans-serif;margin-bottom: 10px;border-bottom: 1px solid rgba(210, 215, 223, 0.26);}"
+				  "</style></head><body style=\"background-color: rgb(35, 40, 47);\">"
+				  "<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
+				  "<div class=\"path\">PATH</div>LISTING</div></body></html>";
 	String anchor = "<a href=\"LINK\">NAME</a>";
-	std::stringstream	ss;
+	std::stringstream ss;
 	String listings;
-	String back;
 	for (t_svec::const_iterator it = list.begin(); it != list.end(); it++)
 	{
-		String listing;
-		if (it->empty() || String::npos == it->find_first_not_of(" \t\n\r\v\f"))
+		if (it->empty() || String::npos == it->find_first_not_of(" \t\n\r\v\f") || *it == "." || *it == "..")
 			continue;
-		if (*it == "." || *it == "..")
-			continue;
-		String p;
-		t_svec tmp = wsu::splitByChar(path, '/');
-		if (!tmp.empty() && *it != "..")
-			p = *(tmp.end() - 1);
-		listing = anchor;
-		wsu::replaceString(listing, "LINK", wsu::joinPaths(p, *it));
+		String listing = anchor;
+		String link = wsu::joinPaths(wsu::getParentPath(path), *it);
+		wsu::replaceString(listing, "LINK",link);
 		wsu::replaceString(listing, "NAME", *it);
-		// if (*it == "..")
-		// 	back = listing;
-		// else
 		ss << listing;
 	}
 	wsu::replaceString(body, "PATH", path);
-	wsu::replaceString(body, "LISTING", back + ss.str());
+	wsu::replaceString(body, "LISTING", ss.str());
 	return body;
 }
