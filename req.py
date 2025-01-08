@@ -5,7 +5,7 @@ host = "localhost"
 port = 9000
 
 request = (
-    "GET /root.html HTTP/1.1\r\n"
+    "GET /srcs/ HTTP/1.1\r\n"
     "Host: localhost:9000\r\n"
     "Content-Type: text/plain\r\n"
     "\r\n"

@@ -2,7 +2,7 @@
 	"files.exclude": {
         "**/*.o": true,
         "**/*.gitignore": true,
-		"**/.vscode": true,
+		"**/.vscode": true
     },
 	"files.associations": {
 		"map": "cpp",
@@ -92,12 +92,11 @@
 	"breadcrumbs.enabled": false,
 	"explorer.decorations.colors": false,
 	"editor.guides.indentation": false,
-	// "editor.renderLineHighlight": "none",
-	// "editor.glyphMargin": false,
+	// "editor.renderLineHighlight": "none"
+	"editor.glyphMargin": false,
 	// "editor.lineNumbers": "off",
-	// "editor.showFoldingControls": "never",
+	// "editor.showFoldingControls": "never"
 	"workbench.layoutControl.type": "menu",
-	// "workbench.layoutControl.enabled": false,
-	"window.title": " ",
-    "window.commandCenter": false
+	// "workbench.layoutControl.enabled": false
+	"window.title": " "
 }

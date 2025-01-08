@@ -19,7 +19,7 @@ NAME	=	webserv
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@g++ -Wall -Wextra -Werror -g -fsanitize=address -std=c++98 $(OBJ) -o $(NAME)
+	@g++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
 
 %.o: %.cpp	./ServerManager/Location.hpp \
 			./ServerManager/ServerManager.hpp \
@@ -35,7 +35,7 @@ $(NAME): $(OBJ)
 			./ServerManager/PackageResponse/ErrorResponse.hpp \
 			./ServerManager/WSU.hpp \
 			./srcs/webserv.hpp
-	@g++ -Wall -Wextra -Werror -g -std=c++98 -c $< -o $@
+	@g++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
 
 clean:
 	@rm -f $(OBJ)

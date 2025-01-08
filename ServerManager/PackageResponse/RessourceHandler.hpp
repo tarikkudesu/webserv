@@ -6,16 +6,18 @@ class RessourceHandler
 {
         private:
 
-                Location&               __location;
-                String&                 __URI;
-                String                  __fullPath;
-                t_type                  __type;
 
                 void                    loadPathExploring(void);
                 void                    loadType(const char* path);
 
 
         public:
+
+                Location&               __location;
+                String&                 __URI;
+                String                  __fullPath;
+                t_type                  __type;
+                //public temporarely
 
                 String  getPath() const;
                 t_type    getType() const;
@@ -37,3 +39,5 @@ class RessourceHandler
                 }
 		~RessourceHandler() {}
 };
+
+std::ostream &operator<<(std::ostream &o, RessourceHandler const &r);

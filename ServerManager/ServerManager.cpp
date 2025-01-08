@@ -381,11 +381,13 @@ void ServerManager::readFile()
 		std::getline(fS, line, '\n');
 		if (fS.fail())
 			break;
+		size_t pos = line.find("# ");
+		if (pos != std::string::npos)
+			line = line.substr(0, pos);
 		if (line.empty() || String::npos == line.find_first_not_of(" \t\n\r\v\f"))
 			continue;
 		this->__lines.append(line);
 		this->__lines.append(" ");
-		wsu::info(line);
 		line.clear();
 		if (fS.eof())
 			break;

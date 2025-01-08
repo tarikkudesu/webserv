@@ -152,11 +152,9 @@ void Connection::responseBuilder()
 {
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
-	// identifyType();
 	Response res(this->__request, *server, location);
 	String result = res.getResponse();
 	this->__responseQueue.push(result);
-	std::cout << result << "\n";
 }
 void Connection::proccessData(String input)
 {

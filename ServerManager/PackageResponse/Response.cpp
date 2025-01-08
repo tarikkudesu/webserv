@@ -8,6 +8,8 @@ Response::Response(Request &request,
 										 __location(location)
 
 {
+	std::cout << RED << "******************************************\n" << RESET;
+	// std::cout << __request << "\n";
 	__check_methods();
 	buildResponse();
 }

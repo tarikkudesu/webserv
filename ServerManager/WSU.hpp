@@ -41,11 +41,11 @@ public:
 	static struct pollfd *data(t_events &events);
 	static String resolvePath(const String &path);
 	static String getContentType(const String &uri);
-	static String buildListingBody(const t_svec &list);
 	static std::vector<String> splitBySpaces(const String &input);
-	static bool endWith(const std::string &file, const char *extension);
 	static bool samePath(const String &path1, const String &path2);
+	static String buildListingBody(String path, const t_svec &list);
 	static String joinPaths(const String &path1, const String &path2);
+	static bool endWith(const std::string &file, const char *extension);
 	static bool containsPath(const String &path, const String &subPath);
 	static String mergeByChar(const std::vector<String> &input, char del);
 	static std::vector<String> splitByChar(const String &input, char del);

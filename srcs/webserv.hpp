@@ -33,6 +33,7 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <cstdlib>
 
 #ifndef TIMEOUT
 #define TIMEOUT 5000000
