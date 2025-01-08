@@ -117,7 +117,20 @@ void Response::setHeader()
 	headers["date"] = wsu::buildIMFDate();
 }
 
-String Response::getResponse()
+String Response::getResponse() const
 {
 	return fullResponse;
+}
+
+void	Response::print() const
+{
+	std::cout << GREEN << "*******************************************************************\n";
+	std::cout << explorer;
+	std::cout << GREEN << fullResponse << "\n";
+	std::cout << "*****************************Response******************************\n" << RESET;
+}
+std::ostream &operator<<(std::ostream &o, const Response &r)
+{
+	r.print();
+	return o;
 }

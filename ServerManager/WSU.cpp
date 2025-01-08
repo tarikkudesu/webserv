@@ -344,41 +344,6 @@ struct pollfd *wsu::data(t_events &events)
 		arr[i] = events[i];
 	return arr;
 }
-String wsu::buildListingBody(String path, const t_svec &list)
-{
-	String body =	"<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
-					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Document</title>"
-					"<style>a {display: block;font-family: sans-serif;color: rgb(184, 186, 190);text-decoration: none;letter-spacing: 0.8px;padding: 5px 10px;font-weight: 500;margin: 4px;}"
-					"a:hover {border-radius: 2px;color: white;background-color: rgb(35, 40, 47);}"
-					".path {color: white;font-size: 25px;font-weight: 700;padding: 5px 10px;font-family: sans-serif;}"
-					"</style></head><body style=\"background-color: rgb(35, 40, 47);\">"
-					"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
-					"<div class=\"path\">PATH</div>"
-					"LISTING"
-					"</div></body></html>";
-	String anchor = "<a href=\"LINK\">NAME</a>";
-	String listings;
-	String back;
-	for (t_svec::const_iterator it = list.begin(); it != list.end(); it++)
-	{
-		String listing;
-		if (it->empty() || String::npos == it->find_first_not_of(" \t\n\r\v\f"))
-			continue;
-		if (*it == ".")
-			continue;
-		listing = anchor;
-		wsu::replaceString(listing, "LINK", wsu::resolvePath(*it));
-		wsu::replaceString(listing, "NAME", *it);
-		if (*it == "..")
-			back = listing;
-		else
-			listings += listing;
-		std::cout << RED << listing << "\n" << RESET;
-	}
-	wsu::replaceString(body, "PATH", path);
-	wsu::replaceString(body, "LISTING", back + listings);
-	return body;
-}
 String wsu::getContentType(const String &uri)
 {
 	t_svec tmp = wsu::splitByChar(uri, '/');
@@ -484,4 +449,40 @@ void wsu::loadMimeTypes(void)
 		line.clear();
 	} while (true);
 	fs.close();
+}
+
+String wsu::buildListingBody(String path, const t_svec &list)
+{
+	String body =	"<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
+					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Document</title>"
+					"<style>a {display: block;font-family: sans-serif;color: rgb(184, 186, 190);text-decoration: none;letter-spacing: 0.8px;padding: 5px 10px;font-weight: 500;margin: 4px;}"
+					"a:hover {border-radius: 2px;color: white;background-color: rgb(35, 40, 47);}"
+					".path {color: white;font-size: 25px;font-weight: 700;padding: 5px 10px;font-family: sans-serif;}"
+					"</style></head><body style=\"background-color: rgb(35, 40, 47);\">"
+					"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
+					"<div class=\"path\">PATH</div>"
+					"LISTING"
+					"</div></body></html>";
+	String anchor = "<a href=\"LINK\">NAME</a>";
+	std::stringstream	ss;
+	String listings;
+	String back;
+	for (t_svec::const_iterator it = list.begin(); it != list.end(); it++)
+	{
+		String listing;
+		if (it->empty() || String::npos == it->find_first_not_of(" \t\n\r\v\f"))
+			continue;
+		if (*it == ".")
+			continue;
+		listing = anchor;
+		wsu::replaceString(listing, "LINK", wsu::joinPaths(path, *it));
+		wsu::replaceString(listing, "NAME", *it);
+		if (*it == "..")
+			back = listing;
+		else
+			ss << listing;
+	}
+	wsu::replaceString(body, "PATH", path);
+	wsu::replaceString(body, "LISTING", back + ss.str());
+	return body;
 }

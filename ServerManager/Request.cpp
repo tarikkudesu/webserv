@@ -164,7 +164,7 @@ void Request::proccessURI()
 		this->__fragement = String(this->__URI.begin() + end + 1, this->__URI.end());
 	else
 		end = __URI.size();
-	this->__URI = wsu::resolvePath(__URI.substr(0, start));
+	// this->__URI = wsu::resolvePath(__URI.substr(0, start));
 	String query = String(__URI.begin() + start, __URI.begin() + end);
 	{
 		t_svec queris = wsu::splitByChar(query, '&');

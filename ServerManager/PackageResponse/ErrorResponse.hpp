@@ -24,7 +24,7 @@ class ErrorResponse
 
 	public:
 		String								getResponse() const;
-
+		void								print() const;
 
 		ErrorResponse( int code, String indication );
 		ErrorResponse( int code, Location &location, String indication );
@@ -32,5 +32,7 @@ class ErrorResponse
 		ErrorResponse	&operator=( const ErrorResponse &assign );
 		~ErrorResponse();
 };
+
+std::ostream &operator<<(std::ostream &o, const ErrorResponse &r);
 
 #endif

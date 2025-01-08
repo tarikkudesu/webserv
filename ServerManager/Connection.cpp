@@ -154,6 +154,7 @@ void Connection::responseBuilder()
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);
+	std::cout << res;
 	this->__responseQueue.push(res.getResponse());
 }
 void Connection::proccessData(String input)
@@ -171,6 +172,7 @@ void Connection::proccessData(String input)
 	// }
 	catch (ErrorResponse &e)
 	{
+		std::cout << e;
 		this->__responseQueue.push(e.getResponse());
 	}
 	catch (std::exception &e)

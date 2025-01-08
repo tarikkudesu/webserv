@@ -27,12 +27,15 @@ class Response
 
 	public:
 
-		String	getResponse( void );
+		String	getResponse( void ) const;
+		void	print() const;
 
 		Response(Request &request, Server &server, Location &location);
 		Response(const Response &copy);
 		Response &operator=(const Response &assign);
 		~Response();
 };
+
+std::ostream &operator<<(std::ostream &o, const Response &r);
 
 #endif
