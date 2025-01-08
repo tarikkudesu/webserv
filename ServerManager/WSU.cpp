@@ -9,6 +9,9 @@ wsu &wsu::operator=(const wsu &assign)
 }
 wsu::~wsu() {}
 
+std::map<int16_t, String> wsu::__defaultErrorPages;
+std::map<int16_t, String> wsu::__errCode;
+std::map<String, String> wsu::__mimeTypes;
 bool wsu::__criticalOverLoad = false;
 bool wsu::__debug = false;
 bool wsu::__info = false;
@@ -100,6 +103,17 @@ void wsu::logs(std::vector<String> &args)
 			std::cerr << USAGE << std::endl;
 			exit(EXIT_FAILURE);
 		}
+	}
+	try
+	{
+		wsu::loadErrPages();
+		wsu::loadMimeTypes();
+		wsu::loadErrorCodes();
+	}
+	catch (std::exception &e)
+	{
+		wsu::terr(e.what());
+		exit(EXIT_FAILURE);
 	}
 }
 void wsu::debug(String __log_message)
@@ -333,12 +347,13 @@ struct pollfd *wsu::data(t_events &events)
 String wsu::buildListingBody(String path, const t_svec &list)
 {
 	String body =	"<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
-					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
-					"<title>Document</title><style>"
-					"a {display: block;color: rgb(184, 186, 190);text-decoration: none;letter-spacing: 0.8px;padding: 5px 10px;margin: 4px;}"
+					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Document</title>"
+					"<style>a {display: block;font-family: sans-serif;color: rgb(184, 186, 190);text-decoration: none;letter-spacing: 0.8px;padding: 5px 10px;font-weight: 500;margin: 4px;}"
 					"a:hover {border-radius: 2px;color: white;background-color: rgb(35, 40, 47);}"
+					".path {color: white;font-size: 25px;font-weight: 700;padding: 5px 10px;font-family: sans-serif;}"
 					"</style></head><body style=\"background-color: rgb(35, 40, 47);\">"
 					"<div style=\"border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 80px; padding: 40px; background-color: rgb(22, 27, 34);\">"
+					"<div class=\"path\">PATH</div>"
 					"LISTING"
 					"</div></body></html>";
 	String anchor = "<a href=\"LINK\">NAME</a>";
@@ -352,38 +367,121 @@ String wsu::buildListingBody(String path, const t_svec &list)
 		if (*it == ".")
 			continue;
 		listing = anchor;
-		wsu::replaceString(listing, "LINK", wsu::joinPaths(path, *it));
+		wsu::replaceString(listing, "LINK", wsu::resolvePath(*it));
 		wsu::replaceString(listing, "NAME", *it);
 		if (*it == "..")
 			back = listing;
 		else
 			listings += listing;
+		std::cout << RED << listing << "\n" << RESET;
 	}
+	wsu::replaceString(body, "PATH", path);
 	wsu::replaceString(body, "LISTING", back + listings);
 	return body;
 }
 String wsu::getContentType(const String &uri)
 {
-	size_t dot_pos = uri.rfind('.');
+	t_svec tmp = wsu::splitByChar(uri, '/');
+	if (tmp.empty())
+		return "text/html";
+	String file = *(tmp.end() - 1);
+	size_t dot_pos = file.rfind('.');
 	if (dot_pos == String::npos)
-		return "text/plain";
+		return "text/html";
 	String ext = uri.substr(dot_pos);
-	std::map<String, String> mimeTypes;
-	mimeTypes.insert(std::make_pair(".html", "text/html"));
-	mimeTypes.insert(std::make_pair(".htm", "text/html"));
-	mimeTypes.insert(std::make_pair(".css", "text/css"));
-	mimeTypes.insert(std::make_pair(".js", "application/javascript"));
-	mimeTypes.insert(std::make_pair(".json", "application/json"));
-	mimeTypes.insert(std::make_pair(".jpg", "image/jpeg"));
-	mimeTypes.insert(std::make_pair(".jpeg", "image/jpeg"));
-	mimeTypes.insert(std::make_pair(".png", "image/png"));
-	mimeTypes.insert(std::make_pair(".gif", "image/gif"));
-	mimeTypes.insert(std::make_pair(".svg", "image/svg+x"));
-	mimeTypes.insert(std::make_pair(".txt", "text/plain"));
-	mimeTypes.insert(std::make_pair(".pdf", "application/pdf"));
-	mimeTypes.insert(std::make_pair(".xml", "application/xml"));
-	std::map<String, String>::iterator it = mimeTypes.find(ext);
-	if (it != mimeTypes.end())
+	std::map<String, String>::iterator it = wsu::__mimeTypes.find(ext);
+	if (it != __mimeTypes.end())
 		return it->second;
-	return "application/octet-stream";
+	return "text/html";
+}
+
+void wsu::loadErrorCodes()
+{
+	if (!wsu::__errCode.empty())
+		return;
+	std::fstream fs;
+	String line;
+	fs.open("essentials/errorcodes.csv");
+	if (!fs.is_open())
+		throw std::runtime_error("could not open: essentials/errorcodes.csv");
+	std::stringstream stream;
+	do
+	{
+		std::getline(fs, line, '\n');
+		if (fs.eof())
+			break;
+		if (fs.fail())
+		{
+			fs.close();
+			throw std::runtime_error("could not read from essentials/errorcodes.csv");
+		}
+		t_svec vect = wsu::splitByChar(line, ',');
+		if (vect.size() == 2)
+		{
+			wsu::trimSpaces(vect[0]), wsu::trimSpaces(vect[1]);
+			wsu::__errCode.insert(std::make_pair(wsu::stringToInt(vect[0]), vect[1]));
+		}
+		line.clear();
+	} while (true);
+	fs.close();
+}
+void wsu::loadErrPages()
+{
+	if (!wsu::__defaultErrorPages.empty())
+		return;
+	std::fstream fs;
+	String line;
+	fs.open("essentials/errorpages.csv");
+	if (!fs.is_open())
+		throw std::runtime_error("could not open: essentials/errorpages.csv");
+	std::stringstream stream;
+	do
+	{
+		std::getline(fs, line, '\n');
+		if (fs.eof())
+			break;
+		if (fs.fail())
+		{
+			fs.close();
+			throw std::runtime_error("could not read from essentials/errorpages.csv");
+		}
+		t_svec vect = wsu::splitByChar(line, ',');
+		if (vect.size() == 2)
+		{
+			wsu::trimSpaces(vect[0]), wsu::trimSpaces(vect[1]);
+			wsu::__defaultErrorPages.insert(std::make_pair(wsu::stringToInt(vect[0]), vect[1]));
+		}
+		line.clear();
+	} while (true);
+	fs.close();
+}
+void wsu::loadMimeTypes(void)
+{
+	if (!wsu::__mimeTypes.empty())
+		return;
+	std::ifstream fs;
+	String line;
+	fs.open("essentials/mimetypes.csv");
+	if (!fs.is_open())
+		throw std::runtime_error("could not open: essentials/mimetypes.csv");
+	std::stringstream stream;
+	do
+	{
+		std::getline(fs, line, '\n');
+		if (fs.eof())
+			break;
+		if (fs.fail())
+		{
+			fs.close();
+			throw std::runtime_error("could not read from essentials/mimetypes.csv");
+		}
+		t_svec vect = wsu::splitByChar(line, ',');
+		if (vect.size() == 2)
+		{
+			wsu::trimSpaces(vect[0]), wsu::trimSpaces(vect[1]);
+			wsu::__mimeTypes.insert(std::make_pair(vect[0], vect[1]));
+		}
+		line.clear();
+	} while (true);
+	fs.close();
 }

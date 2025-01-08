@@ -12,6 +12,9 @@ private:
 	~wsu();
 
 public:
+	static std::map<int16_t, String> __defaultErrorPages;
+	static std::map<int16_t, String> __errCode;
+	static std::map<String, String> __mimeTypes;
 	static bool __criticalOverLoad;
 	static bool __debug;
 	static bool __info;
@@ -27,9 +30,12 @@ public:
 	static void fatal(String __log_message);
 	static void running(String __log_message);
 	static void terr(String __error_message);
-	static void terr(char *__error_message);
+	static void terr(char *__eror_message);
 
 	static String logDate();
+	static void loadErrPages();
+	static void loadMimeTypes();
+	static void loadErrorCodes();
 	static String buildIMFDate();
 	static void trimSpaces(String &str);
 	static String intToString(int number);

@@ -11,6 +11,7 @@ RessourceHandler::RessourceHandler(Location &location, String &uri) : __location
 void    RessourceHandler::loadType(const char* path)
 {
     struct stat file_stat;
+    std::cout << path << "\n";
     if (stat(path, &file_stat) == -1)
         throw ErrorResponse(404, "the file does not exist on the server"); // to check what the exact status code and reason phrase
     else if (!(file_stat.st_mode & S_IRUSR))

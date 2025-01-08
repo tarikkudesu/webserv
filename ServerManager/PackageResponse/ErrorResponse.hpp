@@ -16,7 +16,6 @@ class ErrorResponse
 		String								__reasonPhrase;
 		static String						__errPage;
 
-		static void							initErrorCodes();
 		void								buildStatusLine();
 		void								buildHeaderFeilds();
 		void								buildResponseBody();
@@ -24,7 +23,6 @@ class ErrorResponse
 		ErrorResponse();
 
 	public:
-		static std::map< int16_t, String >	__errCode;
 		String								getResponse() const;
 
 

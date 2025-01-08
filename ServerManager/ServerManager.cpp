@@ -11,14 +11,12 @@ struct pollfd *ServerManager::__events = NULL;
 ServerManager::ServerManager()
 {
 	wsu::debug("ServerManager default constructor");
-	Location::addErrPages();
 }
 
 ServerManager::ServerManager(const String &configutation_file) : __config(configutation_file)
 {
 	wsu::debug("ServerManager single para constructor");
 	wsu::info("configuration file: " + configutation_file);
-	Location::addErrPages();
 }
 
 ServerManager::ServerManager(const ServerManager &copy)

@@ -150,6 +150,7 @@ Server *Connection::identifyServer()
 }
 void Connection::responseBuilder()
 {
+	std::cout << YELLOW << __request << "\n";
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);

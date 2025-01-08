@@ -4,14 +4,12 @@ ErrorResponse::ErrorResponse(int code, String indication) : __code(code),
 															__location(NULL),
 															__indication(indication)
 {
-	initErrorCodes();
 	this->constructErrorPage();
 }
 ErrorResponse::ErrorResponse(int code, Location &location, String indication) : __code(code),
 																				__location(&location),
 																				__indication(indication)
 {
-	initErrorCodes();
 	this->constructErrorPage();
 }
 ErrorResponse::ErrorResponse(const ErrorResponse &copy)
@@ -86,8 +84,8 @@ void ErrorResponse::buildStatusLine()
 }
 void ErrorResponse::constructErrorPage()
 {
-	std::map<int16_t, String>::iterator it = ErrorResponse::__errCode.find(this->__code);
-	if (it != ErrorResponse::__errCode.end())
+	std::map<int16_t, String>::iterator it = wsu::__errCode.find(this->__code);
+	if (it != wsu::__errCode.end())
 		this->__reasonPhrase = it->second;
 	else
 		this->__reasonPhrase = "Error";
@@ -99,9 +97,9 @@ void ErrorResponse::constructErrorPage()
 	}
 	if (this->__page.empty())
 	{
-		std::map<int16_t, String>::iterator it = Location::__defaultErrorPages.find(this->__code);
+		std::map<int16_t, String>::iterator it = wsu::__defaultErrorPages.find(this->__code);
 		if (it != __location->__errorPages.end())
-			this->__page = Location::__defaultErrorPages[this->__code];
+			this->__page = wsu::__defaultErrorPages[this->__code];
 	}
 	buildStatusLine();
 	buildResponseBody();
@@ -110,8 +108,6 @@ void ErrorResponse::constructErrorPage()
 /***********************************************************************
  *                            STATIC METHODS                           *
  ***********************************************************************/
-
-std::map<int16_t, String> ErrorResponse::__errCode;
 
 String ErrorResponse::__errPage = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">\n"
 								  "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
@@ -123,50 +119,3 @@ String ErrorResponse::__errPage = "<!DOCTYPE html><html lang=\"en\"><head><meta 
 								  "REASON_PHRASE\n"
 								  "</h2><p style=\"font-size: 16px; font-family: sans-serif; text-align: center; padding: 0px 0px 30px 0px; margin: 0px; color: rgb(90, 139, 223);\">\n"
 								  "MESSAGE\n</p></div></body></html>";
-
-void ErrorResponse::initErrorCodes()
-{
-	if (ErrorResponse::__errCode.empty())
-	{
-		ErrorResponse::__errCode.insert(std::make_pair(100, "Continue"));
-		ErrorResponse::__errCode.insert(std::make_pair(101, "Switching Protocols"));
-		ErrorResponse::__errCode.insert(std::make_pair(200, "OK"));
-		ErrorResponse::__errCode.insert(std::make_pair(201, "Created"));
-		ErrorResponse::__errCode.insert(std::make_pair(202, "Accepted"));
-		ErrorResponse::__errCode.insert(std::make_pair(203, "Non-Authoritative Information"));
-		ErrorResponse::__errCode.insert(std::make_pair(204, "No Content"));
-		ErrorResponse::__errCode.insert(std::make_pair(205, "Reset Content"));
-		ErrorResponse::__errCode.insert(std::make_pair(206, "Partial Content"));
-		ErrorResponse::__errCode.insert(std::make_pair(300, "Multiple Choices"));
-		ErrorResponse::__errCode.insert(std::make_pair(301, "Moved Permanently"));
-		ErrorResponse::__errCode.insert(std::make_pair(302, "Found"));
-		ErrorResponse::__errCode.insert(std::make_pair(303, "See Other"));
-		ErrorResponse::__errCode.insert(std::make_pair(304, "Not Modified"));
-		ErrorResponse::__errCode.insert(std::make_pair(305, "Use Proxy"));
-		ErrorResponse::__errCode.insert(std::make_pair(307, "Temporary Redirect"));
-		ErrorResponse::__errCode.insert(std::make_pair(400, "Bad Request"));
-		ErrorResponse::__errCode.insert(std::make_pair(401, "Unauthorized"));
-		ErrorResponse::__errCode.insert(std::make_pair(402, "Payment Required"));
-		ErrorResponse::__errCode.insert(std::make_pair(403, "Forbidden"));
-		ErrorResponse::__errCode.insert(std::make_pair(404, "Not Found"));
-		ErrorResponse::__errCode.insert(std::make_pair(405, "Method Not Allowed"));
-		ErrorResponse::__errCode.insert(std::make_pair(406, "Not Acceptable"));
-		ErrorResponse::__errCode.insert(std::make_pair(407, "Proxy Authentication Required"));
-		ErrorResponse::__errCode.insert(std::make_pair(408, "Request Time-out"));
-		ErrorResponse::__errCode.insert(std::make_pair(409, "Conflict"));
-		ErrorResponse::__errCode.insert(std::make_pair(410, "Gone"));
-		ErrorResponse::__errCode.insert(std::make_pair(411, "Length Required"));
-		ErrorResponse::__errCode.insert(std::make_pair(412, "Precondition Failed"));
-		ErrorResponse::__errCode.insert(std::make_pair(413, "Request Entity Too Large"));
-		ErrorResponse::__errCode.insert(std::make_pair(414, "Request-URI Too Large"));
-		ErrorResponse::__errCode.insert(std::make_pair(415, "Unsupported Media Type"));
-		ErrorResponse::__errCode.insert(std::make_pair(416, "Requested range not satisfiable"));
-		ErrorResponse::__errCode.insert(std::make_pair(417, "Expectation Failed"));
-		ErrorResponse::__errCode.insert(std::make_pair(500, "Internal Server Error"));
-		ErrorResponse::__errCode.insert(std::make_pair(501, "Not Implemented"));
-		ErrorResponse::__errCode.insert(std::make_pair(502, "Bad Gateway"));
-		ErrorResponse::__errCode.insert(std::make_pair(503, "Service Unavailable"));
-		ErrorResponse::__errCode.insert(std::make_pair(504, "Gateway Time-out"));
-		ErrorResponse::__errCode.insert(std::make_pair(505, "HTTP Version not supported"));
-	}
-}

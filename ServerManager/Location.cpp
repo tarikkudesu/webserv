@@ -1,7 +1,5 @@
 #include "Location.hpp"
 
-std::map<int16_t, String> Location::__defaultErrorPages;
-
 Location::Location()
 {
 	wsu::debug("Location default constructor");
@@ -56,46 +54,6 @@ Location::~Location()
 	__errorPages.clear();
 	__allowMethods.clear();
 	wsu::debug("Location destructor");
-}
-/****************************************************************************
- *                               MINI METHODS                               *
- ****************************************************************************/
-void Location::addErrPages()
-{
-	if (Location::__defaultErrorPages.empty())
-	{
-		__defaultErrorPages.insert(std::make_pair(300, "./essentials/300.html"));
-		__defaultErrorPages.insert(std::make_pair(301, "./essentials/301.html"));
-		__defaultErrorPages.insert(std::make_pair(302, "./essentials/302.html"));
-		__defaultErrorPages.insert(std::make_pair(303, "./essentials/303.html"));
-		__defaultErrorPages.insert(std::make_pair(304, "./essentials/304.html"));
-		__defaultErrorPages.insert(std::make_pair(305, "./essentials/305.html"));
-		__defaultErrorPages.insert(std::make_pair(307, "./essentials/307.html"));
-		__defaultErrorPages.insert(std::make_pair(400, "./essentials/400.html"));
-		__defaultErrorPages.insert(std::make_pair(401, "./essentials/401.html"));
-		__defaultErrorPages.insert(std::make_pair(402, "./essentials/402.html"));
-		__defaultErrorPages.insert(std::make_pair(403, "./essentials/403.html"));
-		__defaultErrorPages.insert(std::make_pair(404, "./essentials/404.html"));
-		__defaultErrorPages.insert(std::make_pair(405, "./essentials/405.html"));
-		__defaultErrorPages.insert(std::make_pair(406, "./essentials/406.html"));
-		__defaultErrorPages.insert(std::make_pair(407, "./essentials/407.html"));
-		__defaultErrorPages.insert(std::make_pair(408, "./essentials/408.html"));
-		__defaultErrorPages.insert(std::make_pair(409, "./essentials/409.html"));
-		__defaultErrorPages.insert(std::make_pair(410, "./essentials/410.html"));
-		__defaultErrorPages.insert(std::make_pair(411, "./essentials/411.html"));
-		__defaultErrorPages.insert(std::make_pair(412, "./essentials/412.html"));
-		__defaultErrorPages.insert(std::make_pair(413, "./essentials/413.html"));
-		__defaultErrorPages.insert(std::make_pair(414, "./essentials/414.html"));
-		__defaultErrorPages.insert(std::make_pair(415, "./essentials/415.html"));
-		__defaultErrorPages.insert(std::make_pair(416, "./essentials/416.html"));
-		__defaultErrorPages.insert(std::make_pair(417, "./essentials/417.html"));
-		__defaultErrorPages.insert(std::make_pair(500, "./essentials/500.html"));
-		__defaultErrorPages.insert(std::make_pair(501, "./essentials/501.html"));
-		__defaultErrorPages.insert(std::make_pair(502, "./essentials/502.html"));
-		__defaultErrorPages.insert(std::make_pair(503, "./essentials/503.html"));
-		__defaultErrorPages.insert(std::make_pair(504, "./essentials/504.html"));
-		__defaultErrorPages.insert(std::make_pair(505, "./essentials/505.html"));
-	}
 }
 
 /**************************************************************************************************************
@@ -288,7 +246,6 @@ void Location::parseDirectives()
 }
 void Location::parse()
 {
-	addErrPages();
 	wsu::trimSpaces(__line);
 	if (__line.empty())
 		throw std::runtime_error("empty location block");

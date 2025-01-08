@@ -112,7 +112,7 @@ void Response::setHeader()
 	headers["Accept-Ranges"] = "none";
 	headers["Connection"] = "keep-alive";
 	headers["content-length"] = wsu::intToString(body.length());
-	headers["Content-Type"] = "text/text; charset=UTF-8";
+	headers["Content-Type"] = wsu::getContentType(explorer.getPath()) + "; charset=UTF-8";
 	headers["server"] = "webserv/1.0";
 	headers["date"] = wsu::buildIMFDate();
 }

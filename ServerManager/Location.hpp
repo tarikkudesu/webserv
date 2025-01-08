@@ -35,10 +35,7 @@ class Location
 		std::deque< String >				__directives;
 		std::map< int16_t, String >			__errorPages;
 		std::vector< t_method >				__allowMethods;
-		static std::map< int16_t, String >	__defaultErrorPages;
 		long								__clientBodyBufferSize;
-
-		static void							addErrPages();
 
 
 		Location( const Location &copy );
