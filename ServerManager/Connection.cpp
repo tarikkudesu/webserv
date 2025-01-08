@@ -153,8 +153,7 @@ void Connection::responseBuilder()
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);
-	String result = res.getResponse();
-	this->__responseQueue.push(result);
+	this->__responseQueue.push(res.getResponse());
 }
 void Connection::proccessData(String input)
 {

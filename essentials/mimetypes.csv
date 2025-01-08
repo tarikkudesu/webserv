@@ -1,4 +1,5 @@
 extension, mimetype
+txt, text/plain
 html, text/html
 htm, text/html
 shtml, text/html
@@ -11,7 +12,6 @@ js, application/javascript
 atom, application/atom+xml
 rss, application/rss+xml
 mml, text/mathml
-txt, text/plain
 jad, text/vnd.sun.j2me.app-descriptor
 wml, text/vnd.wap.wml
 htc, text/x-component

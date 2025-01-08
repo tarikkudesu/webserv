@@ -8,8 +8,6 @@ Response::Response(Request &request,
 										 __location(location)
 
 {
-	std::cout << RED << "******************************************\n" << RESET;
-	// std::cout << __request << "\n";
 	__check_methods();
 	buildResponse();
 }
@@ -101,6 +99,7 @@ void Response::executeDelete()
 
 void Response::buildResponse()
 {
+	setHeader();
 	fullResponse = PROTOCOLE_V " " + wsu::intToString(code) + " " + reasonPhrase + "\r\n";
 	for (std::map<String, String>::iterator it = headers.begin(); it != headers.end(); ++it)
 		fullResponse += it->first + ": " + it->second + "\r\n";
@@ -110,10 +109,12 @@ void Response::buildResponse()
 
 void Response::setHeader()
 {
+	headers["Accept-Ranges"] = "none";
+	headers["Connection"] = "keep-alive";
+	headers["content-length"] = wsu::intToString(body.length());
+	headers["Content-Type"] = "text/text; charset=UTF-8";
 	headers["server"] = "webserv/1.0";
 	headers["date"] = wsu::buildIMFDate();
-	headers["content-type"] = "webserv/1.0";
-	headers["content-length"] = wsu::intToString(body.length());
 }
 
 String Response::getResponse()

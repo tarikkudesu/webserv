@@ -3,10 +3,7 @@
 Get::Get(bool isIndexing, RessourceHandler &explorer) : isIndexing(isIndexing), explorer(explorer)
 {
         if (explorer.getType() == FILE_)
-        {
-                std::cout << explorer.getPath() << "\n";
                 readFile();
-        }
         else if (isIndexing)
                 autoIndexing();
         else
