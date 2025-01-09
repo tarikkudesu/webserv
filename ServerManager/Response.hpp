@@ -26,7 +26,6 @@ class Response
 
 
 	public:
-
 		String	getResponse( void ) const;
 		void	print() const;
 

@@ -61,7 +61,7 @@ typedef std::map<String, String>::iterator mapIterator;
 #define RESET "\033[1;0m"
 
 #define MAX_EVENTS 1024
-#define READ_SIZE 4096
+#define READ_SIZE 1024
 
 #define PROTOCOLE_V "HTTP/1.1"
 #define URI_CHAR_SET "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~"
@@ -99,17 +99,13 @@ typedef enum e_connectionType
 	KEEP_ALIVE,
 } t_connectionType;
 
-
-typedef enum e_transfer
+typedef enum e_transferType
 {
-	GENERAL,
+	NONE,
+	DEFINED,
 	CHUNKED,
-} t_transfer;
-
-// typedef enum e_contentType
-// {
-
-// } t_contentType;
+	MULTIPART,
+} t_transferType;
 
 typedef enum e_uri
 {

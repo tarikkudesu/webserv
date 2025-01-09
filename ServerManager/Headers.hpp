@@ -1,7 +1,7 @@
 #ifndef __HEADERS_HPP__
 # define __HEADERS_HPP__
 
-# include "PackageResponse/ErrorResponse.hpp"
+# include "ErrorResponse.hpp"
 
 class Headers
 {
@@ -23,6 +23,7 @@ class Headers
 		size_t						__contentLength;
 		String						__transferEncoding;
 		t_connectionType			__connectionType;
+		t_transferType				__transferType;
 
 		void						parseHeaders(std::map< String, String > &headers);
 

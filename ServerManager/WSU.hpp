@@ -38,6 +38,7 @@ public:
 	static void terr(String __error_message);
 	static void terr(char *__eror_message);
 
+
 	static String logDate();
 	static void loadErrPages();
 	static void loadMimeTypes();
@@ -49,6 +50,7 @@ public:
 	static void setNonBlockingMode(int sd);
 	static void toUpperString(String &input);
 	static void toLowerString(String &input);
+	static String generateTimeBasedFileName();
 	static int stringToInt(const String &str);
 	static struct pollfd *data(t_events &events);
 	static String resolvePath(const String &path);

@@ -1,45 +1,44 @@
-SRC		=	./ServerManager/Connection.cpp \
-			./ServerManager/Location.cpp \
-			./ServerManager/Request.cpp \
-			./ServerManager/WSU.cpp \
-			./ServerManager/PackageResponse/RessourceHandler.cpp \
-			./ServerManager/PackageResponse/Delete.cpp \
-			./ServerManager/PackageResponse/Post.cpp \
-			./ServerManager/PackageResponse/Response.cpp \
-			./ServerManager/PackageResponse/Get.cpp \
-			./ServerManager/PackageResponse/Cgi.cpp \
-			./ServerManager/Server.cpp \
-			./ServerManager/Core.cpp \
-			./ServerManager/Headers.cpp \
-			./ServerManager/ServerManager.cpp \
-			./ServerManager/PackageResponse/ErrorResponse.cpp \
-			./srcs/main.cpp
-
+SRC		=	ServerManager/Cgi.cpp \
+			ServerManager/Connection.cpp \
+			ServerManager/Core.cpp \
+			ServerManager/Delete.cpp \
+			ServerManager/ErrorResponse.cpp \
+			ServerManager/Get.cpp \
+			ServerManager/Headers.cpp \
+			ServerManager/Location.cpp \
+			ServerManager/Post.cpp \
+			ServerManager/Request.cpp \
+			ServerManager/Response.cpp \
+			ServerManager/RessourceHandler.cpp \
+			ServerManager/Server.cpp \
+			ServerManager/ServerManager.cpp \
+			ServerManager/WSU.cpp \
+			srcs/main.cpp 
 OBJ		=	$(SRC:.cpp=.o)
 NAME	=	webserv
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@g++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
+	@c++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
 
-%.o: %.cpp	./ServerManager/Location.hpp \
-			./ServerManager/ServerManager.hpp \
-			./ServerManager/Connection.hpp \
-			./ServerManager/Request.hpp \
-			./ServerManager/PackageResponse/RessourceHandler.hpp \
-			./ServerManager/PackageResponse/Response.hpp \
-			./ServerManager/PackageResponse/Delete.hpp \
-			./ServerManager/PackageResponse/Cgi.hpp \
-			./ServerManager/PackageResponse/Get.hpp \
-			./ServerManager/PackageResponse/Post.hpp \
-			./ServerManager/Server.hpp \
-			./ServerManager/Core.hpp \
-			./ServerManager/Headers.hpp \
-			./ServerManager/PackageResponse/ErrorResponse.hpp \
-			./ServerManager/WSU.hpp \
-			./srcs/webserv.hpp
-	@g++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
+%.o: %.cpp	ServerManager/Cgi.hpp \
+			ServerManager/Connection.hpp \
+			ServerManager/Core.hpp \
+			ServerManager/Delete.hpp \
+			ServerManager/ErrorResponse.hpp \
+			ServerManager/Get.hpp \
+			ServerManager/Headers.hpp \
+			ServerManager/Location.hpp \
+			ServerManager/Post.hpp \
+			ServerManager/Request.hpp \
+			ServerManager/Response.hpp \
+			ServerManager/RessourceHandler.hpp \
+			ServerManager/Server.hpp \
+			ServerManager/ServerManager.hpp \
+			ServerManager/WSU.hpp \
+			srcs/webserv.hpp 
+	@c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
 
 clean:
 	@rm -f $(OBJ)

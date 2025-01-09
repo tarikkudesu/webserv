@@ -5,10 +5,63 @@ host = "localhost"
 port = 9000
 
 request = (
-    "GET /srcs/ HTTP/1.1\r\n"
-    "Host: localhost:9000\r\n"
-    "Content-Type: text/plain\r\n"
-    "\r\n"
+        "POST / HTTP/1.1\r\n"
+        "Host: localhost:9000\r\n"
+        "Content-Type: application/json\r\n"
+        "Content-Length: 1555\r\n"
+        "Connection: keep-alive\r\n"
+        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36\r\n"
+        "\r\n"
+        "#ifndef __LOCATION_HPP__\n"
+        "# define __LOCATION_HPP__\n"
+        "\n"
+        "class Location\n"
+        "{\n"
+        "	private :\n"
+        "		bool								b__r; // temporary usage\n"
+        "\n"
+        "		void								proccessClientBodyBufferSizeToken( t_svec &tokens );\n"
+        "		void								proccessAllowMethodsDirective( t_svec &tokens );\n"
+        "		void								proccessErrorPageDirective( t_svec &tokens );\n"
+        "		void								proccessAutoindexDirective( t_svec &tokens );\n"
+        "		void								proccessCgiPassDirective( t_svec &tokens );\n"
+        "		void								proccessReturnDirective( t_svec &tokens );\n"
+        "		void								proccessIndexDirective( t_svec &tokens );\n"
+        "		void								proccessRootDirective( t_svec &tokens );\n"
+        "		void								proccessToken(t_svec &tokens );\n"
+        "		void								LocationBlock( size_t pos );\n"
+        "		void								addDirective( size_t end );\n"
+        "		void								proccessDirectives();\n"
+        "		void								parseDirectives();\n"
+        "		void								parse();\n"
+        "		Location();\n"
+        "\n"
+        "	public:\n"
+        "		const String						__path;\n"
+        "		String								__line; // temporary usage\n"
+        "		String								__root;\n"
+        "		t_svec								__index;\n"
+        "		String								__return;\n"
+        "		String								__cgiPass;\n"
+        "		bool								__autoindex;\n"
+        "		std::deque< String >				__directives;\n"
+        "		std::map< int16_t, String >			__errorPages;\n"
+        "		std::vector< t_method >				__allowMethods;\n"
+        "		long								__clientBodyBufferSize;\n"
+        "\n"
+        "\n"
+        "		Location( const Location &copy );\n"
+        "		Location( const String &conf, const String &root );\n"
+        "		Location( const String &dir, const String &conf, const String &root );\n"
+        "		Location	&operator=( const Location &assign );\n"
+        "		~Location();\n"
+        "};\n"
+        "\n"
+        "String methodToString(t_method t);\n"
+        "std::ostream &operator<<( std::ostream &o, const Location &loc );\n"
+        "\n"
+        "#endif\n"
+        "\n"
 )
 print("\033[1;33m--------------------------------------------------")
 print(request)
@@ -18,104 +71,76 @@ with socket.create_connection((host, port)) as sock:
     response = sock.recv(4096)  # Receiving the response
     print(response.decode())  # Decoding and printing the response
 print("--------------------------------------------------\033[0m")
+
 exit()
 
-request = ( # oversized Header feild
-    "GET /upload HTTP/1.1\r\n"
-    "Host: localhost:444\r\n"
-    "Content-Type: text/plain\r\n"
-    "Transfer-Encoding: GENERAL\r\n"
-    "Key: value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_value_val\r\n"
-    "\r\n"
+request = (
+        "POST /a.php HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "Content-Type: multipart/form-data; boundary=---------------------------12345\r\n"
+        "Content-Length: 374\r\n"
+        "\r\n"
+        "-----------------------------12345\r\n"
+        "Content-Disposition: form-data; name=\"file1\"; filename=\"test.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "#ifndef __WEBSERV_HPP__#define __WEBSERV_HPP__#include <iostream>#include <sstream>#include <algorithm>#include <fstream>#include <cstring>#include <string>#include <vector>#include <map>#include <queue>#include <list>#include <fcntl.h>#include <stdio.h>#include <errno.h>#include <stdlib.h>#include <string.h>#include <stdint.h>#include <unistd.h>#include <stdbool.h>#include <sys/types.h>#include <sys/socket.h>#include <sys/stat.h>#include <netinet/in.h>#include <arpa/inet.h>#include <ctype.h>#include <time.h>#include <ctime>#include <poll.h>#include <signal.h>#include <netdb.h>#include <sys/wait.h>#include <dirent.h>#include <sys/types.h>#include <cstdlib>#ifndef TIMEOUT#define TIMEOUT 5000000#endif#ifndef JAVABIN#define JAVABIN \"/usr/bin/java\"#endif#ifndef PYTHONBIN#define PYTHONBIN \"/usr/bin/php\"#endiftypedef std::string String;typedef std::vector<pollfd> t_events;typedef std::vector<String> t_svec;typedef std::map<String, String>::iterator mapIterator;#define RED \"\033[1;31m\"#define BLUE \"\033[1;34m\"#define CYAN \"\033[1;36m\"#define GREEN \"\033[1;32m\"#define YELLOW \"\033[1;33m\"#define MAGENTA \"\033[1;35m\"#define RESET \"\033[1;0m\"#define MAX_EVENTS 1024#define READ_SIZE 1024#define PROTOCOLE_V \"HTTP/1.1\"#define URI_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~\"#define H_KEY_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~\"#define PRINTABLE \" \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\"#define USAGE \"\nUsage: ./webserv [OPTIONS] [configuration file]\n\nOptions:\n\t-l, --logs string\tlog events(\\"debug\\"|\\"info\\"|\\"warn\\"|\\"error\\"|\\"fatal\\"|\\"all\\")\n\"typedef enum e_endian{	SERVER,	CONNECTION,} t_endian;typedef enum e_method{	OPTIONS,	GET,	HEAD,	POST,	PUT,	DELETE,	TRACE,	CONNECT,} t_method;typedef enum e_type{        FILE_,        FOLDER} t_type;typedef enum e_connectionType{	CLOSE,	KEEP_ALIVE,} t_connectionType;typedef enum e_transfer{	GENERAL,	CHUNKED,} t_transfer;// typedef enum e_contentType// {// } t_contentType;typedef enum e_uri{	DIRECTORY,	FILE_TOO_SERVE,	FILE_TO_CREATE,	CGI_PROGRAM,} t_URI;typedef enum e_requestPhase{	COMPLETE,	PROCESSING,      } t_requestPhase;#endif\r\n"
+        "-----------------------------12345\r\n"
+        "Content-Disposition: form-data; name=\"file1\"; filename=\"test.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "#ifndef __WEBSERV_HPP__#define __WEBSERV_HPP__#include <iostream>#include <sstream>#include <algorithm>#include <fstream>#include <cstring>#include <string>#include <vector>#include <map>#include <queue>#include <list>#include <fcntl.h>#include <stdio.h>#include <errno.h>#include <stdlib.h>#include <string.h>#include <stdint.h>#include <unistd.h>#include <stdbool.h>#include <sys/types.h>#include <sys/socket.h>#include <sys/stat.h>#include <netinet/in.h>#include <arpa/inet.h>#include <ctype.h>#include <time.h>#include <ctime>#include <poll.h>#include <signal.h>#include <netdb.h>#include <sys/wait.h>#include <dirent.h>#include <sys/types.h>#include <cstdlib>#ifndef TIMEOUT#define TIMEOUT 5000000#endif#ifndef JAVABIN#define JAVABIN \"/usr/bin/java\"#endif#ifndef PYTHONBIN#define PYTHONBIN \"/usr/bin/php\"#endiftypedef std::string String;typedef std::vector<pollfd> t_events;typedef std::vector<String> t_svec;typedef std::map<String, String>::iterator mapIterator;#define RED \"\033[1;31m\"#define BLUE \"\033[1;34m\"#define CYAN \"\033[1;36m\"#define GREEN \"\033[1;32m\"#define YELLOW \"\033[1;33m\"#define MAGENTA \"\033[1;35m\"#define RESET \"\033[1;0m\"#define MAX_EVENTS 1024#define READ_SIZE 1024#define PROTOCOLE_V \"HTTP/1.1\"#define URI_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~\"#define H_KEY_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~\"#define PRINTABLE \" \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\"#define USAGE \"\nUsage: ./webserv [OPTIONS] [configuration file]\n\nOptions:\n\t-l, --logs string\tlog events(\\"debug\\"|\\"info\\"|\\"warn\\"|\\"error\\"|\\"fatal\\"|\\"all\\")\n\"typedef enum e_endian{	SERVER,	CONNECTION,} t_endian;typedef enum e_method{	OPTIONS,	GET,	HEAD,	POST,	PUT,	DELETE,	TRACE,	CONNECT,} t_method;typedef enum e_type{        FILE_,        FOLDER} t_type;typedef enum e_connectionType{	CLOSE,	KEEP_ALIVE,} t_connectionType;typedef enum e_transfer{	GENERAL,	CHUNKED,} t_transfer;// typedef enum e_contentType// {// } t_contentType;typedef enum e_uri{	DIRECTORY,	FILE_TOO_SERVE,	FILE_TO_CREATE,	CGI_PROGRAM,} t_URI;typedef enum e_requestPhase{	COMPLETE,	PROCESSING,      } t_requestPhase;#endif\r\n"
+        "-----------------------------12345\r\n"
+        "Content-Disposition: form-data; name=\"file1\"; filename=\"test.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "#ifndef __WEBSERV_HPP__#define __WEBSERV_HPP__#include <iostream>#include <sstream>#include <algorithm>#include <fstream>#include <cstring>#include <string>#include <vector>#include <map>#include <queue>#include <list>#include <fcntl.h>#include <stdio.h>#include <errno.h>#include <stdlib.h>#include <string.h>#include <stdint.h>#include <unistd.h>#include <stdbool.h>#include <sys/types.h>#include <sys/socket.h>#include <sys/stat.h>#include <netinet/in.h>#include <arpa/inet.h>#include <ctype.h>#include <time.h>#include <ctime>#include <poll.h>#include <signal.h>#include <netdb.h>#include <sys/wait.h>#include <dirent.h>#include <sys/types.h>#include <cstdlib>#ifndef TIMEOUT#define TIMEOUT 5000000#endif#ifndef JAVABIN#define JAVABIN \"/usr/bin/java\"#endif#ifndef PYTHONBIN#define PYTHONBIN \"/usr/bin/php\"#endiftypedef std::string String;typedef std::vector<pollfd> t_events;typedef std::vector<String> t_svec;typedef std::map<String, String>::iterator mapIterator;#define RED \"\033[1;31m\"#define BLUE \"\033[1;34m\"#define CYAN \"\033[1;36m\"#define GREEN \"\033[1;32m\"#define YELLOW \"\033[1;33m\"#define MAGENTA \"\033[1;35m\"#define RESET \"\033[1;0m\"#define MAX_EVENTS 1024#define READ_SIZE 1024#define PROTOCOLE_V \"HTTP/1.1\"#define URI_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~\"#define H_KEY_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~\"#define PRINTABLE \" \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\"#define USAGE \"\nUsage: ./webserv [OPTIONS] [configuration file]\n\nOptions:\n\t-l, --logs string\tlog events(\\"debug\\"|\\"info\\"|\\"warn\\"|\\"error\\"|\\"fatal\\"|\\"all\\")\n\"typedef enum e_endian{	SERVER,	CONNECTION,} t_endian;typedef enum e_method{	OPTIONS,	GET,	HEAD,	POST,	PUT,	DELETE,	TRACE,	CONNECT,} t_method;typedef enum e_type{        FILE_,        FOLDER} t_type;typedef enum e_connectionType{	CLOSE,	KEEP_ALIVE,} t_connectionType;typedef enum e_transfer{	GENERAL,	CHUNKED,} t_transfer;// typedef enum e_contentType// {// } t_contentType;typedef enum e_uri{	DIRECTORY,	FILE_TOO_SERVE,	FILE_TO_CREATE,	CGI_PROGRAM,} t_URI;typedef enum e_requestPhase{	COMPLETE,	PROCESSING,      } t_requestPhase;#endif\r\n"
+        "-----------------------------12345\r\n"
+        "Content-Disposition: form-data; name=\"file1\"; filename=\"test.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "#ifndef __WEBSERV_HPP__#define __WEBSERV_HPP__#include <iostream>#include <sstream>#include <algorithm>#include <fstream>#include <cstring>#include <string>#include <vector>#include <map>#include <queue>#include <list>#include <fcntl.h>#include <stdio.h>#include <errno.h>#include <stdlib.h>#include <string.h>#include <stdint.h>#include <unistd.h>#include <stdbool.h>#include <sys/types.h>#include <sys/socket.h>#include <sys/stat.h>#include <netinet/in.h>#include <arpa/inet.h>#include <ctype.h>#include <time.h>#include <ctime>#include <poll.h>#include <signal.h>#include <netdb.h>#include <sys/wait.h>#include <dirent.h>#include <sys/types.h>#include <cstdlib>#ifndef TIMEOUT#define TIMEOUT 5000000#endif#ifndef JAVABIN#define JAVABIN \"/usr/bin/java\"#endif#ifndef PYTHONBIN#define PYTHONBIN \"/usr/bin/php\"#endiftypedef std::string String;typedef std::vector<pollfd> t_events;typedef std::vector<String> t_svec;typedef std::map<String, String>::iterator mapIterator;#define RED \"\033[1;31m\"#define BLUE \"\033[1;34m\"#define CYAN \"\033[1;36m\"#define GREEN \"\033[1;32m\"#define YELLOW \"\033[1;33m\"#define MAGENTA \"\033[1;35m\"#define RESET \"\033[1;0m\"#define MAX_EVENTS 1024#define READ_SIZE 1024#define PROTOCOLE_V \"HTTP/1.1\"#define URI_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~\"#define H_KEY_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~\"#define PRINTABLE \" \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\"#define USAGE \"\nUsage: ./webserv [OPTIONS] [configuration file]\n\nOptions:\n\t-l, --logs string\tlog events(\\"debug\\"|\\"info\\"|\\"warn\\"|\\"error\\"|\\"fatal\\"|\\"all\\")\n\"typedef enum e_endian{	SERVER,	CONNECTION,} t_endian;typedef enum e_method{	OPTIONS,	GET,	HEAD,	POST,	PUT,	DELETE,	TRACE,	CONNECT,} t_method;typedef enum e_type{        FILE_,        FOLDER} t_type;typedef enum e_connectionType{	CLOSE,	KEEP_ALIVE,} t_connectionType;typedef enum e_transfer{	GENERAL,	CHUNKED,} t_transfer;// typedef enum e_contentType// {// } t_contentType;typedef enum e_uri{	DIRECTORY,	FILE_TOO_SERVE,	FILE_TO_CREATE,	CGI_PROGRAM,} t_URI;typedef enum e_requestPhase{	COMPLETE,	PROCESSING,      } t_requestPhase;#endif\r\n"
+        "-----------------------------12345\r\n"
+        "Content-Disposition: form-data; name=\"file1\"; filename=\"test.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "#ifndef __WEBSERV_HPP__#define __WEBSERV_HPP__#include <iostream>#include <sstream>#include <algorithm>#include <fstream>#include <cstring>#include <string>#include <vector>#include <map>#include <queue>#include <list>#include <fcntl.h>#include <stdio.h>#include <errno.h>#include <stdlib.h>#include <string.h>#include <stdint.h>#include <unistd.h>#include <stdbool.h>#include <sys/types.h>#include <sys/socket.h>#include <sys/stat.h>#include <netinet/in.h>#include <arpa/inet.h>#include <ctype.h>#include <time.h>#include <ctime>#include <poll.h>#include <signal.h>#include <netdb.h>#include <sys/wait.h>#include <dirent.h>#include <sys/types.h>#include <cstdlib>#ifndef TIMEOUT#define TIMEOUT 5000000#endif#ifndef JAVABIN#define JAVABIN \"/usr/bin/java\"#endif#ifndef PYTHONBIN#define PYTHONBIN \"/usr/bin/php\"#endiftypedef std::string String;typedef std::vector<pollfd> t_events;typedef std::vector<String> t_svec;typedef std::map<String, String>::iterator mapIterator;#define RED \"\033[1;31m\"#define BLUE \"\033[1;34m\"#define CYAN \"\033[1;36m\"#define GREEN \"\033[1;32m\"#define YELLOW \"\033[1;33m\"#define MAGENTA \"\033[1;35m\"#define RESET \"\033[1;0m\"#define MAX_EVENTS 1024#define READ_SIZE 1024#define PROTOCOLE_V \"HTTP/1.1\"#define URI_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~\"#define H_KEY_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~\"#define PRINTABLE \" \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\"#define USAGE \"\nUsage: ./webserv [OPTIONS] [configuration file]\n\nOptions:\n\t-l, --logs string\tlog events(\\"debug\\"|\\"info\\"|\\"warn\\"|\\"error\\"|\\"fatal\\"|\\"all\\")\n\"typedef enum e_endian{	SERVER,	CONNECTION,} t_endian;typedef enum e_method{	OPTIONS,	GET,	HEAD,	POST,	PUT,	DELETE,	TRACE,	CONNECT,} t_method;typedef enum e_type{        FILE_,        FOLDER} t_type;typedef enum e_connectionType{	CLOSE,	KEEP_ALIVE,} t_connectionType;typedef enum e_transfer{	GENERAL,	CHUNKED,} t_transfer;// typedef enum e_contentType// {// } t_contentType;typedef enum e_uri{	DIRECTORY,	FILE_TOO_SERVE,	FILE_TO_CREATE,	CGI_PROGRAM,} t_URI;typedef enum e_requestPhase{	COMPLETE,	PROCESSING,      } t_requestPhase;#endif\r\n"
+        "-----------------------------12345\r\n"
+        "Content-Disposition: form-data; name=\"file2\"; filename=\"image.jpg\"\r\n"
+        "Content-Type: image/jpeg\r\n"
+        "\r\n"
+        "#ifndef __WEBSERV_HPP__#define __WEBSERV_HPP__#include <iostream>#include <sstream>#include <algorithm>#include <fstream>#include <cstring>#include <string>#include <vector>#include <map>#include <queue>#include <list>#include <fcntl.h>#include <stdio.h>#include <errno.h>#include <stdlib.h>#include <string.h>#include <stdint.h>#include <unistd.h>#include <stdbool.h>#include <sys/types.h>#include <sys/socket.h>#include <sys/stat.h>#include <netinet/in.h>#include <arpa/inet.h>#include <ctype.h>#include <time.h>#include <ctime>#include <poll.h>#include <signal.h>#include <netdb.h>#include <sys/wait.h>#include <dirent.h>#include <sys/types.h>#include <cstdlib>#ifndef TIMEOUT#define TIMEOUT 5000000#endif#ifndef JAVABIN#define JAVABIN \"/usr/bin/java\"#endif#ifndef PYTHONBIN#define PYTHONBIN \"/usr/bin/php\"#endiftypedef std::string String;typedef std::vector<pollfd> t_events;typedef std::vector<String> t_svec;typedef std::map<String, String>::iterator mapIterator;#define RED \"\033[1;31m\"#define BLUE \"\033[1;34m\"#define CYAN \"\033[1;36m\"#define GREEN \"\033[1;32m\"#define YELLOW \"\033[1;33m\"#define MAGENTA \"\033[1;35m\"#define RESET \"\033[1;0m\"#define MAX_EVENTS 1024#define READ_SIZE 1024#define PROTOCOLE_V \"HTTP/1.1\"#define URI_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~\"#define H_KEY_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~\"#define PRINTABLE \" \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\"#define USAGE \"\nUsage: ./webserv [OPTIONS] [configuration file]\n\nOptions:\n\t-l, --logs string\tlog events(\\"debug\\"|\\"info\\"|\\"warn\\"|\\"error\\"|\\"fatal\\"|\\"all\\")\n\"typedef enum e_endian{	SERVER,	CONNECTION,} t_endian;typedef enum e_method{	OPTIONS,	GET,	HEAD,	POST,	PUT,	DELETE,	TRACE,	CONNECT,} t_method;typedef enum e_type{        FILE_,        FOLDER} t_type;typedef enum e_connectionType{	CLOSE,	KEEP_ALIVE,} t_connectionType;typedef enum e_transfer{	GENERAL,	CHUNKED,} t_transfer;// typedef enum e_contentType// {// } t_contentType;typedef enum e_uri{	DIRECTORY,	FILE_TOO_SERVE,	FILE_TO_CREATE,	CGI_PROGRAM,} t_URI;typedef enum e_requestPhase{	COMPLETE,	PROCESSING,      } t_requestPhase;#endif#ifndef __WEBSERV_HPP__#define __WEBSERV_HPP__#include <iostream>#include <sstream>#include <algorithm>#include <fstream>#include <cstring>#include <string>#include <vector>#include <map>#include <queue>#include <list>#include <fcntl.h>#include <stdio.h>#include <errno.h>#include <stdlib.h>#include <string.h>#include <stdint.h>#include <unistd.h>#include <stdbool.h>#include <sys/types.h>#include <sys/socket.h>#include <sys/stat.h>#include <netinet/in.h>#include <arpa/inet.h>#include <ctype.h>#include <time.h>#include <ctime>#include <poll.h>#include <signal.h>#include <netdb.h>#include <sys/wait.h>#include <dirent.h>#include <sys/types.h>#include <cstdlib>#ifndef TIMEOUT#define TIMEOUT 5000000#endif#ifndef JAVABIN#define JAVABIN \"/usr/bin/java\"#endif#ifndef PYTHONBIN#define PYTHONBIN \"/usr/bin/php\"#endiftypedef std::string String;typedef std::vector<pollfd> t_events;typedef std::vector<String> t_svec;typedef std::map<String, String>::iterator mapIterator;#define RED \"\033[1;31m\"#define BLUE \"\033[1;34m\"#define CYAN \"\033[1;36m\"#define GREEN \"\033[1;32m\"#define YELLOW \"\033[1;33m\"#define MAGENTA \"\033[1;35m\"#define RESET \"\033[1;0m\"#define MAX_EVENTS 1024#define READ_SIZE 1024#define PROTOCOLE_V \"HTTP/1.1\"#define URI_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~\"#define H_KEY_CHAR_SET \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~\"#define PRINTABLE \" \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\"#define USAGE \"\nUsage: ./webserv [OPTIONS] [configuration file]\n\nOptions:\n\t-l, --logs string\tlog events(\\"debug\\"|\\"info\\"|\\"warn\\"|\\"error\\"|\\"fatal\\"|\\"all\\")\n\"typedef enum e_endian{	SERVER,	CONNECTION,} t_endian;typedef enum e_method{	OPTIONS,	GET,	HEAD,	POST,	PUT,	DELETE,	TRACE,	CONNECT,} t_method;typedef enum e_type{        FILE_,        FOLDER} t_type;typedef enum e_connectionType{	CLOSE,	KEEP_ALIVE,} t_connectionType;typedef enum e_transfer{	GENERAL,	CHUNKED,} t_transfer;// typedef enum e_contentType// {// } t_contentType;typedef enum e_uri{	DIRECTORY,	FILE_TOO_SERVE,	FILE_TO_CREATE,	CGI_PROGRAM,} t_URI;typedef enum e_requestPhase{	COMPLETE,	PROCESSING,      } t_requestPhase;#endif\r\n"
+        "-----------------------------12345--\r\n"
 )
+print("\033[1;33m--------------------------------------------------")
+print(request)
+print("\033[1;32m--------------------------------------------------")
 with socket.create_connection((host, port)) as sock:
-    sock.sendall(request.encode())
-    response = sock.recv(4096)
-    print(response.decode())
+    sock.sendall(request.encode())  # Sending the request to the server
+    response = sock.recv(4096)  # Receiving the response
+    print(response.decode())  # Decoding and printing the response
+print("--------------------------------------------------\033[0m")
 
-request = ( # invalid method
-    "GET / HTTP/1.1\r\n"
-    "Host: domain1.com:80\r\n"
-    "Content-Type: text/plain\r\n"
-    "\r\n"
+request = (
+            "POST / HTTP/1.1\r\n"
+            "Host: localhost:9000\r\n"
+            "Connection: keep-alive\r\n"
+            "Content-Type: text/plain\r\n"
+            "Transfer-Encoding: chunked\r\n"
+            "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\r\n"
+            "Accept: */*\r\n"
+            "\r\n"
+            "4394\r\n"
+            "The standard Lorem Ipsum passage, used since the 1500s Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Section 1.10.32 of de Finibus Bonorum et Malorum, written by Cicero in 45 BC Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur? 1914 translation by H. RackhamBut I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure? Section 1.10.33 of de Finibus Bonorum et Malorum, written by Cicero in 45 BC At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. 1914 translation by H. Rackham On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.\r\n"
+            "4394\r\n"
+            "The standard Lorem Ipsum passage, used since the 1500s Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Section 1.10.32 of de Finibus Bonorum et Malorum, written by Cicero in 45 BC Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur? 1914 translation by H. RackhamBut I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure? Section 1.10.33 of de Finibus Bonorum et Malorum, written by Cicero in 45 BC At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. 1914 translation by H. Rackham On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.\n\r\n"
+            "0\r\n"
 )
+print("\033[1;33m--------------------------------------------------")
+print(request)
+print("\033[1;32m--------------------------------------------------")
 with socket.create_connection((host, port)) as sock:
-    sock.sendall(request.encode())
-    response = sock.recv(4096)
-    print(response.decode())
-
-request = ( # invalid Request Line
-    "GET  HTTP/1.1\r\n"
-    "Host: localhost:444\r\n"
-    "Content-Type: text/plain\r\n"
-    "Transfer-Encoding: GENERAL\r\n"
-    "\r\n"
-)
-with socket.create_connection((host, port)) as sock:
-    sock.sendall(request.encode())
-    response = sock.recv(4096)
-    print(response.decode())
-
-request = ( # invalid URI invalid character
-    "GET /<> HTTP/1.1\r\n"
-    "Host: localhost:444\r\n"
-    "Content-Type: text/plain\r\n"
-    "\r\n"
-)
-with socket.create_connection((host, port)) as sock:
-    sock.sendall(request.encode())
-    response = sock.recv(4096)
-    print(response.decode())
-
-request = ( # invalid URI extra space
-    "GET / HTTP/1.1\r\n"
-    "Host: localhost:444\r\n"
-    "Content-Type: text/plain\r\n"
-    "\r\n"
-)
-with socket.create_connection((host, port)) as sock:
-    sock.sendall(request.encode())
-    response = sock.recv(4096)
-    print(response.decode())
-
-request = ( # unsupported protocole
-    "GET /upload HTTP/1.2\r\n"
-    "Host: localhost:444\r\n"
-    "Content-Type: text/plain\r\n"
-    "Transfer-Encoding: GENERAL\r\n"
-    "\r\n"
-)
-with socket.create_connection((host, port)) as sock:
-    sock.sendall(request.encode())
-    response = sock.recv(4096)
-    print(response.decode())
-
-request = ( # No Host Header feild
-    "GET /upload HTTP/1.1\r\n"
-    "Content-Type: text/plain\r\n"
-    "Transfer-Encoding: GENERAL\r\n"
-    "\r\n"
-)
-with socket.create_connection((host, port)) as sock:
-    sock.sendall(request.encode())
-    response = sock.recv(4096)
-    print(response.decode())
-
-request = ( # invalid chunk size
-    "PUT /upload HTTP/1.1\r\n"
-    "Host: localhost:444\r\n"
-    "Content-Type: text/plain\r\n"
-    "Transfer-Encoding: chunked\r\n"
-    "\r\n"
-    "7\r\n"
-    "Mozilla\r\n"
-    "9\r\n"
-    "Develo\r\n"
-    "7\r\n"
-    "Network\r\n"
-    "0\r\n"
-    "\r\n"
-)
-
-# Send the request
-
+    sock.sendall(request.encode())  # Sending the request to the server
+    response = sock.recv(4096)  # Receiving the response
+    print(response.decode())  # Decoding and printing the response
+print("--------------------------------------------------\033[0m")

@@ -8,6 +8,8 @@ Response::Response(Request &request,
 										 __location(location)
 
 {
+	if (wsu::__criticalOverLoad == true)
+		throw ErrorResponse(503, "critical server overload");
 	__check_methods();
 	buildResponse();
 }
@@ -123,12 +125,13 @@ String Response::getResponse() const
 	return fullResponse;
 }
 
-void	Response::print() const
+void Response::print() const
 {
 	std::cout << GREEN << "*******************************************************************\n";
 	std::cout << explorer;
 	std::cout << GREEN << fullResponse << "\n";
-	std::cout << "*****************************Response******************************\n" << RESET;
+	std::cout << "*****************************Response******************************\n"
+			  << RESET;
 }
 std::ostream &operator<<(std::ostream &o, const Response &r)
 {

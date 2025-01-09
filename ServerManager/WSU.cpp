@@ -26,6 +26,12 @@ const char	*wsu::persist::what( void ) const throw() { return "persist"; }
  *                                             LOGS                                             *
  ************************************************************************************************/
 
+String wsu::generateTimeBasedFileName()
+{
+	static unsigned long cpt;
+    return "./text/" + wsu::intToString(std::time(NULL) + cpt++); // change path Later
+}
+
 bool wsu::endWith(const std::string &file, const char *extension)
 {
 	int fileLen = file.length();
