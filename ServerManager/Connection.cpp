@@ -84,13 +84,13 @@ void Connection::identifyRequestBody()
 	{
 		String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
 		String body;
-		if (this->__request.__transferEncoding == CHUNKED)
+		if (this->__request.__headers.__transferEncoding == CHUNKED)
 		{
 			body = identifyChunks(currBuff);
 		}
 		else
 		{
-			size_t contentLen = this->__request.__contentLength;
+			size_t contentLen = this->__request.__headers.__contentLength;
 			if (contentLen >= READ_SIZE)
 				this->__readable = true;
 			if (currBuff.length() < contentLen)
@@ -100,6 +100,33 @@ void Connection::identifyRequestBody()
 		}
 		this->__request.__requestbody = body;
 	}
+}
+Server *Connection::identifyServer()
+{
+	wsu::info("identifying server");
+	t_serVect tmpMapP, tmpMapH;
+	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
+	{
+		if (it->second->getServerPort() == this->__request.__headers.__port)
+			tmpMapP.push_back(it->second);
+	}
+	for (t_serVect::iterator it = tmpMapP.begin(); it != tmpMapP.end(); it++)
+	{
+		if ((*it)->amITheServerYouAreLookingFor(this->__request.__headers.__host) == false)
+			tmpMapH.push_back(*it);
+	}
+	if (tmpMapH.empty())
+		return this->__serversP->begin()->second;
+	return tmpMapH.at(0);
+}
+void Connection::processResponse()
+{
+	if (wsu::__criticalOverLoad == true)
+		throw ErrorResponse(503, "critical server overload");
+	Server *server = identifyServer();
+	Location &location = server->identifyLocation(__request.__URI);
+	Response res(this->__request, *server, location);
+	this->__responseQueue.push(res.getResponse());
 }
 String Connection::identifyRequestHeaders()
 {
@@ -123,40 +150,21 @@ String Connection::identifyRequestLine()
 		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
 	return requestLine;
 }
-Server *Connection::identifyServer()
-{
-	wsu::info("identifying server");
-	t_serVect tmpMapP, tmpMapH;
-	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
-	{
-		if (it->second->getServerPort() == this->__request.__headers.__port)
-			tmpMapP.push_back(it->second);
-	}
-	for (t_serVect::iterator it = tmpMapP.begin(); it != tmpMapP.end(); it++)
-	{
-		if ((*it)->amITheServerYouAreLookingFor(this->__request.__headers.__host) == false)
-			tmpMapH.push_back(*it);
-	}
-	if (tmpMapH.empty())
-		return this->__serversP->begin()->second;
-	return tmpMapH.at(0);
-}
 void Connection::processRequest()
 {
-	String requestLine = identifyRequestLine();
-	String requestHeaders = identifyRequestHeaders();
-	this->__request.parseRequest(requestLine, requestHeaders);
-	this->__buff.erase(0, this->__erase);
-	this->__erase = 0;
-}
-void Connection::processResponse()
-{
-	if (wsu::__criticalOverLoad == true)
-		throw ErrorResponse(503, "critical server overload");
-	Server *server = identifyServer();
-	Location &location = server->identifyLocation(__request.__URI);
-	Response res(this->__request, *server, location);
-	this->__responseQueue.push(res.getResponse());
+	if (__request.__phase == COMPLETE)
+	{
+		String requestLine = identifyRequestLine();
+		String requestHeaders = identifyRequestHeaders();
+		this->__buff.erase(0, this->__erase);
+		this->__erase = 0;
+		this->__request.parseRequest(requestLine, requestHeaders);
+	}
+	else
+	{
+		// complete reading
+		// phase should be set on a condition
+	}
 }
 void Connection::proccessData(String input)
 {

@@ -7,12 +7,7 @@ class Request
 {
 	private:
 		void							clear();
-		void							hostAndPort();
 		void							proccessURI();
-		void							contentLength();
-		void							connectionType();
-		void							transferEncoding();
-		String							getHeaderFeildValue( const String &key );
 		void							proccessHeaders( String requestHeaders );
 		void							proccessRequestLine( const String &requestLine );
 

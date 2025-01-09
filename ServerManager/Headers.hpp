@@ -8,6 +8,7 @@ class Headers
 	private:
 		void							clear();
         String                          getHeaderFeildValue(const String &key, std::map< String, String > &headers);
+		void							hostAndPort( std::map< String, String > &headers );
 
 	public:
 		t_transferEncoding				__transferEncoding;
