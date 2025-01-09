@@ -102,11 +102,14 @@ typedef enum e_connectionType
 
 typedef enum e_transfer
 {
-	NONE,
-	DEFINED,
+	GENERAL,
 	CHUNKED,
-	MULTIPART,
 } t_transfer;
+
+// typedef enum e_contentType
+// {
+
+// } t_contentType;
 
 typedef enum e_uri
 {
@@ -119,7 +122,7 @@ typedef enum e_uri
 typedef enum e_requestPhase
 {
 	COMPLETE,
-	PROCCESSING,
+	PROCESSING,      
 } t_requestPhase;
 
 #endif

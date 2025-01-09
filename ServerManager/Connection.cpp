@@ -50,33 +50,34 @@ int Connection::getSock()
 
 String Connection::identifyChunks(String &currBuff)
 {
-	String body;
-	do
-	{
-		size_t pos = currBuff.find("\r\n");
-		if (pos == String::npos)
-			throw std::exception();
-		size_t contentLen = wsu::hexToInt(String(currBuff.begin(), currBuff.begin() + pos));
-		currBuff.erase(0, pos + 2);
-		this->__erase += pos + 2;
-		if (contentLen == 0)
-		{
-			this->__erase += 2;
-			break;
-		}
-		if (this->__buff.length() < this->__erase + contentLen + 2)
-			throw std::exception();
-		pos = currBuff.find("\r\n");
-		if (pos == String::npos)
-			throw std::exception();
-		if (pos != contentLen)
-			throw ErrorResponse(400, "chunk size mismatch");
-		String chunk(String(currBuff.begin(), currBuff.begin() + contentLen));
-		currBuff.erase(0, contentLen + 2);
-		this->__erase += contentLen + 2;
-		body += chunk;
-	} while (true);
-	return body;
+	(void)currBuff；
+	// String body;
+	// do
+	// {
+	// 	size_t pos = currBuff.find("\r\n");
+	// 	if (pos == String::npos)
+	// 		throw std::exception();
+	// 	size_t contentLen = wsu::hexToInt(String(currBuff.begin(), currBuff.begin() + pos));
+	// 	currBuff.erase(0, pos + 2);
+	// 	this->__erase += pos + 2;
+	// 	if (contentLen == 0)
+	// 	{
+	// 		this->__erase += 2;
+	// 		break;
+	// 	}
+	// 	if (this->__buff.length() < this->__erase + contentLen + 2)
+	// 		throw std::exception();
+	// 	pos = currBuff.find("\r\n");
+	// 	if (pos == String::npos)
+	// 		throw std::exception();
+	// 	if (pos != contentLen)
+	// 		throw ErrorResponse(400, "chunk size mismatch");
+	// 	String chunk(String(currBuff.begin(), currBuff.begin() + contentLen));
+	// 	currBuff.erase(0, contentLen + 2);
+	// 	this->__erase += contentLen + 2;
+	// 	body += chunk;
+	// } while (true);
+	// return body;
 }
 void Connection::identifyRequestBody()
 {
@@ -154,6 +155,7 @@ void Connection::processRequest()
 {
 	if (__request.__phase == COMPLETE)
 	{
+		this->__response.clear();
 		String requestLine = identifyRequestLine();
 		String requestHeaders = identifyRequestHeaders();
 		std::cout << requestLine << "\n" << requestHeaders << "\n";
@@ -163,8 +165,10 @@ void Connection::processRequest()
 	}
 	else
 	{
+		__request.__phase = PROCESSING;
 		// complete reading
 		// phase should be set on a condition
+
 	}
 }
 void Connection::proccessData(String input)

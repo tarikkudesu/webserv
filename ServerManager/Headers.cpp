@@ -15,9 +15,10 @@ Headers &Headers::operator=(const Headers &assign)
 	{
 		this->__host = assign.__host;
 		this->__port = assign.__port;
-		this->__transfer = assign.__transfer;
+		this->__contentType = assign.__contentType;
 		this->__contentLength = assign.__contentLength;
 		this->__connectionType = assign.__connectionType;
+		this->__transferEncoding = assign.__transferEncoding;
 	}
 	return *this;
 }
@@ -27,9 +28,14 @@ Headers::~Headers()
 
 void Headers::clear()
 {
-	this->__transfer = NONE;
 	this->__contentLength = 0;
 	this->__connectionType = KEEP_ALIVE;
+	this->__host.clear();
+	this->__boundry.clear();
+	this->__contentLength = 0;
+	this->__contentType.clear();
+	this->__transferEncoding.clear();
+	
 }
 
 String Headers::getHeaderFeildValue(const String &key, std::map<String, String> &headers)
@@ -45,7 +51,6 @@ void Headers::contentLength(std::map<String, String> &headers)
 	{
 		String value = getHeaderFeildValue("CONTENT-LENGTH", headers);
 		this->__contentLength = wsu::stringToInt(value);
-		this->__transfer = DEFINED;
 	}
 	catch (std::exception &e)
 	{
@@ -55,14 +60,7 @@ void Headers::contentType(std::map<String, String> &headers)
 {
 	try
 	{
-		String value = getHeaderFeildValue("CONTENT-TYPE", headers);
-		t_svec tmp = wsu::splitByChar(value, '=');
-		if (tmp.size() == 2 && tmp.at(0) == "multipart/form-data; boundary")
-		{
-			this->__boundry = tmp.at(1);
-			this->__transfer = MULTIPART;
-		}
-		
+		this->__contentType = getHeaderFeildValue("CONTENT-TYPE", headers);
 	}
 	catch (std::exception &e)
 	{
@@ -84,9 +82,7 @@ void Headers::transferEncoding(std::map<String, String> &headers)
 {
 	try
 	{
-		String value = getHeaderFeildValue("TRANSFER-ENCODING", headers);
-		if (value == "chunked")
-			this->__transfer = CHUNKED;
+		this->__transferEncoding = getHeaderFeildValue("TRANSFER-ENCODING", headers);
 	}
 	catch (std::exception &e)
 	{

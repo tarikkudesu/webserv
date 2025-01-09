@@ -19,8 +19,9 @@ class Headers
 		int							__port;
 		String						__host;
 		String						__boundry;
-		t_transfer					__transfer;
+		String						__contentType;
 		size_t						__contentLength;
+		String						__transferEncoding;
 		t_connectionType			__connectionType;
 
 		void						parseHeaders(std::map< String, String > &headers);

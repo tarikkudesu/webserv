@@ -22,8 +22,6 @@ class Request
 		std::map< String, String >		__headerFeilds;
 		std::map< String, String >		__queryVariables;
 
-		bool							hasBody();
-		bool							connectionTypeClose();
 		void							parseRequest( const String &requestLine, const String &requestHeaders );
 
 
