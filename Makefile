@@ -9,6 +9,7 @@ SRC		=	./ServerManager/Connection.cpp \
 			./ServerManager/PackageResponse/Get.cpp \
 			./ServerManager/PackageResponse/Cgi.cpp \
 			./ServerManager/Server.cpp \
+			./ServerManager/Core.cpp \
 			./ServerManager/ServerManager.cpp \
 			./ServerManager/PackageResponse/ErrorResponse.cpp \
 			./srcs/main.cpp
@@ -32,6 +33,7 @@ $(NAME): $(OBJ)
 			./ServerManager/PackageResponse/Get.hpp \
 			./ServerManager/PackageResponse/Post.hpp \
 			./ServerManager/Server.hpp \
+			./ServerManager/Core.hpp \
 			./ServerManager/PackageResponse/ErrorResponse.hpp \
 			./ServerManager/WSU.hpp \
 			./srcs/webserv.hpp

@@ -91,7 +91,6 @@ void Connection::identifyRequestBody()
 		else
 		{
 			size_t contentLen = this->__request.__contentLength;
-			std::cout << contentLen << "\n";
 			if (contentLen >= READ_SIZE)
 				this->__readable = true;
 			if (currBuff.length() < contentLen)
@@ -107,7 +106,7 @@ String Connection::identifyRequestHeaders()
 	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
 	size_t pos = currBuff.find("\r\n\r\n");
 	if (pos == String::npos)
-		throw std::exception();
+		throw wsu::persist();
 	String requestHeaders(currBuff.begin(), currBuff.begin() + pos + 2);
 	this->__erase += pos + 4;
 	return requestHeaders;
@@ -117,53 +116,46 @@ String Connection::identifyRequestLine()
 	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
 	size_t pos = currBuff.find("\r\n");
 	if (pos == String::npos)
-		throw std::exception();
+		throw wsu::persist();
 	String requestLine(currBuff.begin(), currBuff.begin() + pos);
 	this->__erase += pos + 2;
 	if (requestLine.length() >= 4094)
 		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
 	return requestLine;
 }
-void Connection::requestParser()
-{
-	String requestLine = identifyRequestLine();
-	String requestHeaders = identifyRequestHeaders();
-	wsu::info(requestLine);
-	this->__request.parseRequest(requestLine, requestHeaders);
-	identifyRequestBody();
-	this->__buff.erase(0, this->__erase);
-	this->__erase = 0;
-	this->__readable = false;
-	wsu::info(this->__request.__requestbody);
-	if (wsu::__criticalOverLoad == true)
-		throw ErrorResponse(503, "critical server overload");
-}
 Server *Connection::identifyServer()
 {
 	wsu::info("identifying server");
-	t_serVect tmpMapP;
-	t_serVect tmpMapH;
+	t_serVect tmpMapP, tmpMapH;
 	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
 	{
-		if (it->second->getServerPort() == this->__request.__port)
+		if (it->second->getServerPort() == this->__request.__headers.__port)
 			tmpMapP.push_back(it->second);
 	}
 	for (t_serVect::iterator it = tmpMapP.begin(); it != tmpMapP.end(); it++)
 	{
-		if ((*it)->amITheServerYouAreLookingFor(this->__request.__host) == false)
+		if ((*it)->amITheServerYouAreLookingFor(this->__request.__headers.__host) == false)
 			tmpMapH.push_back(*it);
 	}
 	if (tmpMapH.empty())
 		return this->__serversP->begin()->second;
 	return tmpMapH.at(0);
 }
-void Connection::responseBuilder()
+void Connection::processRequest()
 {
+	String requestLine = identifyRequestLine();
+	String requestHeaders = identifyRequestHeaders();
+	this->__request.parseRequest(requestLine, requestHeaders);
+	this->__buff.erase(0, this->__erase);
+	this->__erase = 0;
+}
+void Connection::processResponse()
+{
+	if (wsu::__criticalOverLoad == true)
+		throw ErrorResponse(503, "critical server overload");
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);
-	// std::cout << YELLOW << __request << "\n";
-	// std::cout << res;
 	this->__responseQueue.push(res.getResponse());
 }
 void Connection::proccessData(String input)
@@ -172,18 +164,20 @@ void Connection::proccessData(String input)
 	this->__buff += input;
 	try
 	{
-		// std::cout << __buff << "\n";
-		requestParser();
-		responseBuilder();
+		processRequest();
+		processResponse();
 	}
 	catch (ErrorResponse &e)
 	{
-		// std::cout << e;
 		this->__responseQueue.push(e.getResponse());
+	}
+	catch (wsu::persist &e)
+	{
+		wsu::error(e.what());
+		this->__erase = 0;
 	}
 	catch (std::exception &e)
 	{
-		this->__readable = true;
 		wsu::error(e.what());
 		this->__erase = 0;
 	}

@@ -25,7 +25,7 @@ void signalHandler(int signal)
 	if (signal == SIGINT)
 	{
 		std::cout << "exiting\n";
-		ServerManager::up = false;
+		Core::up = false;
 	}
 }
 
@@ -40,6 +40,5 @@ int main(int ac, char **av)
 		wsu::logs(args);
 		ServerManager webserv(*(args.end() - 1));
 		webserv.setUpWebserv();
-		ServerManager::clear();
 	}
 }

@@ -1,13 +1,6 @@
 
 #include "ServerManager.hpp"
 
-bool ServerManager::up = true;
-int ServerManager::__sockNum = 0;
-t_Server ServerManager::__servers;
-t_events ServerManager::__sockets;
-t_Connections ServerManager::__connections;
-struct pollfd *ServerManager::__events = NULL;
-
 ServerManager::ServerManager()
 {
 	wsu::debug("ServerManager default constructor");
@@ -35,282 +28,10 @@ ServerManager &ServerManager::operator=(const ServerManager &assign)
 }
 ServerManager::~ServerManager()
 {
-	clear();
 	wsu::debug("ServerManager destructor");
-}
-void ServerManager::clear()
-{
-	if (ServerManager::__connections.empty() == false)
-	{
-		for (t_Connections::iterator it = ServerManager::__connections.begin(); it != ServerManager::__connections.end(); it++)
-		{
-			ServerManager::removeSocket(it->second->getSock());
-			delete it->second;
-		}
-	}
-	if (ServerManager::__servers.empty() == false)
-	{
-		for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
-		{
-			ServerManager::removeSocket(it->second->getServerSocket());
-			delete it->second;
-		}
-	}
-	if (ServerManager::__sockets.empty() == false)
-	{
-		for (t_events::iterator it = ServerManager::__sockets.begin(); it != ServerManager::__sockets.end(); it++)
-		{
-			close(it->fd);
-		}
-		ServerManager::__sockets.clear();
-	}
-	ServerManager::__sockNum = 0;
-	ServerManager::__servers.clear();
-	ServerManager::__sockets.clear();
-	ServerManager::__connections.clear();
+	Core::clear();
 }
 
-/****************************************************************************
- *                               MINI METHODS                               *
- ****************************************************************************/
-
-void ServerManager::removeConnection(int sd)
-{
-	t_Connections::iterator it = ServerManager::__connections.find(sd);
-	if (it != ServerManager::__connections.end())
-	{
-		Connection *instance = it->second;
-		ServerManager::__connections.erase(it);
-		delete instance;
-		removeSocket(sd);
-	}
-}
-void ServerManager::addConnection(int sd)
-{
-	ServerManager::__connections[sd] = new Connection(sd);
-	ServerManager::__connections[sd]->setServers(ServerManager::__servers);
-	addSocket(sd, CONNECTION);
-}
-void ServerManager::removeServer(int sd)
-{
-	t_Server::iterator it = ServerManager::__servers.find(sd);
-	if (it != ServerManager::__servers.end())
-	{
-		Server *instance = it->second;
-		ServerManager::__servers.erase(it);
-		delete instance;
-		removeSocket(sd);
-	}
-}
-void ServerManager::addServer(Server *server)
-{
-	if (ServerManager::__servers.size() >= MAX_EVENTS)
-		throw std::runtime_error("critical server overload, " \
-			+ server->getServerHost() + ":" + wsu::intToString(server->getServerPort()) \
-			+ " non functional");
-	ServerManager::__servers[server->getServerSocket()] = server;
-	addSocket(server->getServerSocket(), SERVER);
-}
-void ServerManager::removeSocket(int sd)
-{
-	for (t_events::iterator it = __sockets.begin(); it != __sockets.end(); it++)
-	{
-		if (sd == it->fd)
-		{
-			ServerManager::__sockets.erase(it);
-			ServerManager::__sockNum--;
-			close(sd);
-			return;
-		}
-	}
-}
-void ServerManager::addSocket(int sd, t_endian endian)
-{
-	struct pollfd sockStruct;
-
-	sockStruct.fd = sd;
-	if (endian == SERVER)
-		sockStruct.events = POLLIN;
-	else if (endian == CONNECTION)
-		sockStruct.events = POLLIN | POLLOUT | POLLHUP;
-	wsu::setNonBlockingMode(sd);
-	ServerManager::__sockets.push_back(sockStruct);
-	ServerManager::__sockNum++;
-}
-bool ServerManager::isServerSocket(int sd)
-{
-	if (ServerManager::__servers.find(sd) != ServerManager::__servers.end())
-		return true;
-	return false;
-}
-/************************************************************************
- *                            SERVER CONTROL                            *
- ************************************************************************/
-void ServerManager::writeDataToSocket(int sd)
-{
-	if (wsu::__criticalOverLoad == true && ServerManager::__connections[sd]->__responseQueue.empty())
-	{
-		ServerManager::removeConnection(sd);
-		return;
-	}
-	if (ServerManager::__connections[sd]->__responseQueue.empty())
-		return;
-	String response = ServerManager::__connections[sd]->__responseQueue.front();
-	ServerManager::__connections[sd]->__responseQueue.pop();
-	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
-	if (bytesWritten > 0)
-	{
-		wsu::info("response sent");
-	}
-	else
-	{
-		int sockErr = 0;
-		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
-					   &sockErr, sizeof(sockErr)) != 0 ||
-			sockErr != 0)
-		{
-			removeConnection(sd);
-			wsu::info("removing connection");
-		}
-	}
-}
-void ServerManager::readDataFromSocket(int sd)
-{
-	char buff[READ_SIZE + 1];
-
-	ssize_t bytesRead = recv(sd, buff, READ_SIZE, 0);
-	if (bytesRead == 0)
-	{
-		removeConnection(sd);
-	}
-	else if (bytesRead > 0)
-	{
-		buff[bytesRead] = '\0';
-		t_Connections::iterator iter = ServerManager::__connections.find(sd);
-		if (iter != ServerManager::__connections.end())
-		{
-			wsu::info("receiving data");
-			iter->second->proccessData(String(buff));
-		}
-	}
-	else
-	{
-		int sockErr = 0;
-		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
-					   &sockErr, sizeof(sockErr)) != 0 ||
-			sockErr != 0) // surprise
-		{
-			removeConnection(sd);
-			wsu::info("removing connection");
-		}
-	}
-}
-
-void ServerManager::acceptNewConnection(int sd)
-{
-	int newSock;
-
-	if (wsu::__criticalOverLoad == true)
-		return;
-	newSock = accept(sd, NULL, NULL);
-	if (newSock >= 0)
-	{
-		wsu::info("accepting new connection");
-		addConnection(newSock);
-	}
-	else
-	{
-		int sockErr = 0;
-		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
-					   &sockErr, sizeof(sockErr)) != 0 ||
-			sockErr != 0)
-		{
-			removeServer(sd);
-		}
-	}
-}
-void ServerManager::proccessPollEvent(int sd, int &retV)
-{
-	struct pollfd &sockStruct = ServerManager::__events[sd];
-	if (sockStruct.revents & POLLIN)
-	{
-		if (isServerSocket(sockStruct.fd))
-		{
-			if (ServerManager::__sockets.size() >= MAX_EVENTS)
-				wsu::__criticalOverLoad = true;
-			else
-			{
-				acceptNewConnection(sockStruct.fd);
-				retV--;
-			}
-		}
-		else
-		{
-			readDataFromSocket(sockStruct.fd);
-			retV--;
-		}
-	}
-	else if (sockStruct.revents & POLLOUT)
-	{
-		writeDataToSocket(sockStruct.fd);
-		retV--;
-	}
-	else if (sockStruct.revents & POLLHUP)
-	{
-		removeConnection(sockStruct.fd);
-		wsu::info("removing connection");
-		retV--;
-	}
-	else if (wsu::__criticalOverLoad == true)
-	{
-		wsu::fatal("critcal server overload");
-		if (!ServerManager::isServerSocket(sockStruct.fd))
-		{
-			removeConnection(sockStruct.fd);
-			wsu::info("removing connection");
-		}
-	}
-	if (ServerManager::__servers.size() == ServerManager::__sockets.size())
-		wsu::__criticalOverLoad = false;
-}
-/***************************************************************************************
- *                                      MAIN LOOP                                      *
- ***************************************************************************************/
-void ServerManager::mainLoop()
-{
-	int retV = 0;
-	int timeout = 1000;
-
-	try
-	{
-		while (up)
-		{
-			ServerManager::__events = wsu::data(ServerManager::__sockets);
-			retV = poll(ServerManager::__events, ServerManager::__sockets.size(), timeout);
-			if (retV != 0)
-			{
-				for (int sd = 0; sd < ServerManager::__sockNum && retV; sd++)
-				{
-					if (wsu::__criticalOverLoad == true)
-						retV = ServerManager::__sockNum;
-					try
-					{
-						this->proccessPollEvent(sd, retV);
-					}
-					catch (std::exception &e)
-					{
-						wsu::terr(e.what());
-					}
-				}
-			}
-			delete[] ServerManager::__events;
-		}
-	}
-	catch (std::exception &e)
-	{
-		wsu::terr(e.what());
-	}
-}
 /*************************************************************************
  *                             SERVER PARSER                             *
  *************************************************************************/
@@ -352,7 +73,7 @@ void ServerManager::initServers()
 			try
 			{
 				newServer->setup();
-				ServerManager::addServer(newServer);
+				Core::addServer(newServer);
 			}
 			catch (std::exception &e)
 			{
@@ -363,8 +84,6 @@ void ServerManager::initServers()
 	for (t_serVect::iterator it = __serverTemplates.begin(); it != __serverTemplates.end(); it++)
 		delete *it;
 	__serverTemplates.clear();
-	if (ServerManager::__servers.size() >= MAX_EVENTS)
-		throw std::runtime_error("critical server overload: too many servers");
 }
 void ServerManager::readFile()
 {
@@ -489,47 +208,6 @@ void ServerManager::checkOuterscope(String outerScope)
 	if (__lines.find_first_of("{}") == String::npos)
 		throw std::runtime_error("invalid config file ");
 }
-void ServerManager::logServers()
-{
-	if (ServerManager::__servers.empty())
-		throw std::runtime_error("config file does not identify any server");
-	t_Server::iterator it = ServerManager::__servers.begin();
-	for (; it != ServerManager::__servers.end(); it++)
-	{
-		wsu::running((*it).second->getServerHost() + ":" + wsu::intToString((*it).second->getServerPort()));
-	}
-}
-void ServerManager::checkConflicts()
-{
-	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
-	{
-		const t_svec &serverNames = it->second->__serverNames;
-		for (t_svec::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
-		{
-			for (t_svec::const_iterator match = name + 1; match != serverNames.end(); match++)
-			{
-				if (*match == *name)
-					wsu::warn("conflicting server name \"" + *name + "\" on " + it->second->serverIdentity() + ", ignored");
-			}
-		}
-	}
-	for (t_Server::iterator it = ServerManager::__servers.begin(); it != ServerManager::__servers.end(); it++)
-	{
-		for (t_Server::iterator iter = ServerManager::__servers.begin(); iter != it && iter != ServerManager::__servers.end(); iter++)
-		{
-			if (it->second->getServerPort() == iter->second->getServerPort())
-			{
-				const t_svec &serverNames = it->second->__serverNames;
-				for (t_svec::const_iterator name = serverNames.begin(); name != serverNames.end(); name++)
-				{
-					if (iter->second->amITheServerYouAreLookingFor(*name))
-						wsu::warn("conflicting server name \"" + *name + "\" on " + it->second->serverIdentity() + ", ignored");
-				}
-			}
-		}
-	}
-}
-
 void ServerManager::setUpWebserv()
 {
 	try
@@ -541,9 +219,9 @@ void ServerManager::setUpWebserv()
 		setUpServers();
 		checkHosts();
 		initServers();
-		checkConflicts();
-		logServers();
-		mainLoop();
+		Core::checkConflicts();
+		Core::logServers();
+		Core::mainLoop();
 	}
 	catch (std::exception &e)
 	{

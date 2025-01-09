@@ -1,8 +1,6 @@
 #include "Request.hpp"
 
-Request::Request() : __transferEncoding(GENERAL),
-					 __connectionType(KEEP_ALIVE),
-					 __contentLength(0)
+Request::Request()
 {
 }
 Request::Request(const Request &copy)
@@ -14,15 +12,11 @@ Request &Request::operator=(const Request &assign)
 	if (this != &assign)
 	{
 		this->__URI = assign.__URI;
-		this->__port = assign.__port;
-		this->__host = assign.__host;
 		this->__method = assign.__method;
+		this->__headers = assign.__headers;
 		this->__protocole = assign.__protocole;
 		this->__requestbody = assign.__requestbody;
 		this->__headerFeilds = assign.__headerFeilds;
-		this->__contentLength = assign.__contentLength;
-		this->__connectionType = assign.__connectionType;
-		this->__transferEncoding = assign.__transferEncoding;
 	}
 	return *this;
 }
@@ -33,102 +27,19 @@ Request::~Request()
 /****************************************************************************
  *                               MINI METHODS                               *
  ****************************************************************************/
+
 void Request::clear()
 {
 	this->__URI.clear();
-	this->__host.clear();
 	this->__protocole.clear();
-	this->__contentLength = 0;
 	this->__requestbody.clear();
 	this->__headerFeilds.clear();
-	this->__transferEncoding = GENERAL;
-	this->__connectionType = KEEP_ALIVE;
 }
-bool Request::connectionTypeClose()
-{
-	if (this->__connectionType == CLOSE)
-		return true;
-	return false;
-}
-String Request::getHeaderFeildValue(const String &key)
-{
-	std::map<String, String>::iterator iter = __headerFeilds.find(key);
-	if (iter == __headerFeilds.end())
-		throw std::exception();
-	return iter->second;
-}
-bool Request::hasBody()
-{
-	if (this->__transferEncoding == CHUNKED)
-		return true;
-	else if (this->__contentLength)
-		return true;
-	return false;
-}
+
 /*****************************************************************************
  *                                  METHODS                                  *
  *****************************************************************************/
 
-void Request::hostAndPort()
-{
-	try
-	{
-		String value = getHeaderFeildValue("host");
-		size_t pos = value.find(":");
-		if (pos == String::npos)
-		{
-			this->__host = value;
-			this->__port = 8080;
-		}
-		else
-		{
-			this->__host = String(value.begin(), value.begin() + pos);
-			String port = String(value.begin() + pos + 1, value.end());
-			this->__port = std::strtol(port.c_str(), NULL, 10);
-		}
-	}
-	catch (std::exception &e)
-	{
-		throw ErrorResponse(400, "No Host header feild");
-	}
-}
-
-void Request::contentLength()
-{
-	try
-	{
-		this->__contentLength = wsu::stringToInt(getHeaderFeildValue("content-length"));
-	}
-	catch (std::exception &e)
-	{
-	}
-}
-
-void Request::connectionType()
-{
-	try
-	{
-		String value = getHeaderFeildValue("connection");
-		if (value == "close")
-			this->__connectionType = CLOSE;
-	}
-	catch (std::exception &e)
-	{
-	}
-}
-
-void Request::transferEncoding()
-{
-	try
-	{
-		String value = getHeaderFeildValue("transfer-encoding");
-		if (value.find("chunked") != String::npos)
-			this->__transferEncoding = CHUNKED;
-	}
-	catch (std::exception &e)
-	{
-	}
-}
 void Request::proccessHeaders(String requestHeaders)
 {
 	size_t pos = 0;
@@ -143,7 +54,7 @@ void Request::proccessHeaders(String requestHeaders)
 			if (p == String::npos)
 				throw ErrorResponse(400, "invalid Header feild");
 			String key(hf.begin(), hf.begin() + p);
-			wsu::toLowerString(key);
+			wsu::toUpperString(key);
 			String value(hf.begin() + p + 2, hf.end());
 			if (key.empty() || String::npos != key.find_first_not_of(H_KEY_CHAR_SET))
 				throw ErrorResponse(400, "invalid Header feild");
@@ -217,10 +128,7 @@ void Request::parseRequest(const String &requestLine, const String &requestHeade
 	clear();
 	proccessRequestLine(requestLine);
 	proccessHeaders(requestHeaders);
-	transferEncoding();
-	connectionType();
-	contentLength();
-	hostAndPort();
+	__headers.parseHeaders(__headerFeilds);
 }
 
 std::ostream &operator<<(std::ostream &o, const Request &req )

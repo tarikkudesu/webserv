@@ -12,6 +12,12 @@ private:
 	~wsu();
 
 public:
+	class persist : public std::exception {
+		public :
+			persist();
+			virtual const char	*what( void ) const throw();
+	};
+
 	static std::map<int16_t, String> __defaultErrorPages;
 	static std::map<int16_t, String> __errCode;
 	static std::map<String, String> __mimeTypes;

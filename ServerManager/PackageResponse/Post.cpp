@@ -2,7 +2,6 @@
 
 Post::Post(RessourceHandler &explorer, String requestbody) : explorer(explorer), __requestbody(requestbody)
 {
-        std::cout << RED << "POST\n" << RESET;
         writeFile();
 }
 

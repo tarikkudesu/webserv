@@ -103,6 +103,7 @@ typedef enum e_transferEncoding
 {
 	GENERAL,
 	CHUNKED,
+	MULTIPART,
 } t_transferEncoding;
 
 typedef enum e_uri

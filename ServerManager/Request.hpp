@@ -1,7 +1,7 @@
 #ifndef __REQUEST_HPP__
 # define __REQUEST_HPP__
 
-# include "PackageResponse/ErrorResponse.hpp"
+# include "Headers.hpp"
 
 class Request
 {
@@ -18,17 +18,14 @@ class Request
 
 	public:
 		String							__URI;
-		String							__host;
-		int								__port;
+		e_requestPhase					__phase;
 		t_method						__method;
+		Headers							__headers;
 		String							__fragement;
 		String							__protocole;
-		std::map< String, String >		__headerFeilds;
-		t_transferEncoding				__transferEncoding;
-		std::map< String, String >		__queryVariables;
-		t_connectionType				__connectionType;
-		size_t							__contentLength;
 		String							__requestbody;
+		std::map< String, String >		__headerFeilds;
+		std::map< String, String >		__queryVariables;
 
 		bool							hasBody();
 		bool							connectionTypeClose();

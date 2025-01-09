@@ -19,8 +19,8 @@ class Connection
 		String					identifyRequestLine();
 		void					identifyRequestBody();
 		Server					*identifyServer();
-		void					responseBuilder();
-		void					requestParser();
+		void					processResponse();
+		void					processRequest();
 		Connection();
 
 	public:
