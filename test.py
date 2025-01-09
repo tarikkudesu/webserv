@@ -4,7 +4,7 @@ import socket
 tests = [
     # Basic multipart form data
     (
-        "POST /upload HTTP/1.1\r\n"
+        "POST /a.php  HTTP/1.1\r\n"
         "Host: localhost:8080\r\n"
         "Content-Type: multipart/form-data; boundary=---------------------------12345\r\n"
         "Content-Length: 374\r\n"

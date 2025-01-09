@@ -12,10 +12,7 @@ Core::Core( const Core &copy )
 Core	&Core::operator=( const Core &assign )
 {
     wsu::debug("copy assignement operator");
-    if (this != &assign)
-    {
-
-    }
+	(void)assign;
     return *this;
 }
 Core::~Core()

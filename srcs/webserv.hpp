@@ -99,12 +99,14 @@ typedef enum e_connectionType
 	KEEP_ALIVE,
 } t_connectionType;
 
-typedef enum e_transferEncoding
+
+typedef enum e_transfer
 {
-	GENERAL,
+	NONE,
+	DEFINED,
 	CHUNKED,
 	MULTIPART,
-} t_transferEncoding;
+} t_transfer;
 
 typedef enum e_uri
 {

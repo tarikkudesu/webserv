@@ -19,6 +19,7 @@ bool wsu::__warn = false;
 bool wsu::__error = false;
 bool wsu::__fatal = false;
 
+wsu::persist::persist( void ) { }
 const char	*wsu::persist::what( void ) const throw() { return "persist"; }
 
 /************************************************************************************************

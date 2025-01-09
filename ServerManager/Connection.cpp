@@ -80,26 +80,26 @@ String Connection::identifyChunks(String &currBuff)
 }
 void Connection::identifyRequestBody()
 {
-	if (this->__request.hasBody())
-	{
-		String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
-		String body;
-		if (this->__request.__headers.__transferEncoding == CHUNKED)
-		{
-			body = identifyChunks(currBuff);
-		}
-		else
-		{
-			size_t contentLen = this->__request.__headers.__contentLength;
-			if (contentLen >= READ_SIZE)
-				this->__readable = true;
-			if (currBuff.length() < contentLen)
-				throw std::exception();
-			body = String(currBuff.begin(), currBuff.begin() + contentLen);
-			this->__erase += contentLen;
-		}
-		this->__request.__requestbody = body;
-	}
+	// if (this->__request.hasBody())
+	// {
+	// 	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
+	// 	String body;
+	// 	if (this->__request.__headers.__transferEncoding == CHUNKED)
+	// 	{
+	// 		body = identifyChunks(currBuff);
+	// 	}
+	// 	else
+	// 	{
+	// 		size_t contentLen = this->__request.__headers.__contentLength;
+	// 		if (contentLen >= READ_SIZE)
+	// 			this->__readable = true;
+	// 		if (currBuff.length() < contentLen)
+	// 			throw std::exception();
+	// 		body = String(currBuff.begin(), currBuff.begin() + contentLen);
+	// 		this->__erase += contentLen;
+	// 	}
+	// 	this->__request.__requestbody = body;
+	// }
 }
 Server *Connection::identifyServer()
 {
@@ -156,6 +156,7 @@ void Connection::processRequest()
 	{
 		String requestLine = identifyRequestLine();
 		String requestHeaders = identifyRequestHeaders();
+		std::cout << requestLine << "\n" << requestHeaders << "\n";
 		this->__buff.erase(0, this->__erase);
 		this->__erase = 0;
 		this->__request.parseRequest(requestLine, requestHeaders);
