@@ -3,6 +3,13 @@
 
 # include "Headers.hpp"
 
+
+struct	s_body {
+	t_svec				_headers;
+	String				_fileName;
+};
+
+
 class Request
 {
 	private:
@@ -21,6 +28,7 @@ class Request
 		String							__requestbody;
 		std::map< String, String >		__headerFeilds;
 		std::map< String, String >		__queryVariables;
+		std::vector< s_body >			__body;
 
 		void							parseRequest( const String &requestLine, const String &requestHeaders );
 

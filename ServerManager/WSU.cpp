@@ -29,7 +29,7 @@ const char	*wsu::persist::what( void ) const throw() { return "persist"; }
 String wsu::generateTimeBasedFileName()
 {
 	static unsigned long cpt;
-    return "./text/" + wsu::intToString(std::time(NULL) + cpt++); // change path Later
+    return "./text/." + wsu::intToString(std::time(NULL) + cpt++) + ".tmp"; // change path Later
 }
 
 bool wsu::endWith(const std::string &file, const char *extension)

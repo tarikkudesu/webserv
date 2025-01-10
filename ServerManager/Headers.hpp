@@ -23,7 +23,7 @@ class Headers
 		size_t						__contentLength;
 		String						__transferEncoding;
 		t_connectionType			__connectionType;
-		t_transferType				__transferType;
+		t_bodyType					__transferType;
 
 		void						parseHeaders(std::map< String, String > &headers);
 

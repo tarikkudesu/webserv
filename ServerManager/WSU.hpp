@@ -2,7 +2,6 @@
 #define __WSU_HPP__
 
 #include "../srcs/webserv.hpp"
-
 class wsu
 {
 private:

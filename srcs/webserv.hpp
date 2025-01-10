@@ -61,13 +61,20 @@ typedef std::map<String, String>::iterator mapIterator;
 #define RESET "\033[1;0m"
 
 #define MAX_EVENTS 1024
-#define READ_SIZE 1024
+#define READ_SIZE 4096
 
 #define PROTOCOLE_V "HTTP/1.1"
 #define URI_CHAR_SET "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&\'()*+,;=-._~"
 #define H_KEY_CHAR_SET "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-.^_`|~"
 #define PRINTABLE " \t\n\r\v\f0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 #define USAGE "\nUsage: ./webserv [OPTIONS] [configuration file]\n\nOptions:\n\t-l, --logs string\tlog events(\"debug\"|\"info\"|\"warn\"|\"error\"|\"fatal\"|\"all\")\n"
+
+typedef enum e_multipartsection
+{
+	MP_BOUNDRY,
+	MP_HEADERS,
+	MP_BODY,
+} t_multipartsection;
 
 typedef enum e_endian
 {
@@ -89,8 +96,8 @@ typedef enum e_method
 
 typedef enum e_type
 {
-        FILE_,
-        FOLDER
+	FILE_,
+	FOLDER
 } t_type;
 
 typedef enum e_connectionType
@@ -99,13 +106,13 @@ typedef enum e_connectionType
 	KEEP_ALIVE,
 } t_connectionType;
 
-typedef enum e_transferType
+typedef enum e_bodyType
 {
 	NONE,
 	DEFINED,
 	CHUNKED,
 	MULTIPART,
-} t_transferType;
+} t_bodyType;
 
 typedef enum e_uri
 {
@@ -117,8 +124,10 @@ typedef enum e_uri
 
 typedef enum e_requestPhase
 {
+	NEWREQUEST,
+	INITIALIZING,
+	PROCESSING,
 	COMPLETE,
-	PROCESSING,      
 } t_requestPhase;
 
 #endif

@@ -1,5 +1,7 @@
 #include "Connection.hpp"
 
+std::ofstream	Connection::__fs;
+
 Connection::Connection() : __sd(-1),
 						   __erase(0),
 						   __serversP(NULL)
@@ -44,60 +46,6 @@ int Connection::getSock()
 /*****************************************************************************
  *                                  METHODS                                  *
  *****************************************************************************/
-
-String Connection::identifyChunks(String &currBuff)
-{
-	String body;
-	do
-	{
-		size_t pos = currBuff.find("\r\n");
-		if (pos == String::npos)
-			throw std::exception();
-		size_t contentLen = wsu::hexToInt(String(currBuff.begin(), currBuff.begin() + pos));
-		currBuff.erase(0, pos + 2);
-		this->__erase += pos + 2;
-		if (contentLen == 0)
-		{
-			this->__erase += 2;
-			break;
-		}
-		if (this->__buff.length() < this->__erase + contentLen + 2)
-			throw std::exception();
-		pos = currBuff.find("\r\n");
-		if (pos == String::npos)
-			throw std::exception();
-		if (pos != contentLen)
-			throw ErrorResponse(400, "chunk size mismatch");
-		String chunk(String(currBuff.begin(), currBuff.begin() + contentLen));
-		currBuff.erase(0, contentLen + 2);
-		this->__erase += contentLen + 2;
-		body += chunk;
-	} while (true);
-	return body;
-}
-// void Connection::identifyRequestBody()
-// {
-// if (this->__request.hasBody())
-// {
-// 	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
-// 	String body;
-// 	if (this->__request.__headers.__transferEncoding == CHUNKED)
-// 	{
-// 		body = identifyChunks(currBuff);
-// 	}
-// 	else
-// 	{
-// 		size_t contentLen = this->__request.__headers.__contentLength;
-// 		if (contentLen >= READ_SIZE)
-// 			this->__readable = true;
-// 		if (currBuff.length() < contentLen)
-// 			throw std::exception();
-// 		body = String(currBuff.begin(), currBuff.begin() + contentLen);
-// 		this->__erase += contentLen;
-// 	}
-// 	this->__request.__requestbody = body;
-// }
-// }
 Server *Connection::identifyServer()
 {
 	wsu::info("identifying server");
@@ -116,6 +64,194 @@ Server *Connection::identifyServer()
 		return this->__serversP->begin()->second;
 	return tmpMapH.at(0);
 }
+/***************************************************************************
+ *                           RESPONSE PROCESSING                           *
+ ***************************************************************************/
+void Connection::processResponse()
+{
+	wsu::info("building the request");
+	throw ErrorResponse(500, "still working on it, -- debuging --");
+	Server *server = identifyServer();
+	Location &location = server->identifyLocation(__request.__URI);
+	Response res(this->__request, *server, location);
+	this->__responseQueue.push(res.getResponse());
+}
+/***************************************************************************
+ *                             BODY PROCESSING                             *
+ ***************************************************************************/
+void Connection::mpBoundry(t_multipartsection &part)
+{
+	size_t pos = __buff.find("\r\n");
+	if (pos == String::npos)
+		throw wsu::persist();
+	String tmp(__buff.begin(), __buff.begin() + pos);
+	__buff.erase(0, pos + 2);
+	std::cout << tmp << "\n";
+	if (tmp == "--" + __request.__headers.__boundry + "--")
+	{
+		Connection::__fs.close();
+		__request.__phase = COMPLETE;
+	}
+	else if (tmp == "--" + __request.__headers.__boundry)
+	{
+		do
+		{
+			s_body	body;
+			body._fileName = wsu::generateTimeBasedFileName();
+			Connection::__fs.open(body._fileName.c_str());
+			if (!Connection::__fs.good())
+				continue ;
+			__request.__body.push_back(body);
+			part = MP_HEADERS;
+			return ;
+		} while (true);
+	}
+	else
+		throw ErrorResponse(400, "multipart/form-data: boundry mismatch");
+}
+void Connection::mpHeaders(t_multipartsection &part)
+{
+	do
+	{
+		size_t pos = __buff.find("\r\n");
+		if (pos == String::npos)
+			throw wsu::persist();
+		if (pos != 0)
+		{
+			String tmp(__buff.begin(), __buff.begin() + pos);
+			__request.__body.back()._headers.push_back(tmp);
+			__buff.erase(0, pos + 2);
+		}
+		else
+		{
+			__buff.erase(0, 2);
+			break ;
+		}
+	} while (true);
+	part = MP_BODY;
+}
+void Connection::mpBody(t_multipartsection &part)
+{
+	size_t pos = __buff.find("\r\n");
+	if (pos == String::npos)
+	{
+		Connection::__fs << __buff;
+		__buff.clear();
+	}
+	else
+	{
+		String tmp(__buff.begin(), __buff.begin() + pos);
+		Connection::__fs << tmp;
+		__buff.erase(0, pos + 2);
+		part = MP_BOUNDRY;
+	}
+}
+void Connection::processMultiPartBody()
+{
+	std::cout << "multipart body\n";
+	static t_multipartsection part = MP_BOUNDRY;
+	do
+	{
+		if (part == MP_BOUNDRY)
+			mpBoundry(part);
+		if (part == MP_HEADERS)
+			mpHeaders(part);
+		if (part == MP_BODY)
+			mpBody(part);
+	} while (true);
+}
+void Connection::processCunkedBody()
+{
+	std::cout << "chunked body\n";
+	static size_t chunkSize;
+	do
+	{
+		if (chunkSize == 0)
+		{
+			size_t pos = __buff.find("\r\n");
+			if (pos == String::npos)
+				throw wsu::persist();
+			String hex = String(__buff.begin(), __buff.begin() + pos);
+			chunkSize = wsu::hexToInt(hex);
+			__buff.erase(0, pos + 2);
+			if (chunkSize == 0)
+			{
+				Connection::__fs.close();
+				__request.__phase = COMPLETE;
+				return;
+			}
+		}
+		if (chunkSize < __buff.length())
+		{
+			String tmp = String(__buff.begin(), __buff.begin() + chunkSize);
+			Connection::__fs << tmp;
+			__buff.erase(0, chunkSize);
+			chunkSize -= tmp.length();
+		}
+		else
+		{
+			Connection::__fs << __buff;
+			chunkSize -= __buff.length();
+			__buff.clear();
+			break;
+		}
+	} while (true);
+}
+void Connection::processDefinedBody()
+{
+	std::cout << "defined body\n";
+	std::cout << __request.__headers.__contentLength << "\n";
+	if (__request.__headers.__contentLength < __buff.length())
+	{
+		String tmp = String(__buff.begin(), __buff.begin() + __request.__headers.__contentLength);
+		__request.__headers.__contentLength -= tmp.length();
+		__buff = __buff.substr(__request.__headers.__contentLength);
+		Connection::__fs << tmp;
+	}
+	else
+	{
+		Connection::__fs << __buff;
+		__request.__headers.__contentLength -= __buff.length();
+		__buff.clear();
+	}
+	if (__request.__headers.__contentLength == 0)
+	{
+		__request.__phase = COMPLETE;
+		Connection::__fs.close();
+	}
+}
+void Connection::indentifyRequestBody()
+{
+	wsu::info("reading the body");
+	if (__request.__headers.__transferType == DEFINED)
+		processDefinedBody();
+	else if (__request.__headers.__transferType == CHUNKED)
+		processCunkedBody();
+	else if (__request.__headers.__transferType == MULTIPART)
+		processMultiPartBody();
+}
+void Connection::initializeTmpFiles()
+{
+	wsu::info("initializing temporary files");
+	if (__request.__headers.__transferType == DEFINED \
+		|| __request.__headers.__transferType == CHUNKED)
+	{
+		do
+		{
+			s_body	body;
+			body._fileName = wsu::generateTimeBasedFileName();
+			Connection::__fs.open(body._fileName.c_str());
+			if (!Connection::__fs.good())
+				continue ;
+			__request.__body.push_back(body);
+			break ;
+		} while (true);
+	}
+	__request.__phase = PROCESSING;
+}
+/******************************************************************************
+ *                             REQUEST PROCESSING                             *
+ ******************************************************************************/
 String Connection::identifyRequestHeaders()
 {
 	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
@@ -138,90 +274,43 @@ String Connection::identifyRequestLine()
 		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
 	return requestLine;
 }
-void Connection::processResponse()
-{
-	Server *server = identifyServer();
-	Location &location = server->identifyLocation(__request.__URI);
-	Response res(this->__request, *server, location);
-	this->__responseQueue.push(res.getResponse());
-}
-void Connection::processDefinedBody()
-{
-	std::cout << "defined length body\n";
-	if (__request.__headers.__contentLength < __buff.length())
-	{
-		String tmp = String(__buff.begin(), __buff.begin() + __request.__headers.__contentLength);
-		__storage.fs << tmp;
-		__request.__headers.__contentLength -= tmp.length();
-		__buff = __buff.substr(__request.__headers.__contentLength);
-		__request.__phase = COMPLETE;
-	}
-	else
-	{
-		__storage.fs << __buff;
-		__request.__headers.__contentLength -= __buff.length();
-		__buff.clear();
-	}
-}
-void Connection::processCunkedBody()
-{
-	std::cout << "chunked body\n";
-}
-void Connection::processMultiPartBody()
-{
-	std::cout << "multipart body\n";
-}
-void Connection::indentifyRequestBody()
-{
-	if (__request.__method != POST)
-		return;
-	__request.__phase = PROCESSING;
-	switch (__request.__headers.__transferType)
-	{
-	case DEFINED:
-		processDefinedBody();
-		break;
-	case CHUNKED:
-		processCunkedBody();
-		break;
-	case MULTIPART:
-		processMultiPartBody();
-		break;
-	default:
-		break;
-	}
-}
 void Connection::processRequest()
 {
-	if (__request.__phase == PROCESSING)
-		return;
+	wsu::info("proccessing request");
 	String requestLine = identifyRequestLine();
 	String requestHeaders = identifyRequestHeaders();
 	this->__buff.erase(0, this->__erase);
 	this->__erase = 0;
 	this->__request.parseRequest(requestLine, requestHeaders);
 	if (this->__request.__method == POST)
-	{
-		this->__storage.fileName = wsu::generateTimeBasedFileName();
-		this->__storage.fs.open(__storage.fileName.c_str());
-		if (!__storage.fs.is_open())
-			throw ErrorResponse(500, "couldn't open temporary file");
-	}
+		__request.__phase = INITIALIZING;
+	else
+		__request.__phase = COMPLETE;
 }
+/**********************************************************************************
+ *                                  PROCESS DATA                                  *
+ **********************************************************************************/
 void Connection::proccessData(String input)
 {
-	wsu::info("request proccessing\n");
 	this->__buff += input;
+	if (__buff.empty())
+		return ;
+	wsu::info("proccessing data");
 	try
 	{
-		processRequest();
-		indentifyRequestBody();
-		// processResponse();
-		// throw ErrorResponse(500, "still working on it");
+		if (__request.__phase == NEWREQUEST)
+			processRequest();
+		if (__request.__phase == INITIALIZING)
+			initializeTmpFiles();
+		if (__request.__phase == PROCESSING)
+			indentifyRequestBody();
+		if (__request.__phase == COMPLETE)
+			processResponse();
 	}
 	catch (ErrorResponse &e)
 	{
 		this->__responseQueue.push(e.getResponse());
+		__request.__phase = NEWREQUEST;
 	}
 	catch (wsu::persist &e)
 	{
@@ -233,4 +322,13 @@ void Connection::proccessData(String input)
 		wsu::error(e.what());
 		this->__erase = 0;
 	}
+	
+	if (__request.__phase == NEWREQUEST)
+	if (__request.__phase == INITIALIZING)
+		std::cout << "INITIALIZING\n";
+	if (__request.__phase == PROCESSING)
+		std::cout << "PROCESSING\n";
+	if (__request.__phase == COMPLETE)
+		std::cout << "COMPLETE\n";
+	wsu::info("completeeee--|" + __buff + "|");
 }

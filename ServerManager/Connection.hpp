@@ -6,13 +6,6 @@
 typedef std::map< int, Server* >			t_Server;
 typedef std::vector< Server * >				t_serVect;
 
-typedef struct s_storage
-{
-	String fileName;
-	std::ofstream fs;
-} t_storage;
-
-
 class Connection
 {
 	private :
@@ -20,17 +13,21 @@ class Connection
 		size_t					__erase;
 		Request					__request;
 		t_Server				*__serversP;
-		t_storage				__storage;
+		static std::ofstream	__fs;
 
-		String					identifyRequestHeaders();
-		String					identifyRequestLine();
 		Server					*identifyServer();
-		void					indentifyRequestBody();
-		void					processResponse();
 		void					processRequest();
+		void					processResponse();
 		void					processCunkedBody();
+		void					initializeTmpFiles();
 		void					processDefinedBody();
+		String					identifyRequestLine();
+		void					indentifyRequestBody();
 		void					processMultiPartBody();
+		String					identifyRequestHeaders();
+		void					mpBody( t_multipartsection &part );
+		void					mpHeaders( t_multipartsection &part );
+		void					mpBoundry( t_multipartsection &part );
 		Connection();
 
 	public:

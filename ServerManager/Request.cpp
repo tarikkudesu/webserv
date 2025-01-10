@@ -30,7 +30,10 @@ Request::~Request()
 
 void Request::clear()
 {
+	// for (t_svec::iterator it = __body.begin(); it != __body.end(); it++)
+	// 	it->_headers.clear();
 	this->__URI.clear();
+	this->__body.clear();
 	this->__protocole.clear();
 	this->__requestbody.clear();
 	this->__headerFeilds.clear();

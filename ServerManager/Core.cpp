@@ -226,7 +226,6 @@ void Core::readDataFromSocket(int sd)
 		t_Connections::iterator iter = Core::__connections.find(sd);
 		if (iter != Core::__connections.end())
 		{
-			wsu::info("receiving data");
 			iter->second->proccessData(String(buff));
 		}
 	}
@@ -269,6 +268,10 @@ void Core::acceptNewConnection(int sd)
 void Core::proccessPollEvent(int sd, int &retV)
 {
 	struct pollfd &sockStruct = Core::__events[sd];
+
+	t_Connections::iterator iter = Core::__connections.find(sd);
+	if (iter != Core::__connections.end())
+		iter->second->proccessData(String(""));
 	if (sockStruct.revents & POLLIN)
 	{
 		if (isServerSocket(sockStruct.fd))
@@ -318,7 +321,7 @@ void Core::proccessPollEvent(int sd, int &retV)
 void Core::mainLoop()
 {
 	int retV = 0;
-	int timeout = 10;
+	int timeout = 1000;
 
 	try
 	{
@@ -326,9 +329,10 @@ void Core::mainLoop()
 		{
 			Core::__events = wsu::data(Core::__sockets);
 			retV = poll(Core::__events, Core::__sockets.size(), timeout);
+			// wsu::fatal("polll " + wsu::intToString(retV));
 			if (retV != 0)
 			{
-				for (int sd = 0; sd < Core::__sockNum && retV; sd++)
+				for (int sd = 0; sd < Core::__sockNum; sd++)
 				{
 					if (wsu::__criticalOverLoad == true)
 						retV = Core::__sockNum;
