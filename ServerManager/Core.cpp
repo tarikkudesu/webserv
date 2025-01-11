@@ -269,9 +269,6 @@ void Core::proccessPollEvent(int sd, int &retV)
 {
 	struct pollfd &sockStruct = Core::__events[sd];
 
-	t_Connections::iterator iter = Core::__connections.find(sd);
-	if (iter != Core::__connections.end())
-		iter->second->proccessData(String(""));
 	if (sockStruct.revents & POLLIN)
 	{
 		if (isServerSocket(sockStruct.fd))
@@ -329,7 +326,6 @@ void Core::mainLoop()
 		{
 			Core::__events = wsu::data(Core::__sockets);
 			retV = poll(Core::__events, Core::__sockets.size(), timeout);
-			// wsu::fatal("polll " + wsu::intToString(retV));
 			if (retV != 0)
 			{
 				for (int sd = 0; sd < Core::__sockNum; sd++)

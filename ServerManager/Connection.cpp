@@ -1,6 +1,6 @@
 #include "Connection.hpp"
 
-std::ofstream	Connection::__fs;
+std::ofstream Connection::__fs;
 
 Connection::Connection() : __sd(-1),
 						   __erase(0),
@@ -48,7 +48,6 @@ int Connection::getSock()
  *****************************************************************************/
 Server *Connection::identifyServer()
 {
-	wsu::info("identifying server");
 	t_serVect tmpMapP, tmpMapH;
 	for (t_Server::iterator it = this->__serversP->begin(); it != this->__serversP->end(); it++)
 	{
@@ -69,12 +68,11 @@ Server *Connection::identifyServer()
  ***************************************************************************/
 void Connection::processResponse()
 {
-	wsu::info("building the request");
-	throw ErrorResponse(500, "still working on it, -- debuging --");
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);
 	this->__responseQueue.push(res.getResponse());
+	__request.__phase = NEWREQUEST;
 }
 /***************************************************************************
  *                             BODY PROCESSING                             *
@@ -91,19 +89,21 @@ void Connection::mpBoundry(t_multipartsection &part)
 	{
 		Connection::__fs.close();
 		__request.__phase = COMPLETE;
+		std::cout << "completed all files\n";
 	}
 	else if (tmp == "--" + __request.__headers.__boundry)
 	{
+		std::cout << "completed file\n";
 		do
 		{
-			s_body	body;
+			s_body body;
 			body._fileName = wsu::generateTimeBasedFileName();
 			Connection::__fs.open(body._fileName.c_str());
 			if (!Connection::__fs.good())
-				continue ;
+				continue;
 			__request.__body.push_back(body);
 			part = MP_HEADERS;
-			return ;
+			return;
 		} while (true);
 	}
 	else
@@ -125,7 +125,7 @@ void Connection::mpHeaders(t_multipartsection &part)
 		else
 		{
 			__buff.erase(0, 2);
-			break ;
+			break;
 		}
 	} while (true);
 	part = MP_BODY;
@@ -142,27 +142,36 @@ void Connection::mpBody(t_multipartsection &part)
 	{
 		String tmp(__buff.begin(), __buff.begin() + pos);
 		Connection::__fs << tmp;
+		Connection::__fs.close();
 		__buff.erase(0, pos + 2);
-		part = MP_BOUNDRY;
+		// part = MP_BOUNDRY;
 	}
 }
 void Connection::processMultiPartBody()
 {
-	std::cout << "multipart body\n";
-	static t_multipartsection part = MP_BOUNDRY;
-	do
+	static t_multipartsection part = MP_HEADERS;
+	size_t pos = __buff.find("\r\n\r\n");
+	if (pos == String::npos)
+		throw wsu::persist();
+	else
 	{
-		if (part == MP_BOUNDRY)
-			mpBoundry(part);
-		if (part == MP_HEADERS)
-			mpHeaders(part);
-		if (part == MP_BODY)
-			mpBody(part);
-	} while (true);
+				
+	}
+
+	return;
+	// static t_multipartsection part = MP_BOUNDRY;
+	// do
+	// {
+	// 	if (part == MP_BOUNDRY)
+	// 		mpBoundry(part);
+	// 	if (part == MP_HEADERS)
+	// 		mpHeaders(part);
+	// 	if (part == MP_BODY)
+	// 		mpBody(part);
+	// } while (__request.__phase != COMPLETE);
 }
 void Connection::processCunkedBody()
 {
-	std::cout << "chunked body\n";
 	static size_t chunkSize;
 	do
 	{
@@ -199,7 +208,6 @@ void Connection::processCunkedBody()
 }
 void Connection::processDefinedBody()
 {
-	std::cout << "defined body\n";
 	std::cout << __request.__headers.__contentLength << "\n";
 	if (__request.__headers.__contentLength < __buff.length())
 	{
@@ -222,7 +230,6 @@ void Connection::processDefinedBody()
 }
 void Connection::indentifyRequestBody()
 {
-	wsu::info("reading the body");
 	if (__request.__headers.__transferType == DEFINED)
 		processDefinedBody();
 	else if (__request.__headers.__transferType == CHUNKED)
@@ -232,19 +239,17 @@ void Connection::indentifyRequestBody()
 }
 void Connection::initializeTmpFiles()
 {
-	wsu::info("initializing temporary files");
-	if (__request.__headers.__transferType == DEFINED \
-		|| __request.__headers.__transferType == CHUNKED)
+	if (__request.__headers.__transferType == DEFINED || __request.__headers.__transferType == CHUNKED)
 	{
 		do
 		{
-			s_body	body;
+			s_body body;
 			body._fileName = wsu::generateTimeBasedFileName();
 			Connection::__fs.open(body._fileName.c_str());
 			if (!Connection::__fs.good())
-				continue ;
+				continue;
 			__request.__body.push_back(body);
-			break ;
+			break;
 		} while (true);
 	}
 	__request.__phase = PROCESSING;
@@ -276,7 +281,6 @@ String Connection::identifyRequestLine()
 }
 void Connection::processRequest()
 {
-	wsu::info("proccessing request");
 	String requestLine = identifyRequestLine();
 	String requestHeaders = identifyRequestHeaders();
 	this->__buff.erase(0, this->__erase);
@@ -293,9 +297,8 @@ void Connection::processRequest()
 void Connection::proccessData(String input)
 {
 	this->__buff += input;
-	if (__buff.empty())
-		return ;
 	wsu::info("proccessing data");
+	std::cout << input;
 	try
 	{
 		if (__request.__phase == NEWREQUEST)
@@ -322,13 +325,4 @@ void Connection::proccessData(String input)
 		wsu::error(e.what());
 		this->__erase = 0;
 	}
-	
-	if (__request.__phase == NEWREQUEST)
-	if (__request.__phase == INITIALIZING)
-		std::cout << "INITIALIZING\n";
-	if (__request.__phase == PROCESSING)
-		std::cout << "PROCESSING\n";
-	if (__request.__phase == COMPLETE)
-		std::cout << "COMPLETE\n";
-	wsu::info("completeeee--|" + __buff + "|");
 }

@@ -71,7 +71,6 @@ typedef std::map<String, String>::iterator mapIterator;
 
 typedef enum e_multipartsection
 {
-	MP_BOUNDRY,
 	MP_HEADERS,
 	MP_BODY,
 } t_multipartsection;
