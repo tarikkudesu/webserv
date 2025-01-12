@@ -246,35 +246,22 @@ void Connection::initializeTmpFiles()
 /******************************************************************************
  *                             REQUEST PROCESSING                             *
  ******************************************************************************/
-String Connection::identifyRequestHeaders()
-{
-	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
-	size_t pos = currBuff.find("\r\n\r\n");
-	if (pos == String::npos)
-		throw wsu::persist();
-	String requestHeaders(currBuff.begin(), currBuff.begin() + pos + 2);
-	this->__erase += pos + 4;
-	return requestHeaders;
-}
-String Connection::identifyRequestLine()
-{
-	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end()); 
-	size_t pos = currBuff.find("\r\n");
-	if (pos == String::npos)
-		throw wsu::persist();
-	String requestLine(currBuff.begin(), currBuff.begin() + pos);
-	this->__erase += pos + 2;
-	if (requestLine.length() >= 4094)
-		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
-	return requestLine;
-}
 void Connection::processRequest()
 {
-	String requestLine = identifyRequestLine();
-	String requestHeaders = identifyRequestHeaders();
-	this->__buff.erase(0, this->__erase);
-	this->__erase = 0;
-	this->__request.parseRequest(requestLine, requestHeaders);
+	wsu::info("new request");
+	size_t h = __data.find("\r\n");
+	size_t s = __data.find("\r\n\r\n");
+	if (s == String::npos || h == String::npos)
+		throw wsu::persist();
+	cString	requestLine = __data.substr(0, h);
+	__data.erase(0, h + 2);
+	cString	requestHeaders = __data.substr(0, s);
+	__data.erase(0, s + 2);
+	std::cout << RED << __data << "\n";
+	if (requestLine.length() >= 4094)
+		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
+	this->__request.parseRequest(requestLine.to_string(), requestHeaders.to_string());
+	exit(1);
 	if (__request.__method == POST)
 		__request.__phase = INITIALIZING;
 	else
@@ -283,10 +270,10 @@ void Connection::processRequest()
 /**********************************************************************************
  *                                  PROCESS DATA                                  *
  **********************************************************************************/
-void Connection::proccessData(char *input, ssize_t bytesRead)
+void Connection::proccessData(cString input)
 {
-	this->__data.join(cString(input, bytesRead));
-	this->__buff += input;
+	this->__data.join(input);
+	wsu::info("processing data");
 	try
 	{
 		if (__request.__phase == NEWREQUEST)

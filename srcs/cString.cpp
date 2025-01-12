@@ -6,6 +6,8 @@ cString::cString() : __buff(NULL), __size(0)
 
 cString::cString(char *buff, size_t size) : __buff(NULL), __size(size)
 {
+	if (buff == NULL)
+		return ;
 	__buff = new char[__size];
 	for (size_t i = 0; i < __size; i++)
 		__buff[i] = buff[i];
@@ -69,7 +71,7 @@ char *cString::getBuff() const
 {
 	return __buff;
 }
-size_t cString::getSize() const
+size_t cString::length() const
 {
 	return __size;
 }
@@ -86,7 +88,7 @@ cString cString::duplicate()
 cString cString::substr(size_t start, size_t length)
 {
 	if (start >= __size)
-		return cString(nullptr, 0);
+		return cString(NULL, 0);
 	if (start + length > __size)
 		length = __size - start;
 	char *new_buff = new char[length];
@@ -125,7 +127,7 @@ size_t cString::find(const String &f) const
 std::ostream &operator<<(std::ostream &out, const cString &str)
 {
 	char *buff = str.getBuff();
-	size_t size = str.getSize();
+	size_t size = str.length();
 	for (size_t i = 0; i < size; i++)
 		out << buff[i];
 	return out;

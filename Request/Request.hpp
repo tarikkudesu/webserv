@@ -30,7 +30,7 @@ class Request
 		std::map< String, String >		__queryVariables;
 		std::vector< s_body >			__body;
 
-		void							parseRequest( const String &requestLine, const String &requestHeaders );
+		void							parseRequest(String requestLine, String requestHeaders);
 
 
 		Request();

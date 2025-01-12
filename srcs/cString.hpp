@@ -25,7 +25,7 @@ class cString
 
 		std::string to_string() const;
 		char		*getBuff() const;
-		size_t		getSize() const;
+		size_t		length() const;
 };
 
 std::ostream& operator<<(std::ostream& out, const cString& str);

@@ -126,27 +126,31 @@ void Request::proccessRequestLine(const String &requestLine)
 		throw ErrorResponse(505, "Unsupported protocole");
 	proccessURI();
 }
-void Request::parseRequest(const String &requestLine, const String &requestHeaders)
+void Request::parseRequest(String requestLine, String requestHeaders)
 {
+	std::cout << requestLine << "\n"
+			  << requestHeaders << "\n";
 	clear();
 	proccessRequestLine(requestLine);
 	proccessHeaders(requestHeaders);
 	__headers.parseHeaders(__headerFeilds);
 }
 
-std::ostream &operator<<(std::ostream &o, const Request &req )
+std::ostream &operator<<(std::ostream &o, const Request &req)
 {
 	std::cout << "Request: \n";
 	std::cout << "\tprotocole: " << req.__protocole << "\n";
 	std::cout << "\tmethod: " << methodToString(req.__method) << "\n";
 	std::cout << "\tURI: " << req.__URI << "\n";
 	std::cout << "\tquery: ";
-	for (std::map< String, String >::const_iterator it = req.__queryVariables.begin(); it != req.__queryVariables.end(); it++) {
+	for (std::map<String, String>::const_iterator it = req.__queryVariables.begin(); it != req.__queryVariables.end(); it++)
+	{
 		std::cout << it->first << "=" << it->second << ", ";
-	} std::cout << "\n";
+	}
+	std::cout << "\n";
 	std::cout << "\tFragement: " << req.__fragement << "\n";
 	std::cout << "\theaders: \n";
-	for (std::map< String, String >::const_iterator it = req.__headerFeilds.begin(); it != req.__headerFeilds.end(); it++)
+	for (std::map<String, String>::const_iterator it = req.__headerFeilds.begin(); it != req.__headerFeilds.end(); it++)
 		std::cout << "\t\t" << it->first << ": " << it->second << "\n";
 	return o;
 }

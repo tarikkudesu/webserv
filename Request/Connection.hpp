@@ -22,10 +22,8 @@ class Connection
 		void					processCunkedBody();
 		void					initializeTmpFiles();
 		void					processDefinedBody();
-		String					identifyRequestLine();
 		void					indentifyRequestBody();
 		void					processMultiPartBody();
-		String					identifyRequestHeaders();
 		void					mpBody( t_multipartsection &part );
 		void					mpHeaders( t_multipartsection &part );
 		Connection();
@@ -35,7 +33,7 @@ class Connection
 		std::queue< String >	__responseQueue;
 
 		void					setServers( t_Server &servers );
-		void					proccessData(char *input, ssize_t bytesRead);
+		void					proccessData(cString);
 		int						getSock();
 
 
