@@ -29,7 +29,6 @@ class Connection
 		Connection();
 
 	public:
-		String					__buff;
 		std::queue< String >	__responseQueue;
 
 		void					setServers( t_Server &servers );

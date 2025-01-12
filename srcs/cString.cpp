@@ -7,7 +7,7 @@ cString::cString() : __buff(NULL), __size(0)
 cString::cString(char *buff, size_t size) : __buff(NULL), __size(size)
 {
 	if (buff == NULL)
-		return ;
+		return;
 	__buff = new char[__size];
 	for (size_t i = 0; i < __size; i++)
 		__buff[i] = buff[i];
@@ -27,7 +27,12 @@ cString::~cString()
 {
 	delete[] __buff;
 }
-
+void cString::clear()
+{
+	delete[] __buff;
+	__buff = NULL;
+	__size = 0;
+}
 cString &cString::operator=(const cString &assign)
 {
 	if (this != &assign)
@@ -75,7 +80,7 @@ size_t cString::length() const
 {
 	return __size;
 }
-cString cString::duplicate()
+cString cString::duplicate() const
 {
 	char *new_buff = new char[__size];
 	for (size_t i = 0; i < __size; i++)
@@ -84,7 +89,6 @@ cString cString::duplicate()
 	delete[] new_buff;
 	return tmp;
 }
-
 cString cString::substr(size_t start, size_t length)
 {
 	if (start >= __size)

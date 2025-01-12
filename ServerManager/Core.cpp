@@ -1,32 +1,32 @@
 #include "Core.hpp"
 
-Core::Core()
-{
-    wsu::debug("core constructor");
-}
-Core::Core( const Core &copy )
-{
-    wsu::debug("copy constructor");
-    (void)copy;
-}
-Core	&Core::operator=( const Core &assign )
-{
-    wsu::debug("copy assignement operator");
-	(void)assign;
-    return *this;
-}
-Core::~Core()
-{
-    clear();
-    wsu::debug("core destructor");
-}
-
 bool Core::up = true;
 int Core::__sockNum = 0;
 t_Server Core::__servers;
 t_events Core::__sockets;
 t_Connections Core::__connections;
 struct pollfd *Core::__events = NULL;
+
+Core::Core()
+{
+    wsu::debug("Core constructor");
+}
+Core::Core( const Core &copy )
+{
+    wsu::debug("Core copy constructor");
+    (void)copy;
+}
+Core	&Core::operator=( const Core &assign )
+{
+    wsu::debug("Core copy assignement operator");
+	(void)assign;
+    return *this;
+}
+Core::~Core()
+{
+    clear();
+    wsu::debug("Core destructor");
+}
 
 /****************************************************************************
  *                               MINI METHODS                               *
@@ -195,9 +195,7 @@ void Core::writeDataToSocket(int sd)
 	Core::__connections[sd]->__responseQueue.pop();
 	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
 	if (bytesWritten > 0)
-	{
 		wsu::info("response sent");
-	}
 	else
 	{
 		int sockErr = 0;
@@ -216,17 +214,13 @@ void Core::readDataFromSocket(int sd)
 
 	ssize_t bytesRead = recv(sd, buff, READ_SIZE, 0);
 	if (bytesRead == 0)
-	{
 		removeConnection(sd);
-	}
 	else if (bytesRead > 0)
 	{
 		buff[bytesRead] = '\0';
 		t_Connections::iterator iter = Core::__connections.find(sd);
 		if (iter != Core::__connections.end())
-		{
 			iter->second->proccessData(cString(buff, bytesRead));
-		}
 	}
 	else
 	{

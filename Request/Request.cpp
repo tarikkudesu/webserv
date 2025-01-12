@@ -128,8 +128,6 @@ void Request::proccessRequestLine(const String &requestLine)
 }
 void Request::parseRequest(String requestLine, String requestHeaders)
 {
-	std::cout << requestLine << "\n"
-			  << requestHeaders << "\n";
 	clear();
 	proccessRequestLine(requestLine);
 	proccessHeaders(requestHeaders);
@@ -144,9 +142,7 @@ std::ostream &operator<<(std::ostream &o, const Request &req)
 	std::cout << "\tURI: " << req.__URI << "\n";
 	std::cout << "\tquery: ";
 	for (std::map<String, String>::const_iterator it = req.__queryVariables.begin(); it != req.__queryVariables.end(); it++)
-	{
 		std::cout << it->first << "=" << it->second << ", ";
-	}
 	std::cout << "\n";
 	std::cout << "\tFragement: " << req.__fragement << "\n";
 	std::cout << "\theaders: \n";

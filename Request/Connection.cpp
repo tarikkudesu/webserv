@@ -79,7 +79,7 @@ void Connection::processResponse()
  ***************************************************************************/
 void Connection::mpHeaders(t_multipartsection &part)
 {
-	size_t pos = __buff.find("\r\n\r\n");
+	size_t pos = __data.find("\r\n\r\n");
 	if (pos == String::npos)
 		throw wsu::persist();
 	do
@@ -98,44 +98,44 @@ void Connection::mpHeaders(t_multipartsection &part)
 	} while (true);
 	do
 	{
-		size_t p = __buff.find("\r\n");
+		size_t p = __data.find("\r\n");
 		if (p == 0 || p == String::npos)
 			break;
-		String header(__buff.begin(), __buff.begin() + p);
-		__request.__body.back()._headers.push_back(header);
-		__buff.erase(0, p + 2);
+		cString header = __data.substr(0, p);
+		__request.__body.back()._headers.push_back(header.to_string());
+		__data.erase(0, p + 2);
 	} while (true);
-	__buff.erase(0, 2);
+	__data.erase(0, 2);
 }
 void Connection::mpBody(t_multipartsection &part)
 {
-	size_t end = __buff.find("\r\n--" + __request.__headers.__boundary + "--\r\n");
-	size_t pos = __buff.find("\r\n--" + __request.__headers.__boundary + "\r\n");
+	size_t end = __data.find("\r\n--" + __request.__headers.__boundary + "--\r\n");
+	size_t pos = __data.find("\r\n--" + __request.__headers.__boundary + "\r\n");
 	if (pos == String::npos && end == String::npos)
 	{
 		size_t len = __request.__headers.__boundary.length() + 8;
-		if (__buff.length() <= len)
+		if (__data.length() <= len)
 			throw wsu::persist();
-		String data(__buff.begin(), __buff.end() - len);
+		cString data = __data.substr(0, __data.length() - len);
 		Connection::__fs << data;
-		__buff.erase(0, data.length());
+		__data.erase(0, data.length());
 	}
 	else if (pos != String::npos)
 	{
 		size_t len = __request.__headers.__boundary.length() + 6;
-		String data(__buff.begin(), __buff.begin() + pos);
+		cString data = __data.substr(0, pos);
 		Connection::__fs << data;
 		Connection::__fs.close();
-		__buff.erase(0, pos + len);
+		__data.erase(0, pos + len);
 		part = MP_HEADERS;
 	}
 	else if (end != String::npos)
 	{
 		size_t len = __request.__headers.__boundary.length() + 8;
-		String data(__buff.begin(), __buff.begin() + end);
+		cString data = __data.substr(0, end);
 		Connection::__fs << data;
 		Connection::__fs.close();
-		__buff.erase(0, end + len);
+		__data.erase(0, end + len);
 		__request.__phase = COMPLETE;
 		part = MP_HEADERS;
 	}
@@ -158,12 +158,12 @@ void Connection::processCunkedBody()
 	{
 		if (chunkSize == 0)
 		{
-			size_t pos = __buff.find("\r\n");
+			size_t pos = __data.find("\r\n");
 			if (pos == String::npos)
 				throw wsu::persist();
-			String hex = String(__buff.begin(), __buff.begin() + pos);
-			chunkSize = wsu::hexToInt(hex);
-			__buff.erase(0, pos + 2);
+			cString hex = __data.substr(0, pos);
+			chunkSize = wsu::hexToInt(hex.to_string());
+			__data.erase(0, pos + 2);
 			if (chunkSize == 0)
 			{
 				Connection::__fs.close();
@@ -171,36 +171,36 @@ void Connection::processCunkedBody()
 				return;
 			}
 		}
-		if (chunkSize < __buff.length())
+		if (chunkSize < __data.length())
 		{
-			String tmp = String(__buff.begin(), __buff.begin() + chunkSize);
+			cString tmp = __data.substr(0, chunkSize);
 			Connection::__fs << tmp;
-			__buff.erase(0, chunkSize);
+			__data.erase(0, chunkSize);
 			chunkSize -= tmp.length();
 		}
 		else
 		{
-			Connection::__fs << __buff;
-			chunkSize -= __buff.length();
-			__buff.clear();
+			Connection::__fs << __data;
+			chunkSize -= __data.length();
+			__data.clear();
 			break;
 		}
 	} while (true);
 }
 void Connection::processDefinedBody()
 {
-	if (__request.__headers.__contentLength < __buff.length())
+	if (__request.__headers.__contentLength < __data.length())
 	{
-		String tmp = String(__buff.begin(), __buff.begin() + __request.__headers.__contentLength);
+		cString tmp = __data.substr(0, __request.__headers.__contentLength);
 		__request.__headers.__contentLength -= tmp.length();
-		__buff = __buff.substr(__request.__headers.__contentLength);
+		__data.erase(0, tmp.length());
 		Connection::__fs << tmp;
 	}
 	else
 	{
-		Connection::__fs << __buff;
-		__request.__headers.__contentLength -= __buff.length();
-		__buff.clear();
+		Connection::__fs << __data;
+		__request.__headers.__contentLength -= __data.length();
+		__data.clear();
 	}
 	if (__request.__headers.__contentLength == 0)
 	{
@@ -234,34 +234,33 @@ void Connection::initializeTmpFiles()
 	}
 	else if (__request.__headers.__transferType == MULTIPART)
 	{
-		size_t pos = __buff.find("--" + __request.__headers.__boundary + "\r\n");
+		size_t pos = __data.find("--" + __request.__headers.__boundary + "\r\n");
 		if (pos == String::npos)
 			throw wsu::persist();
 		else if (pos != 0)
 			throw ErrorResponse(400, "Multipart/data-from: boundry mismatch");
-		__buff.erase(0, __request.__headers.__boundary.length() + 4);
+		__data.erase(0, __request.__headers.__boundary.length() + 4);
 	}
 	__request.__phase = PROCESSING;
 }
 /******************************************************************************
  *                             REQUEST PROCESSING                             *
  ******************************************************************************/
+
 void Connection::processRequest()
 {
-	wsu::info("new request");
-	size_t h = __data.find("\r\n");
-	size_t s = __data.find("\r\n\r\n");
+	size_t s = __data.find("\r\n");
+	size_t h = __data.find("\r\n\r\n");
 	if (s == String::npos || h == String::npos)
 		throw wsu::persist();
-	cString	requestLine = __data.substr(0, h);
-	__data.erase(0, h + 2);
-	cString	requestHeaders = __data.substr(0, s);
+	h -= s + 2;
+	cString	requestLine = __data.substr(0, s);
 	__data.erase(0, s + 2);
-	std::cout << RED << __data << "\n";
+	cString	requestHeaders = __data.substr(0, h);
+	__data.erase(0, h + 4);
 	if (requestLine.length() >= 4094)
 		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
 	this->__request.parseRequest(requestLine.to_string(), requestHeaders.to_string());
-	exit(1);
 	if (__request.__method == POST)
 		__request.__phase = INITIALIZING;
 	else
@@ -273,7 +272,6 @@ void Connection::processRequest()
 void Connection::proccessData(cString input)
 {
 	this->__data.join(input);
-	wsu::info("processing data");
 	try
 	{
 		if (__request.__phase == NEWREQUEST)

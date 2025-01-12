@@ -25,7 +25,6 @@ class Core
 		static void					acceptNewConnection( int sd );
 		static void					addSocket( int sd, t_endian endian );
 		static void					proccessPollEvent( int sd, int &retV );
-		static struct pollfd		&getSocketStructure( int sd );
 
 		Core();
 		Core( const Core &copy );
@@ -44,7 +43,6 @@ class Core
 		static bool					up;
 		static void 				clear();
 		static void					mainLoop();
-
 };
 
 #endif
