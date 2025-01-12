@@ -10,6 +10,7 @@ class Connection
 {
 	private :
 		int						__sd;
+		cString					__data;
 		size_t					__erase;
 		Request					__request;
 		t_Server				*__serversP;
@@ -27,7 +28,6 @@ class Connection
 		String					identifyRequestHeaders();
 		void					mpBody( t_multipartsection &part );
 		void					mpHeaders( t_multipartsection &part );
-		void					mpBoundry( t_multipartsection &part );
 		Connection();
 
 	public:
@@ -35,7 +35,7 @@ class Connection
 		std::queue< String >	__responseQueue;
 
 		void					setServers( t_Server &servers );
-		void					proccessData( String input );
+		void					proccessData(char *input, ssize_t bytesRead);
 		int						getSock();
 
 

@@ -105,7 +105,7 @@ void Connection::mpHeaders(t_multipartsection &part)
 		__request.__body.back()._headers.push_back(header);
 		__buff.erase(0, p + 2);
 	} while (true);
-	__buff.erase(0, 4);
+	__buff.erase(0, 2);
 }
 void Connection::mpBody(t_multipartsection &part)
 {
@@ -116,7 +116,7 @@ void Connection::mpBody(t_multipartsection &part)
 		size_t len = __request.__headers.__boundary.length() + 8;
 		if (__buff.length() <= len)
 			throw wsu::persist();
-		String data(__buff.begin(), __buff.begin() + len);
+		String data(__buff.begin(), __buff.end() - len);
 		Connection::__fs << data;
 		__buff.erase(0, data.length());
 	}
@@ -258,7 +258,7 @@ String Connection::identifyRequestHeaders()
 }
 String Connection::identifyRequestLine()
 {
-	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end());
+	String currBuff(this->__buff.begin() + this->__erase, this->__buff.end()); 
 	size_t pos = currBuff.find("\r\n");
 	if (pos == String::npos)
 		throw wsu::persist();
@@ -270,11 +270,8 @@ String Connection::identifyRequestLine()
 }
 void Connection::processRequest()
 {
-	std::cout << "new Request\n";
 	String requestLine = identifyRequestLine();
 	String requestHeaders = identifyRequestHeaders();
-	std::cout << requestLine << "\n"
-			  << requestHeaders << "\n";
 	this->__buff.erase(0, this->__erase);
 	this->__erase = 0;
 	this->__request.parseRequest(requestLine, requestHeaders);
@@ -286,10 +283,10 @@ void Connection::processRequest()
 /**********************************************************************************
  *                                  PROCESS DATA                                  *
  **********************************************************************************/
-void Connection::proccessData(String input)
+void Connection::proccessData(char *input, ssize_t bytesRead)
 {
+	this->__data.join(cString(input, bytesRead));
 	this->__buff += input;
-	wsu::info("proccessing data");
 	try
 	{
 		if (__request.__phase == NEWREQUEST)

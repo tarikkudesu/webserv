@@ -225,7 +225,7 @@ void Core::readDataFromSocket(int sd)
 		t_Connections::iterator iter = Core::__connections.find(sd);
 		if (iter != Core::__connections.end())
 		{
-			iter->second->proccessData(String(buff));
+			iter->second->proccessData(buff, bytesRead);
 		}
 	}
 	else

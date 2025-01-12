@@ -1,7 +1,8 @@
 #ifndef __WSU_HPP__
 #define __WSU_HPP__
 
-#include "webserv.hpp"
+#include "cString.hpp"
+
 class wsu
 {
 private:
