@@ -125,7 +125,6 @@ void Core::addSocket(int sd, t_endian endian)
 		sockStruct.events = POLLIN | POLLOUT | POLLHUP;
 	wsu::setNonBlockingMode(sd);
 	Core::__sockets.push_back(sockStruct);
-	Core::__sockNum++;
 }
 bool Core::isServerSocket(int sd)
 {
@@ -343,6 +342,7 @@ void Core::mainLoop()
 				}
 			}
 			delete[] Core::__events;
+			Core::__sockNum = Core::__sockets.size();
 		}
 	}
 	catch (std::exception &e)

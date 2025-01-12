@@ -1,6 +1,6 @@
 #include "Request.hpp"
 
-Request::Request()
+Request::Request() : __phase(NEWREQUEST)
 {
 }
 Request::Request(const Request &copy)

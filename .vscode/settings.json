@@ -88,7 +88,7 @@
 	"editor.fontWeight": "bold",
 	// "workbench.sash.size": 1,
 	"workbench.sideBar.location": "left",
-	// "workbench.statusBar.visible": false,
+	"workbench.statusBar.visible": false,
 	"editor.minimap.enabled": false,
 	"breadcrumbs.enabled": false,
 	"explorer.decorations.colors": false,

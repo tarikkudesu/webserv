@@ -1,44 +1,44 @@
-SRC		=	ServerManager/Cgi.cpp \
-			ServerManager/Connection.cpp \
-			ServerManager/Core.cpp \
-			ServerManager/Delete.cpp \
-			ServerManager/ErrorResponse.cpp \
-			ServerManager/Get.cpp \
-			ServerManager/Headers.cpp \
+SRC		=	ServerManager/Core.cpp \
 			ServerManager/Location.cpp \
-			ServerManager/Post.cpp \
-			ServerManager/Request.cpp \
-			ServerManager/Response.cpp \
-			ServerManager/RessourceHandler.cpp \
 			ServerManager/Server.cpp \
 			ServerManager/ServerManager.cpp \
-			ServerManager/WSU.cpp \
-			srcs/main.cpp 
+			Response/RessourceHandler.cpp \
+			Response/Delete.cpp \
+			Response/Post.cpp \
+			Response/Response.cpp \
+			Response/Get.cpp \
+			Response/ErrorResponse.cpp \
+			Response/Cgi.cpp \
+			srcs/WSU.cpp \
+			srcs/main.cpp \
+			Request/Connection.cpp \
+			Request/Headers.cpp \
+			Request/Request.cpp
 OBJ		=	$(SRC:.cpp=.o)
 NAME	=	webserv
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@c++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
+	@c++ -Wall -Wextra -Werror -g -fsanitize=address -std=c++98 $(OBJ) -o $(NAME)
 
-%.o: %.cpp	ServerManager/Cgi.hpp \
-			ServerManager/Connection.hpp \
-			ServerManager/Core.hpp \
-			ServerManager/Delete.hpp \
-			ServerManager/ErrorResponse.hpp \
-			ServerManager/Get.hpp \
-			ServerManager/Headers.hpp \
-			ServerManager/Location.hpp \
-			ServerManager/Post.hpp \
-			ServerManager/Request.hpp \
-			ServerManager/Response.hpp \
-			ServerManager/RessourceHandler.hpp \
-			ServerManager/Server.hpp \
+%.o: %.cpp	ServerManager/Location.hpp \
 			ServerManager/ServerManager.hpp \
-			ServerManager/WSU.hpp \
-			srcs/webserv.hpp 
-	@c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
+			ServerManager/Server.hpp \
+			ServerManager/Core.hpp \
+			Response/RessourceHandler.hpp \
+			Response/Response.hpp \
+			Response/ErrorResponse.hpp \
+			Response/Delete.hpp \
+			Response/Cgi.hpp \
+			Response/Get.hpp \
+			Response/Post.hpp \
+			srcs/WSU.hpp \
+			srcs/webserv.hpp \
+			Request/Connection.hpp \
+			Request/Request.hpp \
+			Request/Headers.hpp
+	@c++ -Wall -Wextra -Werror -g -fsanitize=address -std=c++98 -c $< -o $@
 
 clean:
 	@rm -f $(OBJ)

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chunked Request Example</title>
+</head>
+<body>
+    <h1>Send Chunked Data</h1>
+    <button id="sendChunks">Send Chunked Request</button>
+
+    <script>
+        document.getElementById('sendChunks').addEventListener('click', async () => {
+            const url = 'http://localhost:9000'; // Replace with your server URL
+
+            // Open a connection
+            const stream = new WritableStream({
+                write(chunk) {
+                    console.log('Sent chunk:', chunk);
+                }
+            });
+
+            const writer = stream.getWriter();
+
+            // Simulate sending chunks
+            const chunks = ['First chunk\n', 'Second chunk\n', 'Third chunk\n'];
+            for (const chunk of chunks) {
+                await writer.write(new TextEncoder().encode(chunk));
+            }
+
+            // Close the connection
+            writer.close();
+            console.log('All chunks sent');
+        });
+    </script>
+</body>
+</html>

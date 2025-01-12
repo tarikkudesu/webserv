@@ -1,6 +1,6 @@
 #ifndef __CORE_HPP__
 # define __CORE_HPP__
-#include "Connection.hpp"
+#include "../Request/Connection.hpp"
 
 typedef std::map< int, Connection* >		t_Connections;
 
@@ -25,6 +25,7 @@ class Core
 		static void					acceptNewConnection( int sd );
 		static void					addSocket( int sd, t_endian endian );
 		static void					proccessPollEvent( int sd, int &retV );
+		static struct pollfd		&getSocketStructure( int sd );
 
 		Core();
 		Core( const Core &copy );

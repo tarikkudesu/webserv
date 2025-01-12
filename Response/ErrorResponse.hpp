@@ -1,7 +1,7 @@
 #ifndef __ERRORRESPONSE_HPP__
 # define __ERRORRESPONSE_HPP__
 
-# include "Server.hpp"
+# include "../ServerManager/Server.hpp"
 
 class ErrorResponse
 {

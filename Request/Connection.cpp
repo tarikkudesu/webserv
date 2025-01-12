@@ -77,98 +77,79 @@ void Connection::processResponse()
 /***************************************************************************
  *                             BODY PROCESSING                             *
  ***************************************************************************/
-void Connection::mpBoundry(t_multipartsection &part)
-{
-	size_t pos = __buff.find("\r\n");
-	if (pos == String::npos)
-		throw wsu::persist();
-	String tmp(__buff.begin(), __buff.begin() + pos);
-	__buff.erase(0, pos + 2);
-	std::cout << tmp << "\n";
-	if (tmp == "--" + __request.__headers.__boundry + "--")
-	{
-		Connection::__fs.close();
-		__request.__phase = COMPLETE;
-		std::cout << "completed all files\n";
-	}
-	else if (tmp == "--" + __request.__headers.__boundry)
-	{
-		std::cout << "completed file\n";
-		do
-		{
-			s_body body;
-			body._fileName = wsu::generateTimeBasedFileName();
-			Connection::__fs.open(body._fileName.c_str());
-			if (!Connection::__fs.good())
-				continue;
-			__request.__body.push_back(body);
-			part = MP_HEADERS;
-			return;
-		} while (true);
-	}
-	else
-		throw ErrorResponse(400, "multipart/form-data: boundry mismatch");
-}
 void Connection::mpHeaders(t_multipartsection &part)
 {
+	size_t pos = __buff.find("\r\n\r\n");
+	if (pos == String::npos)
+		throw wsu::persist();
 	do
 	{
-		size_t pos = __buff.find("\r\n");
-		if (pos == String::npos)
-			throw wsu::persist();
-		if (pos != 0)
+		s_body body;
+		body._fileName = wsu::generateTimeBasedFileName();
+		Connection::__fs.open(body._fileName.c_str());
+		if (!Connection::__fs.good())
 		{
-			String tmp(__buff.begin(), __buff.begin() + pos);
-			__request.__body.back()._headers.push_back(tmp);
-			__buff.erase(0, pos + 2);
+			wsu::warn("could no create temporary file: " + body._fileName);
+			continue ;
 		}
-		else
-		{
-			__buff.erase(0, 2);
-			break;
-		}
+		__request.__body.push_back(body);
+		part = MP_BODY;
+		break;
 	} while (true);
-	part = MP_BODY;
+	do
+	{
+		size_t p = __buff.find("\r\n");
+		if (p == 0 || p == String::npos)
+			break;
+		String header(__buff.begin(), __buff.begin() + p);
+		__request.__body.back()._headers.push_back(header);
+		__buff.erase(0, p + 2);
+	} while (true);
+	__buff.erase(0, 4);
 }
 void Connection::mpBody(t_multipartsection &part)
 {
-	size_t pos = __buff.find("\r\n");
-	if (pos == String::npos)
+	size_t end = __buff.find("\r\n--" + __request.__headers.__boundary + "--\r\n");
+	size_t pos = __buff.find("\r\n--" + __request.__headers.__boundary + "\r\n");
+	if (pos == String::npos && end == String::npos)
 	{
-		Connection::__fs << __buff;
-		__buff.clear();
+		size_t len = __request.__headers.__boundary.length() + 8;
+		if (__buff.length() <= len)
+			throw wsu::persist();
+		String data(__buff.begin(), __buff.begin() + len);
+		Connection::__fs << data;
+		__buff.erase(0, data.length());
 	}
-	else
+	else if (pos != String::npos)
 	{
-		String tmp(__buff.begin(), __buff.begin() + pos);
-		Connection::__fs << tmp;
+		size_t len = __request.__headers.__boundary.length() + 6;
+		String data(__buff.begin(), __buff.begin() + pos);
+		Connection::__fs << data;
 		Connection::__fs.close();
-		__buff.erase(0, pos + 2);
-		// part = MP_BOUNDRY;
+		__buff.erase(0, pos + len);
+		part = MP_HEADERS;
+	}
+	else if (end != String::npos)
+	{
+		size_t len = __request.__headers.__boundary.length() + 8;
+		String data(__buff.begin(), __buff.begin() + end);
+		Connection::__fs << data;
+		Connection::__fs.close();
+		__buff.erase(0, end + len);
+		__request.__phase = COMPLETE;
+		part = MP_HEADERS;
 	}
 }
 void Connection::processMultiPartBody()
 {
 	static t_multipartsection part = MP_HEADERS;
-	size_t pos = __buff.find("\r\n\r\n");
-	if (pos == String::npos)
-		throw wsu::persist();
-	else
+	do
 	{
-				
-	}
-
-	return;
-	// static t_multipartsection part = MP_BOUNDRY;
-	// do
-	// {
-	// 	if (part == MP_BOUNDRY)
-	// 		mpBoundry(part);
-	// 	if (part == MP_HEADERS)
-	// 		mpHeaders(part);
-	// 	if (part == MP_BODY)
-	// 		mpBody(part);
-	// } while (__request.__phase != COMPLETE);
+		if (part == MP_HEADERS)
+			mpHeaders(part);
+		if (part == MP_BODY)
+			mpBody(part);
+	} while(__request.__phase != COMPLETE);
 }
 void Connection::processCunkedBody()
 {
@@ -208,7 +189,6 @@ void Connection::processCunkedBody()
 }
 void Connection::processDefinedBody()
 {
-	std::cout << __request.__headers.__contentLength << "\n";
 	if (__request.__headers.__contentLength < __buff.length())
 	{
 		String tmp = String(__buff.begin(), __buff.begin() + __request.__headers.__contentLength);
@@ -252,6 +232,15 @@ void Connection::initializeTmpFiles()
 			break;
 		} while (true);
 	}
+	else if (__request.__headers.__transferType == MULTIPART)
+	{
+		size_t pos = __buff.find("--" + __request.__headers.__boundary + "\r\n");
+		if (pos == String::npos)
+			throw wsu::persist();
+		else if (pos != 0)
+			throw ErrorResponse(400, "Multipart/data-from: boundry mismatch");
+		__buff.erase(0, __request.__headers.__boundary.length() + 4);
+	}
 	__request.__phase = PROCESSING;
 }
 /******************************************************************************
@@ -281,12 +270,15 @@ String Connection::identifyRequestLine()
 }
 void Connection::processRequest()
 {
+	std::cout << "new Request\n";
 	String requestLine = identifyRequestLine();
 	String requestHeaders = identifyRequestHeaders();
+	std::cout << requestLine << "\n"
+			  << requestHeaders << "\n";
 	this->__buff.erase(0, this->__erase);
 	this->__erase = 0;
 	this->__request.parseRequest(requestLine, requestHeaders);
-	if (this->__request.__method == POST)
+	if (__request.__method == POST)
 		__request.__phase = INITIALIZING;
 	else
 		__request.__phase = COMPLETE;
@@ -298,7 +290,6 @@ void Connection::proccessData(String input)
 {
 	this->__buff += input;
 	wsu::info("proccessing data");
-	std::cout << input;
 	try
 	{
 		if (__request.__phase == NEWREQUEST)

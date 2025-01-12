@@ -30,7 +30,7 @@ Headers::~Headers()
 void Headers::clear()
 {
 	this->__host.clear();
-	this->__boundry.clear();
+	this->__boundary.clear();
 	this->__contentLength = 0;
 	this->__contentType.clear();
 	this->__transferType = NONE;
@@ -70,7 +70,7 @@ void Headers::contentType(std::map<String, String> &headers)
 				wsu::trimSpaces(tmp.at(1));
 				t_svec t = wsu::splitByChar(tmp.at(1), '=');
 				if (t.size() == 2 && t.at(0) == "boundary")
-					this->__boundry = t.at(1);
+					this->__boundary = t.at(1);
 				this->__transferType = MULTIPART;
 			}
 		}

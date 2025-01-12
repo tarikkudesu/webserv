@@ -58,9 +58,11 @@ void Response::__check_methods()
 			executeGet();
 			break;
 		case POST:
+			throw ErrorResponse(500, "still working on it");
 			executePost();
 			break;
 		case DELETE:
+			throw ErrorResponse(500, "still working on it");
 			executeDelete();
 			break;
 		default:

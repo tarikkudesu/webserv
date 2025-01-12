@@ -1,7 +1,7 @@
 #ifndef __HEADERS_HPP__
 # define __HEADERS_HPP__
 
-# include "ErrorResponse.hpp"
+# include "../Response/ErrorResponse.hpp"
 
 class Headers
 {
@@ -18,7 +18,7 @@ class Headers
 	public:
 		int							__port;
 		String						__host;
-		String						__boundry;
+		String						__boundary;
 		String						__contentType;
 		size_t						__contentLength;
 		String						__transferEncoding;

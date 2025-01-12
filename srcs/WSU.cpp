@@ -115,6 +115,8 @@ void wsu::logs(std::vector<String> &args)
 	}
 	try
 	{
+		if (READ_SIZE < 1024)
+			throw std::runtime_error("read size less then 1024 is not recommended");
 		wsu::loadErrPages();
 		wsu::loadMimeTypes();
 		wsu::loadErrorCodes();
