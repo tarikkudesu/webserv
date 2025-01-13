@@ -19,8 +19,8 @@ bool wsu::__warn = false;
 bool wsu::__error = false;
 bool wsu::__fatal = false;
 
-wsu::persist::persist( void ) { }
-const char	*wsu::persist::what( void ) const throw() { return "persist"; }
+wsu::persist::persist(void) {}
+const char *wsu::persist::what(void) const throw() { return "persist"; }
 
 /************************************************************************************************
  *                                             LOGS                                             *
@@ -29,7 +29,7 @@ const char	*wsu::persist::what( void ) const throw() { return "persist"; }
 String wsu::generateTimeBasedFileName()
 {
 	static unsigned long cpt;
-    return "./text/." + wsu::intToString(std::time(NULL) + cpt++) + ".tmp"; // change path Later
+	return "./.temp/." + wsu::intToString(std::time(NULL) + cpt++) + ".tmp"; // change path Later
 }
 
 bool wsu::endWith(const std::string &file, const char *extension)
@@ -470,7 +470,6 @@ void wsu::loadMimeTypes(void)
 	} while (true);
 	fs.close();
 }
-
 String wsu::buildListingBody(String path, const t_svec &list)
 {
 	String body = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
@@ -490,7 +489,7 @@ String wsu::buildListingBody(String path, const t_svec &list)
 			continue;
 		String listing = anchor;
 		String link = wsu::joinPaths(wsu::getParentPath(path), *it);
-		wsu::replaceString(listing, "LINK",link);
+		wsu::replaceString(listing, "LINK", link);
 		wsu::replaceString(listing, "NAME", *it);
 		ss << listing;
 	}

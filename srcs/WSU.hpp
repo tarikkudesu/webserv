@@ -1,7 +1,7 @@
 #ifndef __WSU_HPP__
 #define __WSU_HPP__
 
-#include "cString.hpp"
+#include "BasicString.hpp"
 
 class wsu
 {
@@ -12,10 +12,11 @@ private:
 	~wsu();
 
 public:
-	class persist : public std::exception {
-		public :
-			persist();
-			virtual const char	*what( void ) const throw();
+	class persist : public std::exception
+	{
+	public:
+		persist();
+		virtual const char *what(void) const throw();
 	};
 
 	static std::map<int16_t, String> __defaultErrorPages;
@@ -37,7 +38,6 @@ public:
 	static void running(String __log_message);
 	static void terr(String __error_message);
 	static void terr(char *__eror_message);
-
 
 	static String logDate();
 	static void loadErrPages();

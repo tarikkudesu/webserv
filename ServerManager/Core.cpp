@@ -220,7 +220,7 @@ void Core::readDataFromSocket(int sd)
 		buff[bytesRead] = '\0';
 		t_Connections::iterator iter = Core::__connections.find(sd);
 		if (iter != Core::__connections.end())
-			iter->second->proccessData(cString(buff, bytesRead));
+			iter->second->proccessData(BasicString(buff, bytesRead));
 	}
 	else
 	{

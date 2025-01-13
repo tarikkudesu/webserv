@@ -10,8 +10,7 @@ class Connection
 {
 	private :
 		int						__sd;
-		cString					__data;
-		size_t					__erase;
+		BasicString				__data;
 		Request					__request;
 		t_Server				*__serversP;
 		static std::ofstream	__fs;
@@ -32,7 +31,7 @@ class Connection
 		std::queue< String >	__responseQueue;
 
 		void					setServers( t_Server &servers );
-		void					proccessData(cString);
+		void					proccessData(BasicString);
 		int						getSock();
 
 

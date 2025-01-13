@@ -1,10 +1,10 @@
-#include "cString.hpp"
+#include "BasicString.hpp"
 
-cString::cString() : __buff(NULL), __size(0)
+BasicString::BasicString() : __buff(NULL), __size(0)
 {
 }
 
-cString::cString(char *buff, size_t size) : __buff(NULL), __size(size)
+BasicString::BasicString(char *buff, size_t size) : __buff(NULL), __size(size)
 {
 	if (buff == NULL)
 		return;
@@ -13,7 +13,7 @@ cString::cString(char *buff, size_t size) : __buff(NULL), __size(size)
 		__buff[i] = buff[i];
 }
 
-cString::cString(const cString &copy) : __buff(NULL), __size(0)
+BasicString::BasicString(const BasicString &copy) : __buff(NULL), __size(0)
 {
 	if (copy.__size == 0)
 		return;
@@ -23,17 +23,17 @@ cString::cString(const cString &copy) : __buff(NULL), __size(0)
 		__buff[i] = copy.__buff[i];
 }
 
-cString::~cString()
+BasicString::~BasicString()
 {
 	delete[] __buff;
 }
-void cString::clear()
+void BasicString::clear()
 {
 	delete[] __buff;
 	__buff = NULL;
 	__size = 0;
 }
-cString &cString::operator=(const cString &assign)
+BasicString &BasicString::operator=(const BasicString &assign)
 {
 	if (this != &assign)
 	{
@@ -48,7 +48,7 @@ cString &cString::operator=(const cString &assign)
 	}
 	return *this;
 }
-void cString::erase(size_t start, size_t end)
+void BasicString::erase(size_t start, size_t end)
 {
 	if (start >= __size || end >= __size || start > end)
 		return;
@@ -61,7 +61,7 @@ void cString::erase(size_t start, size_t end)
 	__buff = new_buff;
 	__size = new_size;
 }
-void cString::join(const cString &j)
+void BasicString::join(const BasicString &j)
 {
 	char *new_buff = new char[__size + j.__size];
 	for (size_t i = 0; i < __size; i++)
@@ -72,35 +72,37 @@ void cString::join(const cString &j)
 	__buff = new_buff;
 	__size = __size + j.__size;
 }
-char *cString::getBuff() const
+char *BasicString::getBuff() const
 {
 	return __buff;
 }
-size_t cString::length() const
+size_t BasicString::length() const
 {
 	return __size;
 }
-cString cString::duplicate() const
+BasicString BasicString::duplicate() const
 {
 	char *new_buff = new char[__size];
 	for (size_t i = 0; i < __size; i++)
 		new_buff[i] = __buff[i];
-	cString tmp(new_buff, __size);
+	BasicString tmp(new_buff, __size);
 	delete[] new_buff;
 	return tmp;
 }
-cString cString::substr(size_t start, size_t length)
+BasicString BasicString::substr(size_t start, size_t length)
 {
 	if (start >= __size)
-		return cString(NULL, 0);
+		return BasicString(NULL, 0);
 	if (start + length > __size)
 		length = __size - start;
 	char *new_buff = new char[length];
 	for (size_t i = 0; i < length; i++)
 		new_buff[i] = __buff[start + i];
-	return cString(new_buff, length);
+	BasicString tmp(new_buff, length);
+	delete[] new_buff;
+	return tmp;
 }
-std::string cString::to_string() const
+std::string BasicString::to_string() const
 {
 	std::string result;
 	result.reserve(__size);
@@ -108,7 +110,7 @@ std::string cString::to_string() const
 		result += __buff[i];
 	return result;
 }
-size_t cString::find(const String &f) const
+size_t BasicString::find(const String &f) const
 {
 	if (f.length() == 0 || f.length() > this->__size)
 		return String::npos;
@@ -128,7 +130,7 @@ size_t cString::find(const String &f) const
 	}
 	return String::npos;
 }
-std::ostream &operator<<(std::ostream &out, const cString &str)
+std::ostream &operator<<(std::ostream &out, const BasicString &str)
 {
 	char *buff = str.getBuff();
 	size_t size = str.length();

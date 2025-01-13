@@ -3,13 +3,11 @@
 std::ofstream Connection::__fs;
 
 Connection::Connection() : __sd(-1),
-						   __erase(0),
 						   __serversP(NULL)
 {
 	wsu::debug("Connection default constructor");
 }
 Connection::Connection(int sd) : __sd(sd),
-								 __erase(0),
 								 __serversP(NULL)
 {
 	wsu::debug("Server single para constructor");
@@ -77,6 +75,63 @@ void Connection::processResponse()
 /***************************************************************************
  *                             BODY PROCESSING                             *
  ***************************************************************************/
+void Connection::processCunkedBody()
+{
+	static size_t chunkSize;
+	do
+	{
+		if (chunkSize == 0)
+		{
+			size_t pos = __data.find("\r\n");
+			if (pos == String::npos)
+				throw wsu::persist();
+			BasicString hex = __data.substr(0, pos);
+			chunkSize = wsu::hexToInt(hex.to_string());
+			__data.erase(0, pos + 2);
+			if (chunkSize == 0)
+			{
+				Connection::__fs.close();
+				__request.__phase = COMPLETE;
+				return;
+			}
+		}
+		if (chunkSize < __data.length())
+		{
+			BasicString tmp = __data.substr(0, chunkSize);
+			Connection::__fs << tmp;
+			__data.erase(0, chunkSize);
+			chunkSize -= tmp.length();
+		}
+		else
+		{
+			Connection::__fs << __data;
+			chunkSize -= __data.length();
+			__data.clear();
+			break;
+		}
+	} while (true);
+}
+void Connection::processDefinedBody()
+{
+	if (__request.__headers.__contentLength < __data.length())
+	{
+		BasicString tmp = __data.substr(0, __request.__headers.__contentLength);
+		__request.__headers.__contentLength -= tmp.length();
+		__data.erase(0, tmp.length());
+		Connection::__fs << tmp;
+	}
+	else
+	{
+		Connection::__fs << __data;
+		__request.__headers.__contentLength -= __data.length();
+		__data.clear();
+	}
+	if (__request.__headers.__contentLength == 0)
+	{
+		__request.__phase = COMPLETE;
+		Connection::__fs.close();
+	}
+}
 void Connection::mpHeaders(t_multipartsection &part)
 {
 	size_t pos = __data.find("\r\n\r\n");
@@ -101,7 +156,7 @@ void Connection::mpHeaders(t_multipartsection &part)
 		size_t p = __data.find("\r\n");
 		if (p == 0 || p == String::npos)
 			break;
-		cString header = __data.substr(0, p);
+		BasicString header = __data.substr(0, p);
 		__request.__body.back()._headers.push_back(header.to_string());
 		__data.erase(0, p + 2);
 	} while (true);
@@ -116,14 +171,14 @@ void Connection::mpBody(t_multipartsection &part)
 		size_t len = __request.__headers.__boundary.length() + 8;
 		if (__data.length() <= len)
 			throw wsu::persist();
-		cString data = __data.substr(0, __data.length() - len);
+		BasicString data = __data.substr(0, __data.length() - len);
 		Connection::__fs << data;
 		__data.erase(0, data.length());
 	}
 	else if (pos != String::npos)
 	{
 		size_t len = __request.__headers.__boundary.length() + 6;
-		cString data = __data.substr(0, pos);
+		BasicString data = __data.substr(0, pos);
 		Connection::__fs << data;
 		Connection::__fs.close();
 		__data.erase(0, pos + len);
@@ -132,7 +187,7 @@ void Connection::mpBody(t_multipartsection &part)
 	else if (end != String::npos)
 	{
 		size_t len = __request.__headers.__boundary.length() + 8;
-		cString data = __data.substr(0, end);
+		BasicString data = __data.substr(0, end);
 		Connection::__fs << data;
 		Connection::__fs.close();
 		__data.erase(0, end + len);
@@ -150,63 +205,6 @@ void Connection::processMultiPartBody()
 		if (part == MP_BODY)
 			mpBody(part);
 	} while(__request.__phase != COMPLETE);
-}
-void Connection::processCunkedBody()
-{
-	static size_t chunkSize;
-	do
-	{
-		if (chunkSize == 0)
-		{
-			size_t pos = __data.find("\r\n");
-			if (pos == String::npos)
-				throw wsu::persist();
-			cString hex = __data.substr(0, pos);
-			chunkSize = wsu::hexToInt(hex.to_string());
-			__data.erase(0, pos + 2);
-			if (chunkSize == 0)
-			{
-				Connection::__fs.close();
-				__request.__phase = COMPLETE;
-				return;
-			}
-		}
-		if (chunkSize < __data.length())
-		{
-			cString tmp = __data.substr(0, chunkSize);
-			Connection::__fs << tmp;
-			__data.erase(0, chunkSize);
-			chunkSize -= tmp.length();
-		}
-		else
-		{
-			Connection::__fs << __data;
-			chunkSize -= __data.length();
-			__data.clear();
-			break;
-		}
-	} while (true);
-}
-void Connection::processDefinedBody()
-{
-	if (__request.__headers.__contentLength < __data.length())
-	{
-		cString tmp = __data.substr(0, __request.__headers.__contentLength);
-		__request.__headers.__contentLength -= tmp.length();
-		__data.erase(0, tmp.length());
-		Connection::__fs << tmp;
-	}
-	else
-	{
-		Connection::__fs << __data;
-		__request.__headers.__contentLength -= __data.length();
-		__data.clear();
-	}
-	if (__request.__headers.__contentLength == 0)
-	{
-		__request.__phase = COMPLETE;
-		Connection::__fs.close();
-	}
 }
 void Connection::indentifyRequestBody()
 {
@@ -254,9 +252,9 @@ void Connection::processRequest()
 	if (s == String::npos || h == String::npos)
 		throw wsu::persist();
 	h -= s + 2;
-	cString	requestLine = __data.substr(0, s);
+	BasicString	requestLine = __data.substr(0, s);
 	__data.erase(0, s + 2);
-	cString	requestHeaders = __data.substr(0, h);
+	BasicString	requestHeaders = __data.substr(0, h);
 	__data.erase(0, h + 4);
 	if (requestLine.length() >= 4094)
 		throw ErrorResponse(400, "Oversized request line ( 4094Bytes )");
@@ -269,7 +267,7 @@ void Connection::processRequest()
 /**********************************************************************************
  *                                  PROCESS DATA                                  *
  **********************************************************************************/
-void Connection::proccessData(cString input)
+void Connection::proccessData(BasicString input)
 {
 	this->__data.join(input);
 	try
@@ -290,12 +288,8 @@ void Connection::proccessData(cString input)
 	}
 	catch (wsu::persist &e)
 	{
-		wsu::error(e.what());
-		this->__erase = 0;
 	}
 	catch (std::exception &e)
 	{
-		wsu::error(e.what());
-		this->__erase = 0;
 	}
 }
