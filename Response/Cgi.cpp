@@ -12,6 +12,8 @@
 
 #include "Cgi.hpp"
 
+typedef std::map<String, String> Map;
+
 /*=---------------------constructors-----------------------*/
 
 Cgi::Cgi(RessourceHandler &explorer,
@@ -32,11 +34,22 @@ Cgi::~Cgi()
 
 /*----------------------business logic------------------------*/
 
+void Cgi::clear( void )
+{
+	for (int i = 0; env[i]; i++)
+		delete [] env[i];
+	delete [] env;
+}
+
 void Cgi::execute(const char *bin, const char *path, int fd)
 {
 	if (dup2(STDOUT_FILENO, fd) < 0)
+	{
+		clear();
 		exit(1);
-	execve(bin, (char *const *)&path, NULL);
+	}
+	execve(bin, (char *const *)&path, env);
+	clear();
 	close(fd);
 	exit(1);
 }
@@ -45,6 +58,8 @@ const char *Cgi::getBin(void)
 {
 	if (wsu::endWith(__explorer.getPath(), ".java"))
 		return "/usr/bin/java"; // will be gotten from the config file
+	if (wsu::endWith(__explorer.getPath(), ".php"))
+		return "/usr/bin/php"; // will be gotten from the config file
 	return "/usr/bin/java";
 }
 
@@ -60,11 +75,16 @@ void Cgi::readFromPipe(int fd)
 
 void Cgi::setCgiEnvironement()
 {
-	/*itterate through the request headers to set them to the process environement*/
-	for (mapIterator it = __request.__headerFeilds.begin(); it != __request.__headerFeilds.end(); it++)
-		setenv(it->first.c_str(), it->second.c_str(), 0);
-	// setenv() not allowed, the code above will be replaced by the argv to give it as argument of the cgi script
-	//"(String [] args)in case of java for example"
+	Map& headers = __request.__headerFeilds;
+	env = new char*[headers.size() + 1];
+	int i = 0;
+	for (Map::iterator it = headers.begin(); it != headers.end(); it++, i++)
+	{
+		String header = it->first + "=" + it->second;
+		env[i] = new char[header.size() + 1];
+		std::strcpy(env[i], header.c_str());
+	}
+	env[i] = NULL;
 }
 
 void Cgi::cgiProcess(void)
