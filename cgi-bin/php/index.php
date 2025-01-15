@@ -22,13 +22,19 @@ try
 	if(file_exists("Controller/controller.php")) 
 	{
 		require_once ("Controller/controller.php");
-		
-		//Action controller Routing
-	   $action = $_GET["action"] ?? "index";
-		if (is_callable($action))
-			$action();
-		else
-			throw new Exception("Cette action n'est pas autorisée");
+		if ($_SERVER["REQUEST_METHOD"] == "GET")
+		{
+			//Action controller Routing
+			$action = $_GET["action"] ?? "index";
+			if (is_callable($action))
+				$action();
+			else
+				throw new Exception("Cette action n'est pas autorisée");
+		}
+		else if ($_SERVER["REQUEST_METHOD"] == "POST")
+			postAction();
+		//else
+		//in case we want to implement an other logic for other METHODS 
 	}
 	else
 		throw new Exception("le controleur n'est pas pris en charge!...");

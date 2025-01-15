@@ -30,3 +30,8 @@ function errorAction($e)
 	];
 	afficherReponse("vError.php", $reasons);
 }
+
+function postAction()
+{
+	afficherReponse("vPost.php", $_POST);
+}
