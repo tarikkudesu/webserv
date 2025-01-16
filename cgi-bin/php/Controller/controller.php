@@ -1,6 +1,6 @@
 ﻿<?php
-require_once("Controller/response.php");
-require_once ("Model/manager.php");
+require_once("cgi-bin/php/Controller/response.php");
+require_once ("cgi-bin/php/Model/manager.php");
 
 function listAll()
 {
@@ -33,5 +33,11 @@ function errorAction($e)
 
 function postAction()
 {
+	print_r($_POST);
 	afficherReponse("vPost.php", $_POST);
+}
+
+function formAction()
+{
+	afficherReponse("vForm.php");
 }

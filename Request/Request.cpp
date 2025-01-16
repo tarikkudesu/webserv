@@ -91,7 +91,7 @@ void Request::proccessURI()
 }
 void Request::proccessRequestLine(const String &requestLine)
 {
-	if (2 != std::count(requestLine.begin(), requestLine.end(), ' '))
+	if (2 < std::count(requestLine.begin(), requestLine.end(), ' '))
 		throw ErrorResponse(400, "invalid Request Line (extra space)");
 	std::istringstream iss(requestLine);
 	String method, URI, protocole;

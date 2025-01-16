@@ -43,14 +43,19 @@ void Cgi::clear( void )
 
 void Cgi::execute(const char *bin, const char *path, int fd)
 {
-	if (dup2(STDOUT_FILENO, fd) < 0)
+	if (dup2(fd, STDOUT_FILENO) < 0)
 	{
+		perror("dup2");
 		clear();
+		throw ErrorResponse(500, __location, "internal server error");
 		exit(1);
 	}
-	execve(bin, (char *const *)&path, env);
+	const char *argv[] = {bin, path, NULL};
+	execve(bin, (char *const *)argv, env);
+	perror("execve");
 	clear();
 	close(fd);
+	throw ErrorResponse(500, __location, "internal server error");
 	exit(1);
 }
 
@@ -73,10 +78,19 @@ void Cgi::readFromPipe(int fd)
 	}
 }
 
+const char *getMethod(t_method method)
+{
+	if (method == GET)
+		return "REQUEST_METHOD=GET";
+	if (method == POST)
+		return "REQUEST_METHOD=POST";
+	return "REQUEST_METHOD=DELETE";
+}
+
 void Cgi::setCgiEnvironement()
 {
 	Map& headers = __request.__headerFeilds;
-	env = new char*[headers.size() + 1];
+	env = new char*[headers.size() + 1 + 1]; //+1 to add REQUEST_METHOD
 	int i = 0;
 	for (Map::iterator it = headers.begin(); it != headers.end(); it++, i++)
 	{
@@ -84,6 +98,9 @@ void Cgi::setCgiEnvironement()
 		env[i] = new char[header.size() + 1];
 		std::strcpy(env[i], header.c_str());
 	}
+	std::string method = getMethod(__request.__method);
+	env[i] = new char[method.size() + 1];
+	std::strcpy(env[i++], method.c_str());
 	env[i] = NULL;
 }
 
@@ -94,6 +111,7 @@ void Cgi::cgiProcess(void)
 	int child, status, pip[2], pid;
 	if (pipe(pip) < 0)
 		throw ErrorResponse(500, __location, "internal server error");
+
 	pid = fork();
 	if (pid < 0)
 		throw ErrorResponse(500, __location, "internal server error");
@@ -103,12 +121,12 @@ void Cgi::cgiProcess(void)
 
 	close(pip[1]);
 
-	while (!(child = waitpid(pid, &status, WNOHANG)) && __start - std::clock_t() < TIMEOUT)
+	while (!(child = waitpid(pid, &status, WNOHANG)) && (__start - std::clock_t()) / CLOCKS_PER_SEC < TIMEOUT)
 		;
 	if (!child)
 		kill(pid, SIGKILL), throw ErrorResponse(408, __location, "Request Time-out");
-	if (WEXITSTATUS(status))
-		throw ErrorResponse(500, __location, "internal server error");
+	if (WIFEXITED(pid) && WEXITSTATUS(status))
+			throw ErrorResponse(500, __location, "internal server error");
 	readFromPipe(pip[0]);
 	close(pip[0]);
 }

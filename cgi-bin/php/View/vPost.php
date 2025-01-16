@@ -7,6 +7,10 @@
  * for example : <input type="text" name="inputNameUseCaseExample"/>
  *  
  */
+
+ print_r($_POST);
 ?>
 
-<h1>coming soon dear <?=$inputNameUseCaseExample?>...! </br>check back later</h1>
+<div align="center">
+    <h1>coming soon dear <?=$inputNameUseCaseExample ?? "postTest"?>...! </br>check back later</h1>
+</div>

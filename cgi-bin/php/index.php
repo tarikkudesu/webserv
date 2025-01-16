@@ -1,5 +1,5 @@
-﻿<p>Content-Type: text/html</p>
-<?php 
+﻿<?php 
+require_once("cgi-bin/php/Controller/response.php");
 /*
  * This script is based on an MVC architecture.
  * 
@@ -19,9 +19,9 @@ try
 	 * but it is just a simple cgi test
 	 *  
 	 */	
-	if(file_exists("Controller/controller.php")) 
+	if(file_exists("cgi-bin/php/Controller/controller.php")) 
 	{
-		require_once ("Controller/controller.php");
+		require_once ("cgi-bin/php/Controller/controller.php");
 		if ($_SERVER["REQUEST_METHOD"] == "GET")
 		{
 			//Action controller Routing
@@ -41,5 +41,7 @@ try
 }
 catch(Exception $e)
 {
-	errorAction($e);
+	echo $e->getMessage();
+	exit();
+	AfficherReponse("vError.php", ["message" => $e->getMessage()]);
 }
