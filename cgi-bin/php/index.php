@@ -17,7 +17,6 @@ try
 	/* 
 	 * we can add a controller Router to make routing dynamic 
 	 * but it is just a simple cgi test
-	 *  
 	 */	
 	if(file_exists("Controller/controller.php")) 
 	{
@@ -26,20 +25,19 @@ try
 		{
 			//Action controller Routing
 			$action = $_GET["action"] ?? "index";
-			if (is_callable($action))
-				$action();
-			else
-				throw new Exception("Cette action n'est pas autorisée");
+			if (!is_callable($action))
+				throw new Exception("this action does not exist");
+			$action();
 		}
 		else if ($_SERVER["REQUEST_METHOD"] == "POST")
 			postAction();
-		//else
-		//in case we want to implement an other logic for other METHODS 
+		else
+			throw new Exception("on CGI only POST and GET request are allowed");
 	}
 	else
-		throw new Exception("le controleur n'est pas pris en charge!...");
+		throw new Exception("the controller doesn't exist");
 }
 catch(Exception $e)
 {
-	AfficherReponse("vError.php", ["message" => $e->getMessage()]);
+	render("vError.php", ["message" => $e->getMessage()]);
 }

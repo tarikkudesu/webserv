@@ -25,6 +25,7 @@ Cgi::Cgi(RessourceHandler &explorer,
 							   __body("")
 
 {
+	std::cout << __location;
 	cgiProcess();
 }
 
@@ -93,7 +94,6 @@ String	Cgi::getQueryString()
 	if (!__request.__queryVariables.size())
 		return str;
 	Map::iterator it = __request.__queryVariables.begin();
-	std::cout << it->first << std::endl;
 	str.append(it->first + "=" + it->second);
 	while (++it != __request.__queryVariables.end())
 		str.append("&" + it->first + "=" + it->second);
@@ -104,17 +104,17 @@ void Cgi::setCgiEnvironement()
 {
 	Map headers = __request.__headerFeilds;
 	headers["GATEWAY_INTERFACE"] = "CGI/1.1";
-	headers["SERVER_NAME"] = "SERVER_NAME";
+	headers["SERVER_NAME"] = "SERVER_NAME";//tmp header value
 	headers["SERVER_SOFTWARE"] = "WebServ-1337/1.0.0";
 	headers["SERVER_PROTOCOL"] = "HTTP/1.1";
-	headers["SERVER_PORT"] = "9001";
+	headers["SERVER_PORT"] = "9001"; //tmp header value
 	headers["QUERY_STRING"] = getQueryString();
 	headers["REQUEST_METHOD"] = getMethod();
 	headers["SCRIPT_NAME"] = "index.php";
 	headers["SCRIPT_FILENAME"] = "cgi-bin/php/index.php";
 	headers["REDIRECT_STATUS"] = "200";
-	headers["REMOTE_ADDR"] = "127.0.0.1";
-	headers["REMOTE_HOST"] = "127.0.0.1";
+	headers["REMOTE_ADDR"] = "127.0.0.1";//tmp header value
+	headers["REMOTE_HOST"] = "127.0.0.1";//tmp header value
 	env = new char*[headers.size() + 1]; 
 	int i = 0;
 	for (Map::iterator it = headers.begin(); it != headers.end(); it++, i++)

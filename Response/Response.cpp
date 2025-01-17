@@ -8,7 +8,7 @@ Response::Response(Request &request,
 										 __location(location)
 
 {
-	std::cout << __request; //<----- debuging purpose
+	// std::cout << __request; //<----- debuging purpose
 	if (wsu::__criticalOverLoad == true)
 		throw ErrorResponse(503, "critical server overload");
 	__check_methods();

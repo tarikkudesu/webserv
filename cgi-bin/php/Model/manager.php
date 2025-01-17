@@ -3,9 +3,18 @@
 function getData()
 {
     static $data = [
-        "leader"=>"tarik amehri",
-		"member1"=>"otman oulcaid",
-		"member2"=>"omar ghazi"
+        "leader"=> [
+            "name" => "tarik amehri",
+            "image" => "tamehri"
+        ],
+		"member1"=>[
+            "name" => "otman oulcaid",
+            "image" => "ooulcaid"
+        ],
+		"member2"=>[
+            "name" => "omar ghazi",
+            "image" => "omghazi"
+        ]
     ];
 
     return $data;

@@ -1,6 +1,6 @@
 ﻿<?php
 
-function AfficherReponse($vue , $data = [])
+function render($vue , $data = [])
 {
 	extract($data);
 	$file ="View/". $vue;
