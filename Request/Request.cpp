@@ -15,7 +15,6 @@ Request &Request::operator=(const Request &assign)
 		this->__method = assign.__method;
 		this->__headers = assign.__headers;
 		this->__protocole = assign.__protocole;
-		this->__requestbody = assign.__requestbody;
 		this->__headerFeilds = assign.__headerFeilds;
 	}
 	return *this;
@@ -30,13 +29,15 @@ Request::~Request()
 
 void Request::clear()
 {
-	// for (t_svec::iterator it = __body.begin(); it != __body.end(); it++)
-	// 	it->_headers.clear();
+	for (std::vector< s_body >::iterator it = __body.begin(); it != __body.end(); it++)
+		it->_headers.clear();
 	this->__URI.clear();
 	this->__body.clear();
+	this->__body.clear();
+	this->__fragement.clear();
 	this->__protocole.clear();
-	this->__requestbody.clear();
 	this->__headerFeilds.clear();
+	this->__queryVariables.clear();
 }
 
 /*****************************************************************************
