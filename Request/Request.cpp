@@ -71,22 +71,27 @@ void Request::proccessURI()
 	size_t start = 0;
 	size_t end = 0;
 	start = this->__URI.find("?");
-	if (start == String::npos)
-		return;
 	end = this->__URI.find("#");
+	if (start == String::npos && end == String::npos)
+		return;
 	if (end != String::npos)
-		this->__fragement = String(this->__URI.begin() + end + 1, this->__URI.end());
-	else
-		end = __URI.size();
-	String query = String(__URI.begin() + start, __URI.begin() + end);
 	{
-		t_svec queris = wsu::splitByChar(query, '&');
-		for (t_svec::iterator it = queris.begin(); it != queris.end(); it++)
+		this->__fragement = String(this->__URI.begin() + end + 1, this->__URI.end());
+		this->__URI.erase(end);
+	}
+	if (start != String::npos)
+	{
+		String query = String(__URI.begin() + start, __URI.end());
 		{
-			t_svec pairs = wsu::splitByChar(*it, '=');
-			if (pairs.size() >= 2)
-				__queryVariables.insert(std::make_pair(pairs.at(0), pairs.at(1)));
+			t_svec queris = wsu::splitByChar(query, '&');
+			for (t_svec::iterator it = queris.begin(); it != queris.end(); it++)
+			{
+				t_svec pairs = wsu::splitByChar(*it, '=');
+				if (pairs.size() >= 2)
+					__queryVariables.insert(std::make_pair(pairs.at(0), pairs.at(1)));
+			}
 		}
+		this->__URI.erase(start);
 	}
 }
 void Request::proccessRequestLine(const String &requestLine)
@@ -132,6 +137,7 @@ void Request::parseRequest(String requestLine, String requestHeaders)
 	proccessRequestLine(requestLine);
 	proccessHeaders(requestHeaders);
 	__headers.parseHeaders(__headerFeilds);
+	__headerFeilds.clear();
 }
 
 std::ostream &operator<<(std::ostream &o, const Request &req)
