@@ -29,6 +29,7 @@ Headers::~Headers()
 
 void Headers::clear()
 {
+	this->__port = 8080;
 	this->__host.clear();
 	this->__boundary.clear();
 	this->__contentLength = 0;
@@ -129,6 +130,7 @@ void Headers::hostAndPort(std::map<String, String> &headers)
 }
 void Headers::parseHeaders(std::map<String, String> &headers)
 {
+	clear();
 	hostAndPort(headers);
 	connectionType(headers);
 	contentLength(headers);
