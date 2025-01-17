@@ -8,7 +8,6 @@
  *  
  */
 
- print_r($_POST);
 ?>
 
 <div align="center">

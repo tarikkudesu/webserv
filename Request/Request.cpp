@@ -81,7 +81,7 @@ void Request::proccessURI()
 	}
 	if (start != String::npos)
 	{
-		String query = String(__URI.begin() + start, __URI.end());
+		String query = String(__URI.begin() + start + 1, __URI.end()); // +1 to skip the question mark
 		{
 			t_svec queris = wsu::splitByChar(query, '&');
 			for (t_svec::iterator it = queris.begin(); it != queris.end(); it++)

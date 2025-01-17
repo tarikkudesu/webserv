@@ -19,7 +19,9 @@ class Cgi
 		void                    readFromPipe(int fd);
 		void                    setCgiEnvironement();
 		void                    cgiProcess(void);
-		void					clear( void );
+		void					clear( void );		
+		const					char *getMethod();
+		String					getQueryString();//tmp function
 
 
 

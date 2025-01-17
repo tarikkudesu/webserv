@@ -5,6 +5,7 @@ RessourceHandler::RessourceHandler(Location &location, String &uri) : __URI(uri)
 																	  __type(FILE_),
 																	  __location(location)
 {
+	loadPathExploring();
 }
 
 RessourceHandler::RessourceHandler(const RessourceHandler &copy) : __URI(copy.__URI),

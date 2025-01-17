@@ -62,9 +62,9 @@ void Cgi::execute(const char *bin, const char *path, int fd)
 const char *Cgi::getBin(void)
 {
 	if (wsu::endWith(__explorer.getPath(), ".java"))
-		return "/usr/bin/java"; // will be gotten from the config file
+		return "/usr/bin/java";
 	if (wsu::endWith(__explorer.getPath(), ".php"))
-		return "/usr/bin/php"; // will be gotten from the config file
+		return "/usr/bin/php-cgi";
 	return "/usr/bin/java";
 }
 
@@ -76,21 +76,46 @@ void Cgi::readFromPipe(int fd)
 		__body.append(buffer);
 		bzero(buffer, 1024);
 	}
+	size_t pos = __body.find('\n');
+	__body = __body.substr(pos + 1);
 }
 
-const char *getMethod(t_method method)
+const char *Cgi::getMethod()
 {
-	if (method == GET)
-		return "REQUEST_METHOD=GET";
-	if (method == POST)
-		return "REQUEST_METHOD=POST";
-	return "REQUEST_METHOD=DELETE";
+	if (__request.__method == POST)
+		return "POST";
+	return "GET";
+}
+
+String	Cgi::getQueryString()
+{
+	String str;
+	if (!__request.__queryVariables.size())
+		return str;
+	Map::iterator it = __request.__queryVariables.begin();
+	std::cout << it->first << std::endl;
+	str.append(it->first + "=" + it->second);
+	while (++it != __request.__queryVariables.end())
+		str.append("&" + it->first + "=" + it->second);
+	return str;
 }
 
 void Cgi::setCgiEnvironement()
 {
-	Map& headers = __request.__headerFeilds;
-	env = new char*[headers.size() + 1 + 1]; //+1 to add REQUEST_METHOD
+	Map headers = __request.__headerFeilds;
+	headers["GATEWAY_INTERFACE"] = "CGI/1.1";
+	headers["SERVER_NAME"] = "SERVER_NAME";
+	headers["SERVER_SOFTWARE"] = "WebServ-1337/1.0.0";
+	headers["SERVER_PROTOCOL"] = "HTTP/1.1";
+	headers["SERVER_PORT"] = "9001";
+	headers["QUERY_STRING"] = getQueryString();
+	headers["REQUEST_METHOD"] = getMethod();
+	headers["SCRIPT_NAME"] = "index.php";
+	headers["SCRIPT_FILENAME"] = "cgi-bin/php/index.php";
+	headers["REDIRECT_STATUS"] = "200";
+	headers["REMOTE_ADDR"] = "127.0.0.1";
+	headers["REMOTE_HOST"] = "127.0.0.1";
+	env = new char*[headers.size() + 1]; 
 	int i = 0;
 	for (Map::iterator it = headers.begin(); it != headers.end(); it++, i++)
 	{
@@ -98,9 +123,6 @@ void Cgi::setCgiEnvironement()
 		env[i] = new char[header.size() + 1];
 		std::strcpy(env[i], header.c_str());
 	}
-	std::string method = getMethod(__request.__method);
-	env[i] = new char[method.size() + 1];
-	std::strcpy(env[i++], method.c_str());
 	env[i] = NULL;
 }
 
