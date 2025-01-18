@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Team</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: rgb(210, 215, 223);
+            margin-bottom: 50px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .team-member {
+            background-color: rgb(22, 27, 34);
+            border: 1px solid rgba(210, 215, 223, 0.26);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .member-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 3px solid rgba(210, 215, 223, 0.26);
+            padding: 3px;
+        }
+
+        .member-name {
+            color: rgb(210, 215, 223);
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        .member-role {
+            color: rgba(210, 215, 223, 0.7);
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .member-bio {
+            color: rgba(210, 215, 223, 0.9);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-link {
+            color: rgb(210, 215, 223);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid rgba(210, 215, 223, 0.26);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background-color: rgba(210, 215, 223, 0.1);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body style="background-color: rgb(35, 40, 47);">
+    <div class="container">
+        <div class="header">
+            <h1 style="font-size: 40px; margin-bottom: 10px;">Our Team</h1>
+            <p style="font-size: 18px; color: rgba(210, 215, 223, 0.7);">Meet the amazing people behind our success</p>
+        </div>
+
+        <div class="team-grid">
+            <div class="team-member">
+                <img src="/api/placeholder/150/150" alt="Team Member 1" class="member-image">
+                <h2 class="member-name">Sarah Johnson</h2>
+                <div class="member-role">Lead Developer</div>
+                <p class="member-bio">Full-stack developer with 8 years of experience in web technologies. Passionate about creating efficient and scalable solutions.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">GitHub</a>
+                    <a href="#" class="social-link">LinkedIn</a>
+                </div>
+            </div>
+
+            <div class="team-member">
+                <img src="/api/placeholder/150/150" alt="Team Member 2" class="member-image">
+                <h2 class="member-name">Michael Chen</h2>
+                <div class="member-role">UX Designer</div>
+                <p class="member-bio">Creative designer focused on user-centered design principles. Skilled in creating intuitive and beautiful interfaces.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">Dribbble</a>
+                    <a href="#" class="social-link">LinkedIn</a>
+                </div>
+            </div>
+
+            <div class="team-member">
+                <img src="/api/placeholder/150/150" alt="Team Member 3" class="member-image">
+                <h2 class="member-name">Emma Wilson</h2>
+                <div class="member-role">Project Manager</div>
+                <p class="member-bio">Experienced project manager with a strong background in agile methodologies and team leadership.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">LinkedIn</a>
+                    <a href="#" class="social-link">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

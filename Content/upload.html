@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Input Form</title>
+    <style>
+        .submit-btn {
+            background-color: rgb(35, 40, 47);
+            border: 1px solid rgba(210, 215, 223, 0.26);
+            padding: 12px 24px;
+            border-radius: 4px;
+            color: rgb(210, 215, 223);
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+            font-family: sans-serif;
+            transition: all 0.3s ease;
+            width: 300px;
+        }
+
+        .submit-btn:hover {
+            background-color: rgb(45, 50, 57);
+            border-color: rgb(210, 215, 223);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .file-input-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 8px 16px;
+            background-color: rgb(35, 40, 47);
+            border: 1px solid rgba(210, 215, 223, 0.26);
+            border-radius: 4px;
+            color: rgb(210, 215, 223);
+            cursor: pointer;
+            font-family: sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .file-input-label:hover {
+            background-color: rgb(45, 50, 57);
+            border-color: rgb(210, 215, 223);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .file-input-label:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body style="background-color: rgb(35, 40, 47);">
+    <div style="border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 100px auto; background-color: rgb(22, 27, 34); padding: 20px; max-width: 400px;">
+        <h2 style="font-size: 25px; font-family: sans-serif; text-align: center; padding: 0px 0px 25px 0px; margin: 0px; color: rgb(210, 215, 223);">User Input Form</h2>
+        
+        <form action="f" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+            
+            <div class="file-input-container">
+                <input type="file" id="file1" class="file-input" required>
+                <label for="file1" class="file-input-label">Choisir un fichier</label>
+            </div>
+            
+            <div class="file-input-container">
+                <input type="file" id="file2" class="file-input" required>
+                <label for="file2" class="file-input-label">Choisir un fichier</label>
+            </div>
+            
+            <div class="file-input-container">
+                <input type="file" id="file3" class="file-input" required>
+                <label for="file3" class="file-input-label">Choisir un fichier</label>
+            </div>
+            
+            <div class="file-input-container">
+                <input type="file" id="file4" class="file-input" required>
+                <label for="file4" class="file-input-label">Choisir un fichier</label>
+            </div>
+            
+            <input type="submit" value="Submit" class="submit-btn">
+        </form>
+    </div>
+</body>
+</html>
+<!-- 
+<form action="/submit" method="post">
+    <label for="comment">Comment:</label>
+    <input type="text" id="comment" name="comment" value="Hello!" />
+    <button type="submit">Submit</button>
+</form> -->
