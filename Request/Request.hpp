@@ -3,12 +3,10 @@
 
 # include "Headers.hpp"
 
-
 struct	s_body {
 	t_svec				_headers;
 	String				_fileName;
 };
-
 
 class Request
 {
