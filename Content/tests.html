@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Server Test Interface</title>
+    <style>
+        .test-section {
+            background-color: rgb(22, 27, 34);
+            border: 1px solid rgba(210, 215, 223, 0.26);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 8px 16px;
+            margin: 5px;
+            background-color: rgb(35, 40, 47);
+            border: 1px solid rgba(210, 215, 223, 0.26);
+            border-radius: 4px;
+            color: rgb(210, 215, 223);
+            font-family: sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .submit-btn {
+            background-color: rgb(35, 40, 47);
+            border: 1px solid rgba(210, 215, 223, 0.26);
+            padding: 12px 24px;
+            border-radius: 4px;
+            color: rgb(210, 215, 223);
+            cursor: pointer;
+            font-size: 16px;
+            font-family: sans-serif;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .submit-btn:hover {
+            background-color: rgb(45, 50, 57);
+            border-color: rgb(210, 215, 223);
+        }
+
+        label {
+            color: rgb(210, 215, 223);
+            display: block;
+            margin-bottom: 5px;
+            font-family: sans-serif;
+        }
+
+        h2 {
+            color: rgb(210, 215, 223);
+            margin-top: 0;
+        }
+
+        .file-input {
+            color: rgb(210, 215, 223);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body style="background-color: rgb(35, 40, 47); max-width: 800px; margin: 40px auto; padding: 0 20px;">
+    <h1 style="color: rgb(210, 215, 223); text-align: center;">Web Server Test Interface</h1>
+
+    <!-- GET Request Test -->
+    <div class="test-section">
+        <h2>GET Request Tests</h2>
+        <form action="/get-test" method="GET">
+            <div class="input-group">
+                <label>Simple GET request:</label>
+                <button type="submit" class="submit-btn">Send GET Request</button>
+            </div>
+        </form>
+
+        <form action="/get-with-params" method="GET">
+            <div class="input-group">
+                <label>GET with Query Parameters:</label>
+                <input type="text" name="param1" placeholder="Parameter 1" class="text-input">
+                <input type="text" name="param2" placeholder="Parameter 2" class="text-input">
+                <button type="submit" class="submit-btn">Send GET with Parameters</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- POST Request Test -->
+    <div class="test-section">
+        <h2>POST Request Tests</h2>
+        <form action="/post-test" method="POST">
+            <div class="input-group">
+                <label>Simple POST request:</label>
+                <input type="text" name="data" placeholder="Data to post" class="text-input">
+                <button type="submit" class="submit-btn">Send POST Request</button>
+            </div>
+        </form>
+
+        <form action="/post-with-files" method="POST" enctype="multipart/form-data">
+            <div class="input-group">
+                <label>POST with File Upload:</label>
+                <input type="file" name="file" class="file-input">
+                <button type="submit" class="submit-btn">Upload File</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- PUT Request Test -->
+    <div class="test-section">
+        <h2>PUT Request Test</h2>
+        <div class="input-group">
+            <label>Resource URL:</label>
+            <input type="text" id="putUrl" placeholder="/resource/123" class="text-input">
+            <label>Data:</label>
+            <input type="text" id="putData" placeholder="Data to put" class="text-input">
+            <button onclick="sendPutRequest()" class="submit-btn">Send PUT Request</button>
+        </div>
+    </div>
+
+    <!-- DELETE Request Test -->
+    <div class="test-section">
+        <h2>DELETE Request Test</h2>
+        <div class="input-group">
+            <label>Resource URL:</label>
+            <input type="text" id="deleteUrl" placeholder="/resource/123" class="text-input">
+            <button onclick="sendDeleteRequest()" class="submit-btn">Send DELETE Request</button>
+        </div>
+    </div>
+
+    <!-- Large File Upload Test -->
+    <div class="test-section">
+        <h2>Large File Upload Test</h2>
+        <form action="/upload-large" method="POST" enctype="multipart/form-data">
+            <div class="input-group">
+                <label>Upload Large File:</label>
+                <input type="file" name="largefile" class="file-input">
+                <button type="submit" class="submit-btn">Upload Large File</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function sendPutRequest() {
+            const url = document.getElementById('putUrl').value;
+            const data = document.getElementById('putData').value;
+            
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ data: data })
+            })
+            .then(response => response.text())
+            .then(result => alert('PUT Response: ' + result))
+            .catch(error => alert('Error: ' + error));
+        }
+
+        function sendDeleteRequest() {
+            const url = document.getElementById('deleteUrl').value;
+            
+            fetch(url, {
+                method: 'DELETE'
+            })
+            .then(response => response.text())
+            .then(result => alert('DELETE Response: ' + result))
+            .catch(error => alert('Error: ' + error));
+        }
+    </script>
+</body>
+</html>
