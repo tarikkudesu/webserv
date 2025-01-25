@@ -1,12 +1,12 @@
-package javacgi.methods;
+package  javacgi.methods;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import javacgi.annotation.Template;
+import  javacgi.annotation.Template;
 
 @Template(path="ressource/post.html")
-public class Post implements Method
+public class POST implements Method
 {
 	Template template;
 	String response;
@@ -15,7 +15,7 @@ public class Post implements Method
 		template = this.getClass().getDeclaredAnnotation(Template.class);
 	}
 
-	public Post()
+	public POST()
 	{
 		loadFile();
 	}

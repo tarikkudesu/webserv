@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import javacgi.annotation.Template;
 
 @Template(path="ressource/get.html")
-public class Get implements Method
+public class GET implements Method
 {
 	Template template;
 	String response;
@@ -15,7 +15,7 @@ public class Get implements Method
 		template = this.getClass().getDeclaredAnnotation(Template.class);
 	}
 
-	public Get()
+	public GET()
 	{
 		loadFile();
 	}
