@@ -30,7 +30,7 @@ Get::~Get()
 {
 }
 
-String Get::getBody(void)
+BasicString Get::getBody(void)
 {
   return body;
 }
@@ -40,16 +40,15 @@ void Get::readFile(void)
   std::ifstream file(explorer.getPath().c_str(), std::ios::binary);
   if (!file.is_open())
     throw ErrorResponse(500, explorer.__location, "Internal Server Error");
-  std::ostringstream buff;
   char buffer[READ_SIZE];
   while (file.read(buffer, READ_SIZE) || file.gcount() > 0)
   {
     std::size_t bytesRead = file.gcount();
-    for (std::size_t i = 0; i < bytesRead; ++i)
-      buff << buffer[i];
+    BasicString bs(buffer, bytesRead);
+    body.join(bs);
+    // for (std::size_t i = 0; i < bytesRead; ++i)
+    //   buff << buffer[i];
   }
-  body = buff.str();
-  buff.clear();
   file.close();
 }
 
