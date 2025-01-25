@@ -1,5 +1,5 @@
 
-#include "../ServerManager/ServerManager.hpp"
+#include "ServerManager/ServerManager.hpp"
 
 ServerManager *webservP = NULL;
 
