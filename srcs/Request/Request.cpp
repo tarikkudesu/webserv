@@ -73,8 +73,6 @@ void Request::proccessURI()
 	size_t end = 0;
 	start = this->__URI.find("?");
 	end = this->__URI.find("#");
-	if (start == String::npos && end == String::npos)
-		return;
 	if (end != String::npos)
 	{
 		this->__fragement = String(this->__URI.begin() + end + 1, this->__URI.end());
@@ -82,16 +80,7 @@ void Request::proccessURI()
 	}
 	if (start != String::npos)
 	{
-		String query = String(__URI.begin() + start + 1, __URI.end()); // +1 to skip the question mark
-		{
-			t_svec queris = wsu::splitByChar(query, '&');
-			for (t_svec::iterator it = queris.begin(); it != queris.end(); it++)
-			{
-				t_svec pairs = wsu::splitByChar(*it, '=');
-				if (pairs.size() >= 2)
-					__queryVariables.insert(std::make_pair(pairs.at(0), pairs.at(1)));
-			}
-		}
+		this->__queryString = String(this->__URI.begin() + start + 1, this->__URI.end());
 		this->__URI.erase(start);
 	}
 }
