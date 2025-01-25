@@ -6,13 +6,16 @@ class Post
 {
          private:
                 RessourceHandler&       explorer;
-		String			__requestbody;
+		            Request&			          request;
+
+                t_svec                  curr_file;
                 void                    writeFile( void );
+                void                    getCurr_file( void );
 
         public:
 
-                Post(RessourceHandler &explorer, String requestbody);
-		Post(const Post &copy);
-		Post &operator=(const Post &assign);
-		~Post();
+                Post(RessourceHandler &explorer, Request& request);
+		            Post(const Post &copy);
+		            Post &operator=(const Post &assign);
+		            ~Post();
 };

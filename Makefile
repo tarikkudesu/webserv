@@ -22,7 +22,7 @@ NAME	=	webserv
 all: mkdir $(NAME)
 
 $(NAME): $(OBJ)
-	@c++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
+	@g++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
 
 %.o: %.cpp	Request/Connection.hpp \
 			Request/Headers.hpp \
@@ -41,7 +41,7 @@ $(NAME): $(OBJ)
 			srcs/WSU.hpp \
 			srcs/webserv.hpp \
 			srcs/BasicString.hpp
-	@c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
+	@g++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
 
 mkdir:
 	@mkdir -p .temp
