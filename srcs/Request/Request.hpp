@@ -23,8 +23,8 @@ class Request
 		Headers							__headers;
 		String							__fragement;
 		String							__protocole;
+		String							__queryString;
 		std::map< String, String >		__headerFeilds;
-		std::map< String, String >		__queryVariables;
 		std::vector< s_body >			__body;
 
 		void							parseRequest(String requestLine, String requestHeaders);

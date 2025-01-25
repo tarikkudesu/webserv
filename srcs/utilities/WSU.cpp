@@ -55,7 +55,7 @@ void wsu::logs(std::vector<String> &args)
 	else if (args.size() == 0)
 		args.push_back("./conf/webserv_default.conf");
 	else if (args.size() == 1)
-		return;
+		;
 	else if (args.size() == 2)
 	{
 		if ((args.at(0) != "-l" &&
@@ -366,6 +366,9 @@ struct pollfd *wsu::data(t_events &events)
 }
 String wsu::getContentType(const String &uri)
 {
+	std::cout << wsu::__mimeTypes.size() << "\n";
+	for (std::map<String, String>::iterator i = wsu::__mimeTypes.begin(); i != wsu::__mimeTypes.end(); i++)
+		std::cout << "\t-- " << i->second << "\n";
 	t_svec tmp = wsu::splitByChar(uri, '/');
 	if (tmp.empty())
 		return "text/html";
@@ -382,6 +385,7 @@ String wsu::getContentType(const String &uri)
 
 void wsu::loadErrorCodes()
 {
+	wsu::info("error codes");
 	if (!wsu::__errCode.empty())
 		return;
 	std::fstream fs;
@@ -412,6 +416,7 @@ void wsu::loadErrorCodes()
 }
 void wsu::loadErrPages()
 {
+	wsu::info("default error pages");
 	if (!wsu::__defaultErrorPages.empty())
 		return;
 	std::fstream fs;
@@ -442,6 +447,7 @@ void wsu::loadErrPages()
 }
 void wsu::loadMimeTypes(void)
 {
+	wsu::info("mime types");
 	if (!wsu::__mimeTypes.empty())
 		return;
 	std::ifstream fs;
