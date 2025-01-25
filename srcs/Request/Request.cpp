@@ -153,7 +153,6 @@ std::ostream &operator<<(std::ostream &o, const Request &req)
 	std::cout << "\n";
 	std::cout << "\tFragement: " << req.__fragement << "\n";
 	std::cout << "\theaders: \n";
-	for (std::map<String, String>::const_iterator it = req.__headerFeilds.begin(); it != req.__headerFeilds.end(); it++)
-		std::cout << "\t\t" << it->first << ": " << it->second << "\n";
+	std::cout << req.__headers << "\n";
 	return o;
 }

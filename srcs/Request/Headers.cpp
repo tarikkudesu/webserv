@@ -137,3 +137,14 @@ void Headers::parseHeaders(std::map<String, String> &headers)
 	transferEncoding(headers);
 	contentType(headers);
 }
+
+std::ostream& operator<<(std::ostream &os, const Headers &obj)
+{
+    os << "\t\tPort: " << obj.__port << std::endl;
+    os << "\t\tHost: " << obj.__host << std::endl;
+    os << "\t\tBoundary: " << obj.__boundary << std::endl;
+    os << "\t\tContent-Type: " << obj.__contentType << std::endl;
+    os << "\t\tContent-Length: " << obj.__contentLength << std::endl;
+    os << "\t\tTransfer-Encoding: " << obj.__transferEncoding;
+    return os;
+}

@@ -33,4 +33,6 @@ class Headers
 		~Headers();
 };
 
+std::ostream &operator<<(std::ostream &o, const Headers &h );
+
 #endif
