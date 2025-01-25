@@ -18,7 +18,7 @@
         </div>
         <div class="row justify-content-center">
             <?php foreach ($members as $key => $value) { ?>
-                <div class="col-md-4"></div>
+                <div class="col-md-4 py-4"></div>
                 <div class="col-md-4">
                     <div class="stats-card">
                         <h4>
@@ -30,6 +30,7 @@
                     </div>
                 </div>
             <?php } ?>
+
         </div>
         <div class="d-flex justify-content-center align-items-center">
             <a href="/php?action=formAction" class="text-center text-decoration-none fw-bold">CGI POST Test</a>

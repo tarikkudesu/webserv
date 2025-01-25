@@ -1,6 +1,6 @@
 ﻿<?php
-require_once("Controller/response.php");
-require_once ("Model/manager.php");
+require_once("cgi-bin/php/Controller/response.php");
+require_once ("cgi-bin/php/Model/manager.php");
 
 function index()
 {
@@ -26,4 +26,14 @@ function postAction()
 function formAction()
 {
 	render("vForm.php");
+}
+
+function setSuperGlobal(&$arr)
+{
+	$split = explode("&", getenv("QUERY_STRING"));
+	for ($i = 0; $i <  count($split); $i++)
+	{
+		$t = explode("=", $split[$i]);
+		$arr[$t[0]] = $t[1];
+	}
 }

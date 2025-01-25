@@ -3,7 +3,7 @@
 function render($vue , $data = [])
 {
 	extract($data);
-	$file ="View/". $vue;
+	$file ="cgi-bin/php/View/". $vue;
 	if (!file_exists($file))
 		throw new Exception ("Fichier introuvable: ". $file);
 	ob_start(); //stop rendring html content and start buffering all html tags as string

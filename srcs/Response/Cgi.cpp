@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ooulcaid <ooulcaid@student.42.fr>          #+#  +:+       +#+        */
+/*   By: ooulcaid <ooulcaid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-01-07 16:33:08 by ooulcaid          #+#    #+#             */
-/*   Updated: 2025-01-07 16:33:08 by ooulcaid         ###   ########.fr       */
+/*   Created: 2025/01/07 16:33:08 by ooulcaid          #+#    #+#             */
+/*   Updated: 2025/01/25 17:21:40 by ooulcaid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,12 @@ Cgi::Cgi(RessourceHandler &explorer,
 							   __body("")
 
 {
-	std::cout << __location;
 	cgiProcess();
 }
 
 Cgi::~Cgi()
 {
+	clear();
 }
 
 /*----------------------business logic------------------------*/
@@ -53,7 +53,6 @@ void Cgi::execute(const char *bin, const char *path, int fd)
 	}
 	const char *argv[] = {bin, path, NULL};
 	execve(bin, (char *const *)argv, env);
-	perror("execve");
 	clear();
 	close(fd);
 	throw ErrorResponse(500, __location, "internal server error");
@@ -65,7 +64,7 @@ const char *Cgi::getBin(void)
 	if (wsu::endWith(__explorer.getPath(), ".java"))
 		return "/usr/bin/java";
 	if (wsu::endWith(__explorer.getPath(), ".php"))
-		return "/usr/bin/php-cgi";
+		return "/usr/bin/php";
 	return "/usr/bin/java";
 }
 
@@ -90,14 +89,28 @@ const char *Cgi::getMethod()
 
 String	Cgi::getQueryString()
 {
-	String str;
+	std::cout << getMethod() << std::endl;
+	std::string queryString;
+	if (__request.__method == POST)
+	{
+		char buffer[READ_SIZE];
+		std::ifstream reader(__request.__body[0]._fileName.c_str());
+		do 
+		{
+			reader.read(buffer, READ_SIZE);
+			queryString.append(buffer);
+			bzero(buffer, READ_SIZE);
+		} while (reader.gcount());
+		return queryString;
+	}
+	// return __request.__queryString; 
 	if (!__request.__queryVariables.size())
-		return str;
+		return queryString;
 	Map::iterator it = __request.__queryVariables.begin();
-	str.append(it->first + "=" + it->second);
+	queryString.append(it->first + "=" + it->second);
 	while (++it != __request.__queryVariables.end())
-		str.append("&" + it->first + "=" + it->second);
-	return str;
+		queryString.append("&" + it->first + "=" + it->second);
+	return queryString;
 }
 
 void Cgi::setCgiEnvironement()
