@@ -41,6 +41,7 @@ Location &Location::operator=(const Location &assign)
 		b__r = assign.b__r;
 		__root = assign.__root;
 		__index = assign.__index;
+		__cgiPass = assign.__cgiPass;
 		__autoindex = assign.__autoindex;
 		__errorPages = assign.__errorPages;
 		__allowMethods = assign.__allowMethods;

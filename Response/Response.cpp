@@ -8,10 +8,10 @@ Response::Response(Request &request,
                                          __location(location)
 
 {
-  if (wsu::__criticalOverLoad == true)
-    throw ErrorResponse(503, "critical server overload");
-  __check_methods();
-  buildResponse();
+	if (wsu::__criticalOverLoad == true)
+		throw ErrorResponse(503, "critical server overload");
+	__check_methods();
+	buildResponse();
 }
 
 Response::Response(const Response &copy) : explorer(RessourceHandler(copy.explorer)),

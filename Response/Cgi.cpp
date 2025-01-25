@@ -12,6 +12,8 @@
 
 #include "Cgi.hpp"
 
+typedef std::map<String, String> Map;
+
 /*=---------------------constructors-----------------------*/
 
 Cgi::Cgi(RessourceHandler &explorer,
@@ -23,6 +25,7 @@ Cgi::Cgi(RessourceHandler &explorer,
 							   __body("")
 
 {
+	std::cout << __location;
 	cgiProcess();
 }
 
@@ -32,19 +35,37 @@ Cgi::~Cgi()
 
 /*----------------------business logic------------------------*/
 
+void Cgi::clear( void )
+{
+	for (int i = 0; env[i]; i++)
+		delete [] env[i];
+	delete [] env;
+}
+
 void Cgi::execute(const char *bin, const char *path, int fd)
 {
-	if (dup2(STDOUT_FILENO, fd) < 0)
+	if (dup2(fd, STDOUT_FILENO) < 0)
+	{
+		perror("dup2");
+		clear();
+		throw ErrorResponse(500, __location, "internal server error");
 		exit(1);
-	execve(bin, (char *const *)&path, NULL);
+	}
+	const char *argv[] = {bin, path, NULL};
+	execve(bin, (char *const *)argv, env);
+	perror("execve");
+	clear();
 	close(fd);
+	throw ErrorResponse(500, __location, "internal server error");
 	exit(1);
 }
 
 const char *Cgi::getBin(void)
 {
 	if (wsu::endWith(__explorer.getPath(), ".java"))
-		return "/usr/bin/java"; // will be gotten from the config file
+		return "/usr/bin/java";
+	if (wsu::endWith(__explorer.getPath(), ".php"))
+		return "/usr/bin/php-cgi";
 	return "/usr/bin/java";
 }
 
@@ -56,15 +77,53 @@ void Cgi::readFromPipe(int fd)
 		__body.append(buffer);
 		bzero(buffer, 1024);
 	}
+	size_t pos = __body.find('\n');
+	__body = __body.substr(pos + 1);
+}
+
+const char *Cgi::getMethod()
+{
+	if (__request.__method == POST)
+		return "POST";
+	return "GET";
+}
+
+String	Cgi::getQueryString()
+{
+	String str;
+	if (!__request.__queryVariables.size())
+		return str;
+	Map::iterator it = __request.__queryVariables.begin();
+	str.append(it->first + "=" + it->second);
+	while (++it != __request.__queryVariables.end())
+		str.append("&" + it->first + "=" + it->second);
+	return str;
 }
 
 void Cgi::setCgiEnvironement()
 {
-	/*itterate through the request headers to set them to the process environement*/
-	for (mapIterator it = __request.__headerFeilds.begin(); it != __request.__headerFeilds.end(); it++)
-		setenv(it->first.c_str(), it->second.c_str(), 0);
-	// setenv() not allowed, the code above will be replaced by the argv to give it as argument of the cgi script
-	//"(String [] args)in case of java for example"
+	Map headers = __request.__headerFeilds;
+	headers["GATEWAY_INTERFACE"] = "CGI/1.1";
+	headers["SERVER_NAME"] = "SERVER_NAME";//tmp header value
+	headers["SERVER_SOFTWARE"] = "WebServ-1337/1.0.0";
+	headers["SERVER_PROTOCOL"] = "HTTP/1.1";
+	headers["SERVER_PORT"] = "9001"; //tmp header value
+	headers["QUERY_STRING"] = getQueryString();
+	headers["REQUEST_METHOD"] = getMethod();
+	headers["SCRIPT_NAME"] = "index.php";
+	headers["SCRIPT_FILENAME"] = "cgi-bin/php/index.php";
+	headers["REDIRECT_STATUS"] = "200";
+	headers["REMOTE_ADDR"] = "127.0.0.1";//tmp header value
+	headers["REMOTE_HOST"] = "127.0.0.1";//tmp header value
+	env = new char*[headers.size() + 1]; 
+	int i = 0;
+	for (Map::iterator it = headers.begin(); it != headers.end(); it++, i++)
+	{
+		String header = it->first + "=" + it->second;
+		env[i] = new char[header.size() + 1];
+		std::strcpy(env[i], header.c_str());
+	}
+	env[i] = NULL;
 }
 
 void Cgi::cgiProcess(void)
@@ -74,6 +133,7 @@ void Cgi::cgiProcess(void)
 	int child, status, pip[2], pid;
 	if (pipe(pip) < 0)
 		throw ErrorResponse(500, __location, "internal server error");
+
 	pid = fork();
 	if (pid < 0)
 		throw ErrorResponse(500, __location, "internal server error");
@@ -83,12 +143,12 @@ void Cgi::cgiProcess(void)
 
 	close(pip[1]);
 
-	while (!(child = waitpid(pid, &status, WNOHANG)) && __start - std::clock_t() < TIMEOUT)
+	while (!(child = waitpid(pid, &status, WNOHANG)) && (__start - std::clock_t()) / CLOCKS_PER_SEC < TIMEOUT)
 		;
 	if (!child)
 		kill(pid, SIGKILL), throw ErrorResponse(408, __location, "Request Time-out");
-	if (WEXITSTATUS(status))
-		throw ErrorResponse(500, __location, "internal server error");
+	if (WIFEXITED(pid) && WEXITSTATUS(status))
+			throw ErrorResponse(500, __location, "internal server error");
 	readFromPipe(pip[0]);
 	close(pip[0]);
 }

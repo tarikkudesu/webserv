@@ -1,0 +1,39 @@
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        .stats-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="d-flex justify-content-center align-items-center my-5">
+            <h1>PHP CGI GET Test</h1>
+        </div>
+        <div class="row justify-content-center">
+            <?php foreach ($members as $key => $value) { ?>
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <h4>
+                            <i class="bi bi-code fw-bold"></i>
+                                <?=$value["name"]?>
+                            <i class="bi bi-code-slash"></i>
+                        </h4>
+                        <div class="fw-bolder"><?=$key?></div>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+        <div class="d-flex justify-content-center align-items-center">
+            <a href="/php?action=formAction" class="text-center text-decoration-none fw-bold">CGI POST Test</a>
+        </div>
+    </div>
+</body>
+</html>
