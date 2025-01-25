@@ -373,7 +373,7 @@ String wsu::getContentType(const String &uri)
 	size_t dot_pos = file.rfind('.');
 	if (dot_pos == String::npos)
 		return "text/html";
-	String ext = uri.substr(dot_pos);
+	String ext = file.substr(dot_pos + 1);
 	std::map<String, String>::iterator it = wsu::__mimeTypes.find(ext);
 	if (it != __mimeTypes.end())
 		return it->second;

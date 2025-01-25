@@ -66,6 +66,7 @@ Server *Connection::identifyServer()
  ***************************************************************************/
 void Connection::processResponse()
 {
+	wsu::info("COMPLETE");
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);
@@ -208,6 +209,7 @@ void Connection::processMultiPartBody()
 }
 void Connection::indentifyRequestBody()
 {
+	wsu::info("PROCESSING");
 	if (__request.__headers.__transferType == DEFINED)
 		processDefinedBody();
 	else if (__request.__headers.__transferType == CHUNKED)
@@ -217,6 +219,7 @@ void Connection::indentifyRequestBody()
 }
 void Connection::initializeTmpFiles()
 {
+	wsu::info("INITIALIZING");
 	if (__request.__headers.__transferType == DEFINED || __request.__headers.__transferType == CHUNKED)
 	{
 		do
@@ -247,11 +250,12 @@ void Connection::initializeTmpFiles()
 
 void Connection::processRequest()
 {
+	wsu::info("NEWREQUEST");
 	size_t s = __data.find("\r\n");
 	size_t h = __data.find("\r\n\r\n");
 	if (s == String::npos || h == String::npos)
 		throw wsu::persist();
-	h -= s + 2;
+	h -= (s + 2);
 	BasicString	requestLine = __data.substr(0, s);
 	__data.erase(0, s + 2);
 	BasicString	requestHeaders = __data.substr(0, h);
@@ -272,6 +276,7 @@ void Connection::proccessData(BasicString input)
 	this->__data.join(input);
 	try
 	{
+		wsu::info("proccessing request");
 		if (__request.__phase == NEWREQUEST)
 			processRequest();
 		if (__request.__phase == INITIALIZING)

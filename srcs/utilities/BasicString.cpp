@@ -50,16 +50,18 @@ BasicString &BasicString::operator=(const BasicString &assign)
 }
 void BasicString::erase(size_t start, size_t end)
 {
-	if (start >= __size || end >= __size || start > end)
-		return;
-	size_t len_to_remove = end - start;
-	size_t new_size = __size - len_to_remove;
-	char *new_buff = new char[new_size];
-	for (size_t i = end; i < __size; i++)
-		new_buff[i - len_to_remove] = __buff[i];
-	delete[] __buff;
-	__buff = new_buff;
-	__size = new_size;
+    if (start > end || end > __size) 
+        return;
+    size_t len_to_remove = end - start;
+    size_t new_size = __size - len_to_remove;
+    char *new_buff = new char[new_size];
+    for (size_t i = 0; i < start; i++)
+        new_buff[i] = __buff[i];
+    for (size_t i = end; i < __size; i++)
+        new_buff[i - len_to_remove] = __buff[i];
+    delete[] __buff;
+    __buff = new_buff;
+    __size = new_size;
 }
 void BasicString::join(const BasicString &j)
 {
