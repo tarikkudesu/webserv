@@ -1,57 +1,63 @@
-SRC		=	Request/Connection.cpp \
-			Request/Headers.cpp \
-			Request/Request.cpp \
-			Response/Cgi.cpp \
-			Response/Get.cpp \
-			Response/Post.cpp \
-			Response/Delete.cpp \
-			Response/Response.cpp \
-			Response/ErrorResponse.cpp \
-			Response/RessourceHandler.cpp \
-			ServerManager/Core.cpp \
-			ServerManager/Server.cpp \
-			ServerManager/Location.cpp \
-			ServerManager/ServerManager.cpp \
-			srcs/WSU.cpp \
-			srcs/main.cpp \
-			srcs/BasicString.cpp
-
+SRC		=	srcs/main.cpp \
+			srcs/Request/Connection.cpp \
+			srcs/Request/Headers.cpp \
+			srcs/Request/Request.cpp \
+			srcs/Response/Cgi.cpp \
+			srcs/Response/Delete.cpp \
+			srcs/Response/ErrorResponse.cpp \
+			srcs/Response/Get.cpp \
+			srcs/Response/Post.cpp \
+			srcs/Response/Response.cpp \
+			srcs/Response/RessourceHandler.cpp \
+			srcs/ServerManager/Core.cpp \
+			srcs/ServerManager/Location.cpp \
+			srcs/ServerManager/Server.cpp \
+			srcs/ServerManager/ServerManager.cpp \
+			srcs/utilities/BasicString.cpp \
+			srcs/utilities/WSU.cpp
 OBJ		=	$(SRC:.cpp=.o)
 NAME	=	webserv
 
 all: mkdir $(NAME)
 
 $(NAME): $(OBJ)
-	@g++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
+	@c++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME)
 
-%.o: %.cpp	Request/Connection.hpp \
-			Request/Headers.hpp \
-			Request/Request.hpp \
-			Response/Cgi.hpp \
-			Response/Get.hpp \
-			Response/Post.hpp \
-			Response/Delete.hpp \
-			Response/Response.hpp \
-			Response/ErrorResponse.hpp \
-			Response/RessourceHandler.hpp \
-			ServerManager/Core.hpp \
-			ServerManager/Server.hpp \
-			ServerManager/Location.hpp \
-			ServerManager/ServerManager.hpp \
-			srcs/WSU.hpp \
-			srcs/webserv.hpp \
-			srcs/BasicString.hpp
-	@g++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
+%.o: %.cpp	srcs/Request/Connection.hpp \
+			srcs/Request/Headers.hpp \
+			srcs/Request/Request.hpp \
+			srcs/Response/Cgi.hpp \
+			srcs/Response/Delete.hpp \
+			srcs/Response/ErrorResponse.hpp \
+			srcs/Response/Get.hpp \
+			srcs/Response/Post.hpp \
+			srcs/Response/Response.hpp \
+			srcs/Response/RessourceHandler.hpp \
+			srcs/ServerManager/Core.hpp \
+			srcs/ServerManager/Location.hpp \
+			srcs/ServerManager/Server.hpp \
+			srcs/ServerManager/ServerManager.hpp \
+			srcs/utilities/BasicString.hpp \
+			srcs/utilities/WSU.hpp \
+			srcs/webserv.hpp
+	@c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
 
 mkdir:
 	@mkdir -p .temp
+	@mkdir -p .logs
+	@mkdir -p uploads
+
+rmdir:
+	@rm -rf .temp
+	@rm -rf .logs
+	@rm -rf uploads
 
 clean:
 	@rm -f $(OBJ)
 
-fclean: clean
+fclean: clean rmdir
 	@rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: clean mkdir
+.PHONY: clean
