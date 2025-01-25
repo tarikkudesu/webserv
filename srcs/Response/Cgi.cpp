@@ -89,7 +89,6 @@ const char *Cgi::getMethod()
 
 String	Cgi::getQueryString()
 {
-	std::cout << getMethod() << std::endl;
 	std::string queryString;
 	if (__request.__method == POST)
 	{
@@ -103,14 +102,7 @@ String	Cgi::getQueryString()
 		} while (reader.gcount());
 		return queryString;
 	}
-	// return __request.__queryString; 
-	if (!__request.__queryVariables.size())
-		return queryString;
-	Map::iterator it = __request.__queryVariables.begin();
-	queryString.append(it->first + "=" + it->second);
-	while (++it != __request.__queryVariables.end())
-		queryString.append("&" + it->first + "=" + it->second);
-	return queryString;
+	return __request.__queryString; 
 }
 
 void Cgi::setCgiEnvironement()

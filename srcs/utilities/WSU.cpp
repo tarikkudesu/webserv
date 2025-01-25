@@ -366,9 +366,6 @@ struct pollfd *wsu::data(t_events &events)
 }
 String wsu::getContentType(const String &uri)
 {
-	std::cout << wsu::__mimeTypes.size() << "\n";
-	for (std::map<String, String>::iterator i = wsu::__mimeTypes.begin(); i != wsu::__mimeTypes.end(); i++)
-		std::cout << "\t-- " << i->second << "\n";
 	t_svec tmp = wsu::splitByChar(uri, '/');
 	if (tmp.empty())
 		return "text/html";
