@@ -11,6 +11,7 @@ prog
 i
 o
 j
+*DS_Store
 
 # Compiled Object files
 *.slo
