@@ -16,6 +16,7 @@ Request &Request::operator=(const Request &assign)
 		this->__headers = assign.__headers;
 		this->__protocole = assign.__protocole;
 		this->__headerFeilds = assign.__headerFeilds;
+        this->__queryString = assign.__queryString;
 	}
 	return *this;
 }
@@ -37,6 +38,7 @@ void Request::clear()
 	this->__fragement.clear();
 	this->__protocole.clear();
 	this->__headerFeilds.clear();
+	this->__queryString.clear();
 }
 
 /*****************************************************************************
