@@ -33,7 +33,6 @@ RessourceHandler::~RessourceHandler()
 }
 void RessourceHandler::loadType(const char *path)
 {
-
 	struct stat file_stat;
 	if (stat(path, &file_stat) == -1)
 		throw ErrorResponse(404, __location, "the file does not exist on the server"); // to check what the exact status code and reason phrase

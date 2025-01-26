@@ -36,7 +36,7 @@
 #include <cstdlib>
 
 #ifndef TIMEOUT
-#define TIMEOUT 5000000
+# define TIMEOUT 6
 #endif
 
 #ifndef JAVABIN
