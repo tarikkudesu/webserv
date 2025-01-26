@@ -9,19 +9,19 @@ class Cgi
 		Request&                __request;
 		RessourceHandler&       __explorer;
 		Location&               __location;
-		std::clock_t            __start;
+		std::time_t				__start;
 		String                  __body;
 		char					**env;
 
 
-		void                    execute(const char *bin, const char *path, int fd);
-		const char*             getBin(void);
+		void                    execute(const char* path, int fd);
 		void                    readFromPipe(int fd);
 		void                    setCgiEnvironement();
 		void                    cgiProcess(void);
 		void					clear( void );		
 		const					char *getMethod();
-		String					getQueryString();//tmp function
+		String					getQueryString();
+
 
 
 

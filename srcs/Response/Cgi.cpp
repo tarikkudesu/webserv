@@ -6,7 +6,7 @@
 /*   By: ooulcaid <ooulcaid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 16:33:08 by ooulcaid          #+#    #+#             */
-/*   Updated: 2025/01/25 17:21:40 by ooulcaid         ###   ########.fr       */
+/*   Updated: 2025/01/26 18:52:46 by ooulcaid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,11 @@ Cgi::Cgi(RessourceHandler &explorer,
 		 Location &location) : __request(request),
 							   __explorer(explorer),
 							   __location(location),
-							   __start(std::clock_t()),
+							   __start(std::time(NULL)),
 							   __body("")
 
 {
+	
 	cgiProcess();
 }
 
@@ -42,30 +43,21 @@ void Cgi::clear( void )
 	delete [] env;
 }
 
-void Cgi::execute(const char *bin, const char *path, int fd)
+void Cgi::execute(const char* path, int fd)
 {
 	if (dup2(fd, STDOUT_FILENO) < 0)
 	{
-		perror("dup2");
 		clear();
-		throw ErrorResponse(500, __location, "internal server error");
+		close(fd);
 		exit(1);
 	}
-	const char *argv[] = {bin, path, NULL};
-	execve(bin, (char *const *)argv, env);
+	const char *argv[] = {"/usr/bin/java", path, NULL};
+	if (wsu::endWith(path, ".php"))
+		argv[0] = "/usr/bin/php";
+	execve(argv[0], (char *const *)argv, env);
 	clear();
 	close(fd);
-	throw ErrorResponse(500, __location, "internal server error");
 	exit(1);
-}
-
-const char *Cgi::getBin(void)
-{
-	if (wsu::endWith(__explorer.getPath(), ".java"))
-		return "/usr/bin/java";
-	if (wsu::endWith(__explorer.getPath(), ".php"))
-		return "/usr/bin/php";
-	return "/usr/bin/java";
 }
 
 void Cgi::readFromPipe(int fd)
@@ -144,11 +136,11 @@ void Cgi::cgiProcess(void)
 		throw ErrorResponse(500, __location, "internal server error");
 
 	if (!pid)
-		close(pip[0]), execute(getBin(), __explorer.getPath().c_str(), pip[1]);
+		close(pip[0]), execute(__explorer.getPath().c_str(), pip[1]);
 
 	close(pip[1]);
 
-	while (!(child = waitpid(pid, &status, WNOHANG)) && (__start - std::clock_t()) / CLOCKS_PER_SEC < TIMEOUT)
+	while (!(child = waitpid(pid, &status, WNOHANG)) && std::time(NULL) - __start < TIMEOUT)
 		;
 	if (!child)
 		kill(pid, SIGKILL), throw ErrorResponse(408, __location, "Request Time-out");
