@@ -48,6 +48,7 @@ Response &Response::operator=(const Response &assign)
 
 void Response::__check_methods()
 {
+  std::cout << __location;
   if (!__location.__cgiPass.empty())
     executeCgi();
   else

@@ -51,8 +51,11 @@ void Cgi::execute(const char *bin, const char *path, int fd)
 		throw ErrorResponse(500, __location, "internal server error");
 		exit(1);
 	}
-	const char *argv[] = {bin, path, NULL};
+	const char *argv[3] = {bin, path, NULL};
 	execve(bin, (char *const *)argv, env);
+	std::cerr << argv[0] << std::endl;
+	std::cerr << argv[1] << std::endl;
+	std::cerr << argv[2] << std::endl;
 	clear();
 	close(fd);
 	throw ErrorResponse(500, __location, "internal server error");
@@ -61,7 +64,8 @@ void Cgi::execute(const char *bin, const char *path, int fd)
 
 const char *Cgi::getBin(void)
 {
-	if (wsu::endWith(__explorer.getPath(), ".java"))
+	if (wsu::endWith(__explorer.getPath(), ".java") ||
+		wsu::endWith(__explorer.getPath(), ".jar"))
 		return "/usr/bin/java";
 	if (wsu::endWith(__explorer.getPath(), ".php"))
 		return "/usr/bin/php";

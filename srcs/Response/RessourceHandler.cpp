@@ -6,6 +6,7 @@ RessourceHandler::RessourceHandler(Location &location, String &uri) : __URI(uri)
 																	  __location(location)
 {
 	loadPathExploring();
+
 }
 
 RessourceHandler::RessourceHandler(const RessourceHandler &copy) : __URI(copy.__URI),
@@ -13,6 +14,7 @@ RessourceHandler::RessourceHandler(const RessourceHandler &copy) : __URI(copy.__
 																   __type(copy.__type),
 																   __location(copy.__location)
 {
+	std::cout << "-------" << __URI << "-------";
 	*this = copy;
 }
 RessourceHandler &RessourceHandler::operator=(const RessourceHandler &assign)
@@ -31,6 +33,7 @@ RessourceHandler::~RessourceHandler()
 }
 void RessourceHandler::loadType(const char *path)
 {
+
 	struct stat file_stat;
 	if (stat(path, &file_stat) == -1)
 		throw ErrorResponse(404, __location, "the file does not exist on the server"); // to check what the exact status code and reason phrase
@@ -45,7 +48,9 @@ void RessourceHandler::loadType(const char *path)
 void RessourceHandler::loadPathExploring(void)
 {
 	__fullPath = wsu::joinPaths(__location.__root, __URI);
+	std::cout << ">>>>>>>>>>" <<__fullPath << "<<<<<<<<<<\n";
 	loadType(__fullPath.c_str());
+
 	if (__type == FOLDER)
 	{
 		t_svec::iterator it = __location.__index.begin();

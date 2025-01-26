@@ -1,4 +1,4 @@
-package javacgi.methods;
+package methods;
 
 public interface Method
 {

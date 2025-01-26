@@ -1,21 +1,21 @@
-package javacgi.methods;
+package methods;
+
+import annotation.Template;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import javacgi.annotation.Template;
-
-@Template(path="ressource/get.html")
-public class Get implements Method
+@Template(path= "cgi-bin/cgijava/src/ressource/get.html")
+public class GET implements Method
 {
 	Template template;
 	String response;
-	
+
 	{
 		template = this.getClass().getDeclaredAnnotation(Template.class);
 	}
 
-	public Get()
+	public GET()
 	{
 		loadFile();
 	}
