@@ -10,7 +10,7 @@ class Response
 		Server&						__server;
 		Request&					__request;
 		Location&					__location;
-		String						fullResponse;
+		String                  	fullResponse;
 		String						reasonPhrase;
 		std::map<String, String>	headers;
 		String						body;

@@ -23,7 +23,7 @@ class ErrorResponse
 		ErrorResponse();
 
 	public:
-		String								getResponse() const;
+		BasicString							getResponse() const;
 		void								print() const;
 
 		ErrorResponse( int code, String indication );

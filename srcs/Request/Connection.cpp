@@ -70,7 +70,10 @@ void Connection::processResponse()
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);
-	this->__responseQueue.push(res.getResponse());
+
+    /// the new Way of getting the response
+    
+
 	__request.__phase = NEWREQUEST;
 }
 /***************************************************************************

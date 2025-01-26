@@ -21,6 +21,7 @@ public:
 	void clear();
 
 	BasicString();
+	BasicString(const String &str);
 	BasicString(char *buff, size_t size);
 	BasicString(const BasicString &copy);
 	BasicString &operator=(const BasicString &assign);

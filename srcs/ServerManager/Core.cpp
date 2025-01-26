@@ -191,9 +191,9 @@ void Core::writeDataToSocket(int sd)
 	}
 	if (Core::__connections[sd]->__responseQueue.empty())
 		return;
-	String response = Core::__connections[sd]->__responseQueue.front();
+	BasicString response = Core::__connections[sd]->__responseQueue.front();
 	Core::__connections[sd]->__responseQueue.pop();
-	ssize_t bytesWritten = send(sd, response.c_str(), strlen(response.c_str()), 0);
+	ssize_t bytesWritten = send(sd, response.getBuff(), response.length(), 0);
 	if (bytesWritten > 0)
 		wsu::info("response sent");
 	else

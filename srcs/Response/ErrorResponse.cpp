@@ -28,7 +28,7 @@ ErrorResponse::~ErrorResponse()
  *                               MINI METHODS                               *
  ****************************************************************************/
 
-String ErrorResponse::getResponse() const
+BasicString ErrorResponse::getResponse() const
 {
 	return this->__StatusLine + this->__headers + this->__Body;
 }

@@ -4,6 +4,15 @@ BasicString::BasicString() : __buff(NULL), __size(0)
 {
 }
 
+BasicString::BasicString(const String &str) : __buff(NULL), __size(str.length())
+{
+	if (!str.length())
+		return;
+	__buff = new char[__size];
+	for (size_t i = 0; i < __size; i++)
+		__buff[i] = str.at(i);
+}
+
 BasicString::BasicString(char *buff, size_t size) : __buff(NULL), __size(size)
 {
 	if (buff == NULL)
