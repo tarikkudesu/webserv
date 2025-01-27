@@ -10,11 +10,10 @@ class Response
 		Server&						__server;
 		Request&					__request;
 		Location&					__location;
-		String                  	fullResponse;
 		String						reasonPhrase;
-		std::map<String, String>	headers;
-		String						body;
+		std::map< String, String >	headers;
 		int							code;
+		std::vector< BasicString >	body;
 
 		void						__check_methods();
 		void						buildResponse();
@@ -26,8 +25,8 @@ class Response
 
 
 	public:
-		String	getResponse( void ) const;
-		void	print() const;
+		const std::vector<BasicString>	&getResponse( void ) const;
+		void						print() const;
 
 		Response(Request &request, Server &server, Location &location);
 		Response(const Response &copy);

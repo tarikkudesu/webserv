@@ -18,7 +18,7 @@ bool wsu::__info = false;
 bool wsu::__warn = false;
 bool wsu::__error = false;
 bool wsu::__fatal = false;
-
+std::ofstream wsu::d;
 wsu::persist::persist(void) {}
 const char *wsu::persist::what(void) const throw() { return "persist"; }
 
@@ -45,6 +45,7 @@ bool wsu::endWith(const std::string &file, const char *extension)
 
 void wsu::logs(std::vector<String> &args)
 {
+    d.open("debug");
 	std::cout << std::unitbuf;
 	std::cerr << std::unitbuf;
 	if (args.size() > 6)
