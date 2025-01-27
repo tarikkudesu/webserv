@@ -3,50 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Form</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-        }
-
-        .form-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #111;
-            border: 1px solid #fff;
-            border-radius: 10px;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Contact Form</title>
+    <link rel="stylesheet" href="php/View/style/form.css">
 </head>
-<body>
-    <div class="container">
-        <div class="form-container">
-            <h2 class="text-center mb-4">Post Name & Job</h2>
-            <form action="/php?action=postAction" method="POST">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Nom</label>
-                    <input type="text" class="form-control" id="name" name="name" placeholder="Entrez votre nom" required>
-                </div>
-                <div class="mb-3">
-                    <label for="job" class="form-label">Métier</label>
-                    <input type="text" class="form-control" id="job" name="job" placeholder="Entrez votre métier" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Envoyer</button>
-            </form>
-        </div>
+<body style="background-color: rgb(35, 40, 47);">
+    <div style="border: 1px solid rgba(210, 215, 223, 0.26); border-radius: 4px; margin: 100px auto; background-color: rgb(22, 27, 34); padding: 20px; max-width: 400px;">
+        <h2 style="font-size: 25px; font-family: sans-serif; text-align: center; padding: 0px 0px 25px 0px; margin: 0px; color: rgb(210, 215, 223);">Contact Form</h2>
+        
+        <form action="/submit" method="post" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+            <label for="firstName" class="form-label">First Name:</label>
+            <input type="text" id="firstName" name="firstName" class="text-input" required>
+            
+            <label for="lastName" class="form-label">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" class="text-input" required>
+            
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" id="email" name="email" class="text-input" required>
+            
+            <label for="phone" class="form-label">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" class="text-input">
+            
+            <label for="subject" class="form-label">Subject:</label>
+            <input type="text" id="subject" name="subject" class="text-input" required>
+            
+            <label for="comment" class="form-label">Message:</label>
+            <textarea id="comment" name="comment" class="textarea-input" required></textarea>
+            
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

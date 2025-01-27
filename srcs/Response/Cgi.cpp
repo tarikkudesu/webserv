@@ -37,14 +37,15 @@ void Cgi::execute(const char *path, int fd)
 	{
 		perror("dup2");
 		clear();
-		throw ErrorResponse(500, __location, "internal server error");
+		close(fd);
 		exit(1);
 	}
 	const char *argv[] = {"/usr/bin/php", path, NULL};
+	if (wsu::endWith(path, ".java"))
+		argv[0] = "/usr/bin/java";
 	execve(argv[0], (char *const *)argv, env);
 	clear();
 	close(fd);
-	throw ErrorResponse(500, __location, "internal server error");
 	exit(1);
 }
 
