@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Team</title>
-    <link rel="stylesheet" href="php/View/style/index.css">
+    <link rel="stylesheet" href="/php/View/style/index.css">
 </head>
 <body style="background-color: rgb(35, 40, 47);">
     <div class="title">
@@ -21,7 +21,7 @@
 			foreach ($members as $key => $value) {
 		?>
 				<div class="team-member">
-					<img src="php/View/assets/<?=$value["image"]?>.jpg" alt="Team Member 1" class="member-image">
+					<img src="/php/View/assets/<?=$value["image"]?>.jpg" alt="Team Member 1" class="member-image">
 					<h2 class="member-name"><?=$value["name"]?></h2>
 					<div class="member-role"><?=$value["task"]?>.</div>
 					<p class="member-bio">A computer science student at 1337 coding school</p>

@@ -47,12 +47,13 @@ Response &Response::operator=(const Response &assign)
 
 bool Response::checkCgi()
 {
-    if (!__location.__cgiPass.empty())
+    if (__location.__cgiPass.empty())
         return 0;
     if (explorer.__type == FOLDER)
         return 0;
     if (!wsu::endWith(explorer.__fullPath, ".java") && !wsu::endWith(explorer.__fullPath, ".php"))
         return 0;
+	return 1;
 }
 
 void Response::__check_methods()

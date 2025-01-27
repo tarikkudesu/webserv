@@ -1,6 +1,6 @@
 ﻿<?php 
-require_once("cgi-bin/php/Controller/response.php");
 require_once ("cgi-bin/php/Controller/controller.php");
+require_once("cgi-bin/php/Controller/response.php");
 
 try
 {
