@@ -13,7 +13,6 @@ class Cgi
 		String					__body;
 		char					**env;
 
-
 		void					execute(const char* path, int fd);
 		void					readFromPipe(int fd);
 		void					setCgiEnvironement();

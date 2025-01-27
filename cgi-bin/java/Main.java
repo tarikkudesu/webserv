@@ -18,15 +18,6 @@ public class Main
 		template = this.getClass().getDeclaredAnnotation(Template.class);
 	}
 	
-	void loadFile(String path)
-	{
-		try {
-			response = new String(Files.readAllBytes(Paths.get(path)));
-		} catch (Exception e) {
-			response = "Error loading resource: " + System.getProperty("user.dir") + "/" + path;
-		}
-	}
-	
 	public Main()
 	{
 		// consumer.accept(template.path() + System.getenv("REQUEST_METHOD") + ".html");
@@ -38,6 +29,17 @@ public class Main
 	{
 		new Main();
 	}
+	
+	void loadFile(String path)
+	{
+		try {
+			response = new String(Files.readAllBytes(Paths.get(path)));
+		} catch (Exception e) {
+			response = "Error loading resource: " + System.getProperty("user.dir") + "/" + path;
+		}
+	}
+	
+	
 }
 
 @Target(ElementType.TYPE)

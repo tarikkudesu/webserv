@@ -7,19 +7,22 @@ function getData()
             "name" => "tarik amehri",
             "image" => "tamehri",
             "github" => "tarikkudesu",
-            "linkdein" => "tarik-amehri"
+            "linkdein" => "tarik-amehri",
+            "task" => "Core builder"
         ],
 		"member1"=>[
-            "name" => "otman oulcaid",
+			"name" => "otman oulcaid",
             "image" => "ooulcaid",
 			"github" => "otmanoulcaid",
-            "linkdein" => "otmanoulcaid"
+            "linkdein" => "otmanoulcaid",
+			"task" => "CGI Manager"
         ],
 		"member2"=>[
-            "name" => "omar ghazi",
+			"name" => "omar ghazi",
             "image" => "omghazi",
-			"github" => "	Om7gh",
-            "linkdein" => "shghvj"
+			"github" => "Om7gh",
+            "linkdein" => "oamr-ghazi0",
+			"task" => "Response builder"
         ]
     ];
 

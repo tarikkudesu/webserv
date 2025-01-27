@@ -37,14 +37,15 @@ void Cgi::execute(const char *path, int fd)
     {
         perror("dup2");
         clear();
-        throw ErrorResponse(500, __location, "internal server error");
+		close(fd);
         exit(1);
     }
     const char *argv[] = {"/usr/bin/php", path, NULL};
+	if (wsu::endWith(path, ".java"))
+		argv[0] = "/usr/bin/java";
     execve(argv[0], (char *const *)argv, env);
     clear();
     close(fd);
-    throw ErrorResponse(500, __location, "internal server error");
     exit(1);
 }
 
@@ -73,7 +74,7 @@ String Cgi::getQueryString()
     if (__request.__method == POST)
     {
         char buffer[READ_SIZE];
-        std::ifstream reader(__request.__body[0]._fileName.c_str());
+        std::ifstream reader(Post(__explorer, __request).getCurrFile()[0].c_str());
         do
         {
             reader.read(buffer, READ_SIZE);

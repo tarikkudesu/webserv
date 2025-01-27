@@ -16,40 +16,21 @@
             <h1 style="font-size: 40px; margin-bottom: 10px;">Our Team</h1>
             <p style="font-size: 18px; color: rgba(210, 215, 223, 0.7);">Meet the amazing people behind our success</p>
         </div>
-
-        <div class="team-grid">
-            <div class="team-member">
-                <img src="assets/tamehri.jpg" alt="Team Member 1" class="member-image">
-                <h2 class="member-name">Amehri Tarik</h2>
-                <div class="member-role">Core builder</div>
-                <p class="member-bio">A computer science student at 1337 coding school</p>
-                <div class="social-links">
-                    <a href="#" class="social-link">GitHub</a>
-                    <a href="#" class="social-link">LinkedIn</a>
-                </div>
-            </div>
-
-            <div class="team-member">
-                <img src="assets/ooulcaid.jpg" alt="Team Member 2" class="member-image">
-                <h2 class="member-name">Otman Oulcaid</h2>
-                <div class="member-role">CGI manager</div>
-                <p class="member-bio">A computer science student at 1337 coding school</p>
-                <div class="social-links">
-                    <a href="#" class="social-link">GitHub</a>
-                    <a href="#" class="social-link">LinkedIn</a>
-                </div>
-            </div>
-
-            <div class="team-member">
-                <img src="assets/omghazi.jpg" alt="Team Member 3" class="member-image">
-                <h2 class="member-name">Omar Ghazi</h2>
-                <div class="member-role">Response builder</div>
-                <p class="member-bio">A computer science student at 1337 coding school</p>
-                <div class="social-links">
-                    <a href="#" class="social-link">GitHub</a>
-                    <a href="#" class="social-link">LinkedIn</a>
-                </div>
-            </div>
+		<div class="team-grid">
+		<?php 
+			foreach ($members as $key => $value) {
+		?>
+				<div class="team-member">
+					<img src="php/View/assets/<?=$value["image"]?>.jpg" alt="Team Member 1" class="member-image">
+					<h2 class="member-name"><?=$value["name"]?></h2>
+					<div class="member-role"><?=$value["task"]?>.</div>
+					<p class="member-bio">A computer science student at 1337 coding school</p>
+					<div class="social-links">
+						<a href="https://github.com/<?=$value["github"]?>" class="social-link">GitHub</a>
+						<a href="https://linkedin.com/in/<?=$value["linkdin"]?>" class="social-link">LinkedIn</a>
+					</div>
+				</div>
+		<? } ?>
         </div>
     </div>
 </body>
