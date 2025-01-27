@@ -53,6 +53,7 @@ bool Response::checkCgi()
         return 0
         if (!wsu::endWith(explorer.__fullPath, ".java") && !wsu::endWith(explorer.__fullPath, ".php"))
             return 0;
+        return 1;
 }
 
 void Response::__check_methods()
