@@ -45,9 +45,19 @@ Response &Response::operator=(const Response &assign)
  *                               METHODS                               *
  ***********************************************************************/
 
-void Response::__check_methods()
+bool Response::checkCgi()
 {
     if (!__location.__cgiPass.empty())
+        return 0;
+    if (explorer.__type == FOLDER)
+        return 0;
+    if (!wsu::endWith(explorer.__fullPath, ".java") && !wsu::endWith(explorer.__fullPath, ".php"))
+        return 0;
+}
+
+void Response::__check_methods()
+{
+    if (checkCgi())
         executeCgi();
     else
     {
