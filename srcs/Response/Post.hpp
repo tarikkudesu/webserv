@@ -14,7 +14,7 @@ class Post
 
     public:
 
-
+		t_svec getCurrFile();
         Post(RessourceHandler &explorer, Request &request);
         Post(const Post &copy);
         Post &operator=(const Post &assign);

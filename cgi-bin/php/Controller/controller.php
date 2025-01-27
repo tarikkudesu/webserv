@@ -20,6 +20,7 @@ function errorAction($e)
 
 function postAction()
 {
+	print_r($_POST);
 	render("vPost.php", $_POST);
 }
 

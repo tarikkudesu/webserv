@@ -11,6 +11,12 @@ Post::Post(const Post &copy) : explorer(copy.explorer), request(copy.request)
     *this = copy;
 }
 
+t_svec Post::getCurrFile()
+{
+	std::cerr << curr_file.size();
+    return curr_file;
+}
+
 Post &Post::operator=(const Post &assign)
 {
     if (this != &assign)
@@ -47,7 +53,7 @@ void Post::getCurr_file(void)
                     {
                         std::string fileName = request.__body[i]._headers[j].substr(startPos, endPos - startPos);
                         curr_file.push_back(fileName);
-                        // std::cout << "Extracted file: " << fileName << std::endl;
+                        std::cout << "Extracted file: " << fileName << std::endl;
                     }
                 }
             }
@@ -59,12 +65,14 @@ void Post::writeFile(void)
 {
     std::vector<s_body>::iterator it1 = request.__body.begin();
     t_svec::iterator it2 = curr_file.begin();
+	std::cout << curr_file.size() << std::endl;
     while (it1 != request.__body.end() && it2 != curr_file.end())
     {
         try
         {
             char buff[READ_SIZE];
             String fullPath = wsu::joinPaths("./uploads", *it2);
+            std::cout << fullPath << std::endl;
             std::ifstream readFrom(it1->_fileName.c_str(), std::ios_base::binary);
             std::ofstream writeTo(fullPath.c_str());
             if (!readFrom.is_open())

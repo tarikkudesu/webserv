@@ -74,7 +74,10 @@ String Cgi::getQueryString()
     if (__request.__method == POST)
     {
         char buffer[READ_SIZE];
-        std::ifstream reader(Post(__explorer, __request).getCurrFile()[0].c_str());
+		std::vector<s_body>& vect = __request.__body;
+		if (!vect.size())
+			throw ErrorResponse(403, __location, "emoty POST body");
+        std::ifstream reader(vect.at(0)._fileName.c_str());
         do
         {
             reader.read(buffer, READ_SIZE);

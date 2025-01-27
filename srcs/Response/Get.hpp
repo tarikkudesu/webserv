@@ -14,6 +14,7 @@ class Get
     
     public:
 
+
         Get(bool isIndexing, RessourceHandler &explorer, std::vector<BasicString> &body);
         Get(const Get &copy);
         Get &operator=(const Get &assign);
