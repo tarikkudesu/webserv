@@ -1,5 +1,6 @@
 {
 	"files.exclude": {
+        "**/*.DS_Store": true,
         "**/*.o": true,
         "**/*.gitignore": true,
 		"**/.vscode": true

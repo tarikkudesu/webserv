@@ -28,6 +28,7 @@ public:
 	static bool __warn;
 	static bool __error;
 	static bool __fatal;
+    static std::ofstream d;
 
 	static void logs(std::vector<std::string> &args);
 	static void debug(String __log_message);

@@ -10,7 +10,7 @@ Connection::Connection() : __sd(-1),
 Connection::Connection(int sd) : __sd(sd),
 								 __serversP(NULL)
 {
-	wsu::debug("Server single para constructor");
+	wsu::debug("Connection single para constructor");
 }
 Connection::Connection(const Connection &copy)
 {
@@ -70,10 +70,9 @@ void Connection::processResponse()
 	Server *server = identifyServer();
 	Location &location = server->identifyLocation(__request.__URI);
 	Response res(this->__request, *server, location);
-
-    /// the new Way of getting the response
-    
-
+    const std::vector< BasicString >    &response = res.getResponse();
+    for (std::vector<BasicString>::const_iterator it = response.begin(); it != response.end(); it++)
+        this->__responseQueue.push(*it);
 	__request.__phase = NEWREQUEST;
 }
 /***************************************************************************
@@ -225,6 +224,7 @@ void Connection::initializeTmpFiles()
 	wsu::info("INITIALIZING");
 	if (__request.__headers.__transferType == DEFINED || __request.__headers.__transferType == CHUNKED)
 	{
+        wsu::warn("defined || chunked");
 		do
 		{
 			s_body body;
@@ -238,11 +238,25 @@ void Connection::initializeTmpFiles()
 	}
 	else if (__request.__headers.__transferType == MULTIPART)
 	{
-		size_t pos = __data.find("--" + __request.__headers.__boundary + "\r\n");
-		if (pos == String::npos)
-			throw wsu::persist();
-		else if (pos != 0)
-			throw ErrorResponse(400, "Multipart/data-from: boundry mismatch");
+        size_t pos1 = __data.find("--" + __request.__headers.__boundary + "\r\n");
+        size_t pos2 = __data.find("--" + __request.__headers.__boundary + "--\r\n");
+        if (pos1 == String::npos && pos2 == String::npos)
+            throw wsu::persist();
+        else
+        {
+            if (pos2 == 0)
+            {
+                __data.erase(0, __request.__headers.__boundary.length() + 6);
+                throw ErrorResponse(400, "No files were uploaded");
+            }
+            if (pos1 == String::npos)
+                throw wsu::persist();
+            else if (pos1 != 0)
+            {
+                __data.erase(0, __request.__headers.__boundary.length() + 6);
+                throw ErrorResponse(400, "Multipart/data-from: boundry mismatch");
+            }
+        }
 		__data.erase(0, __request.__headers.__boundary.length() + 4);
 	}
 	__request.__phase = PROCESSING;
@@ -296,6 +310,7 @@ void Connection::proccessData(BasicString input)
 	}
 	catch (wsu::persist &e)
 	{
+        wsu::error("presist");
 	}
 	catch (std::exception &e)
 	{

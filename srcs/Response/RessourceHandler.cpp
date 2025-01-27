@@ -14,7 +14,6 @@ RessourceHandler::RessourceHandler(const RessourceHandler &copy) : __URI(copy.__
 																   __type(copy.__type),
 																   __location(copy.__location)
 {
-	std::cout << "-------" << __URI << "-------";
 	*this = copy;
 }
 RessourceHandler &RessourceHandler::operator=(const RessourceHandler &assign)
@@ -47,7 +46,6 @@ void RessourceHandler::loadType(const char *path)
 void RessourceHandler::loadPathExploring(void)
 {
 	__fullPath = wsu::joinPaths(__location.__root, __URI);
-	std::cout << ">>>>>>>>>>" <<__fullPath << "<<<<<<<<<<\n";
 	loadType(__fullPath.c_str());
 
 	if (__type == FOLDER)
