@@ -5,7 +5,8 @@ Response::Response(Request &request,
                    Location &location) : explorer(RessourceHandler(location, request.__URI)),
                                          __server(server),
                                          __request(request),
-                                         __location(location)
+                                         __location(location),
+										 token(Token(request))
 
 {
     if (wsu::__criticalOverLoad == true)
@@ -58,26 +59,25 @@ bool Response::checkCgi()
 
 void Response::__check_methods()
 {
+	if (__request.__headerFeilds["cookie"].empty() || !token.authentified(__request.__headerFeilds["cookie"]))
+		executeAuth();
     if (checkCgi())
         executeCgi();
+    else if (__request.__method == GET)
+		executeGet();
+    else if (__request.__method == POST)
+		executePost();
+    else if (__request.__method == DELETE)
+		executeDelete();
     else
-    {
-        switch (__request.__method)
-        {
-        case GET:
-            executeGet();
-            break;
-        case POST:
-            executePost();
-            break;
-        case DELETE:
-            executeDelete();
-            break;
-        default:
-            throw ErrorResponse(405, __location, "Server does not implement this method");
-            break;
-        }
-    }
+		throw ErrorResponse(405, __location, "Server does not implement this method");
+}
+
+void	Response::executeAuth()
+{
+	explorer.__fullPath = "Content/form.html";
+	explorer.__type = FILE_;
+	Get get(__location.__autoindex, explorer, body);
 }
 
 void Response::executeCgi()
@@ -94,9 +94,33 @@ void Response::executeGet()
     reasonPhrase = "Ok";
 }
 
+/*
+ * >>>>>>  token.getTokenId(); <<<<<<<
+ * get the generated id in Token construction
+ */
+
+/*    
+ * >>>>>> oken.createSession( String body ); <<<<<<<
+ * the above function create a session identified by the generated 
+ * id and storing a combination of that id and given body 
+ */
+
+/*
+ * >>>>>> token.authentified( String coockie )) <<<<<<<<
+ * verify that the coockie (which is a client given tokenId) already exist in the stored tokens
+ * by iterating and extracting the tokenId from those stored in server files 
+ * 
+*/
+
 void Response::executePost()
 {
     Post post(explorer, __request);
+	if (__request.__headerFeilds["CONTENT-TYPE"] == "text/plain")
+	{
+		token.createSession(body);
+		__request.__headerFeilds["COOKIE"] = token.getTokenId();
+		throw __request;
+	}
     code = 200;
     reasonPhrase = "Ok";
 }

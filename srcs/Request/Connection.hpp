@@ -17,7 +17,7 @@ class Connection
 
 		Server							*identifyServer();
 		void							processRequest();
-		void							processResponse();
+		void							processResponse(Request &request);
 		void							processCunkedBody();
 		void							initializeTmpFiles();
 		void							processDefinedBody();

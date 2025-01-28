@@ -2,6 +2,7 @@
 #define __RESPONSE_HPP__
 
 #include "Cgi.hpp"
+#include "Token.hpp"
 
 class Response
 {
@@ -14,6 +15,7 @@ private:
     std::map<String, String> headers;
     int code;
     std::vector<BasicString> body;
+	Token token;
 
     void __check_methods();
     void buildResponse();
@@ -23,6 +25,8 @@ private:
     void executeDelete(void);
     void executeCgi(void);
     bool checkCgi();
+	void executeAuth();
+
 
 public:
     const std::vector<BasicString> &getResponse(void) const;

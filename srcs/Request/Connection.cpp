@@ -64,7 +64,7 @@ Server *Connection::identifyServer()
 /***************************************************************************
  *                           RESPONSE PROCESSING                           *
  ***************************************************************************/
-void Connection::processResponse()
+void Connection::processResponse(Request &request)
 {
 	wsu::info("COMPLETE");
 	Server *server = identifyServer();
@@ -301,12 +301,16 @@ void Connection::proccessData(BasicString input)
 		if (__request.__phase == PROCESSING)
 			indentifyRequestBody();
 		if (__request.__phase == COMPLETE)
-			processResponse();
+			processResponse(__request);
 	}
 	catch (ErrorResponse &e)
 	{
 		this->__responseQueue.push(e.getResponse());
 		__request.__phase = NEWREQUEST;
+	}
+	catch (Request &e)
+	{
+		processResponse(e);
 	}
 	catch (wsu::persist &e)
 	{
