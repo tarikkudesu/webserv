@@ -14,9 +14,22 @@ Response::Response(Request &request,
 	for (; it != __location.__allowMethods.end() && *it != __request.__method; it++)
 		;
 	if (it == __location.__allowMethods.end())
-		throw ErrorResponse(405, __location, "method not allowed in this location");
+		throw ErrorResponse(405, __location, getMethod(__request.__method) + " : method not allowed in this location");
 	__check_methods();
 	buildResponse();
+}
+
+String Response::getMethod(int Method)
+{
+	switch (Method)
+	{
+		case GET:
+			return "GET";
+		case POST:
+			return "POST";
+		default:
+			return "DELETE";
+	}
 }
 
 Response::Response(const Response &copy) : explorer(RessourceHandler(copy.explorer)),
@@ -105,10 +118,31 @@ void Response::executeCgi()
 void Response::executeGet()
 {
 	if (shouldAuthenticate() && !authenticated())
-		throw ErrorResponse(301, __location.__authenticate, __location);
-	Get get(__location.__autoindex, explorer, body);
+	{
+		Location location(__location); //we shouldnt update the location of the config
+		location.__index.clear();
+		location.__index.push_back(__location.__authenticate);
+		RessourceHandler tmpExplorer(location, __request.__URI);
+		Get get(location.__autoindex, tmpExplorer, body);
+	}
+	else
+		Get get(__location.__autoindex, explorer, body);
 	reasonPhrase = "Ok";
 	code = 200;
+}
+
+void readFielContent(String fileName)
+{
+	char    buffer[1024];
+    String userInfo;
+    std::ifstream file(fileName.c_str());
+	
+    while (!file.eof())
+    {
+        file.read(buffer, 1024);
+        userInfo.append(buffer);
+        bzero(buffer, 1024);
+    }
 }
 
 void Response::executePost()
@@ -116,11 +150,11 @@ void Response::executePost()
 	//verify if the post content shouldnt be reconstructed;  
 	if (__request.__headers.__transferType != MULTIPART)
 	{
+		readFielContent(__request.__body[0]._fileName);
 		String cook = token.UserInDb();
 		if (cook.empty())
 			throw ErrorResponse(301, __location.__authenticate, __location);
-		__request.__headers.__cookie = cook;
-		throw ErrorResponse(301, __request.__URI, __location);
+		throw ErrorResponse(explorer.__fullPath, cook);
 	}
 	Post post(explorer, __request);
 	code = 200;
@@ -141,7 +175,6 @@ void Response::buildResponse()
 	for (std::map<String, String>::iterator it = headers.begin(); it != headers.end(); ++it)
 		resMsg.join(it->first + ": " + it->second + "\r\n");
 	resMsg.join(String("\r\n"));
-	std::cout << resMsg << std::endl;
 	body.insert(body.begin(), resMsg);
 }
 

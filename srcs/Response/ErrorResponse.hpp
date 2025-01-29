@@ -2,7 +2,6 @@
 # define __ERRORRESPONSE_HPP__
 
 # include "../ServerManager/Server.hpp"
-
 class ErrorResponse
 {
 	private :
@@ -21,16 +20,18 @@ class ErrorResponse
 		void								buildHeaderFeilds();
 		void								buildResponseBody();
 		void								constructErrorPage();
+		String								readFielContent(String fileName);
 		ErrorResponse();
 
 	public:
 		BasicString							getResponse() const;
 		void								print() const;
 
+		ErrorResponse( const ErrorResponse &copy );
 		ErrorResponse( int code, String indication );
+		ErrorResponse(String redirection, String setCookie);
 		ErrorResponse( int code, Location &location, String indication );
 		ErrorResponse( int code, String redirection , Location &location);
-		ErrorResponse( const ErrorResponse &copy );
 		ErrorResponse	&operator=( const ErrorResponse &assign );
 		~ErrorResponse();
 };

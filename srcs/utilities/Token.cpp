@@ -53,7 +53,7 @@ String    Token::UserInDb() const
     for (std::map<String, String>::const_iterator it = tokenDB.begin(); it != tokenDB.end(); it++)
     {
         if (it->second.compare(userInfo))
-            return userInfo;
+            return it->first;
     }
     return "";
 }

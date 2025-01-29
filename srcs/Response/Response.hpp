@@ -16,6 +16,7 @@ class Response
 		std::vector<BasicString>	body;
 		Token						token;
 
+
 		void __check_methods();
 		void buildResponse();
 		void setHeader();
@@ -30,8 +31,9 @@ class Response
 
 
 	public:
-		const std::vector<BasicString> &getResponse(void) const;
-		void print() const;
+		const std::vector<BasicString>&	getResponse(void) const;
+		String							getMethod(int Method);
+		void							print() const;
 
 		Response(Request &request, Server &server, Location &location);
 		Response(const Response &copy);

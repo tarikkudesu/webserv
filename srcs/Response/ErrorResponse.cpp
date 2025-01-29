@@ -6,6 +6,17 @@ ErrorResponse::ErrorResponse(int code, String indication) : __code(code),
 {
 	this->constructErrorPage();
 }
+
+ErrorResponse::ErrorResponse(String redirection, String setCookie)
+{
+		this->__code = 200;
+		this->__reasonPhrase = "Ok";
+		buildStatusLine();
+		this->__Body = readFielContent(redirection);
+		this->__headers = "Set-Cookie: token=" + setCookie + "; expires=Thu, 31 Dec 2025 12:00:00 UTC;";
+		buildHeaderFeilds();
+}
+
 ErrorResponse::ErrorResponse(int code, Location &location, String indication) : __code(code),
 																				__location(&location),
 																				__indication(indication)
@@ -36,13 +47,31 @@ ErrorResponse::~ErrorResponse()
 
 BasicString ErrorResponse::getResponse() const
 {
-	std::cout << this->__StatusLine << this->__headers << this->__Body << "\n";
 	return this->__StatusLine + this->__headers + this->__Body;
 }
+
 
 /*****************************************************************************
  *                                  METHODS                                  *
  *****************************************************************************/
+
+
+String ErrorResponse::readFielContent(String fileName)
+{
+	char    buffer[1024];
+    String userInfo;
+    std::ifstream file(fileName.c_str());
+	
+    while (!file.eof())
+    {
+        file.read(buffer, 1024);
+        userInfo.append(buffer);
+        bzero(buffer, 1024);
+    }
+	return userInfo;
+}
+
+
 void ErrorResponse::buildResponseBody()
 {
 	if (!this->__redirection.empty())
