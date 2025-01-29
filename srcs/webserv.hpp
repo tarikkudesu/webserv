@@ -129,4 +129,9 @@ typedef enum e_requestPhase
 	COMPLETE,
 } t_requestPhase;
 
+struct	s_body {
+	t_svec				_headers;
+	String				_fileName;
+};
+
 #endif

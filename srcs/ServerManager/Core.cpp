@@ -198,6 +198,14 @@ void Core::writeDataToSocket(int sd)
 		wsu::info("response sent");
 	else
 	{
+        /*********************
+         * SHOULD BE REMOVED *
+         *********************/
+        int sockError = errno; 
+        char errorMsg[256];
+        strerror_r(sockError, errorMsg, sizeof(errorMsg));
+        wsu::error("Socket error: " + std::string(errorMsg));
+
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
 					   &sockErr, sizeof(sockErr)) != 0 ||
@@ -212,6 +220,7 @@ void Core::readDataFromSocket(int sd)
 {
 	char buff[READ_SIZE + 1];
 
+    wsu::info("receiving data");
 	ssize_t bytesRead = recv(sd, buff, READ_SIZE, 0);
 	if (bytesRead == 0)
 		removeConnection(sd);
@@ -224,6 +233,16 @@ void Core::readDataFromSocket(int sd)
 	}
 	else
 	{
+
+        /*********************
+         * SHOULD BE REMOVED *
+         *********************/
+        int sockError = errno; 
+        char errorMsg[256];
+        strerror_r(sockError, errorMsg, sizeof(errorMsg));
+        wsu::error("Socket error: " + std::string(errorMsg));
+
+
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
 					   &sockErr, sizeof(sockErr)) != 0 ||
@@ -249,6 +268,14 @@ void Core::acceptNewConnection(int sd)
 	}
 	else
 	{
+        /*********************
+         * SHOULD BE REMOVED *
+         *********************/
+        int sockError = errno; 
+        char errorMsg[256];
+        strerror_r(sockError, errorMsg, sizeof(errorMsg));
+        wsu::error("Socket error: " + std::string(errorMsg));
+
 		int sockErr = 0;
 		if (setsockopt(sd, SOL_SOCKET, SO_ERROR,
 					   &sockErr, sizeof(sockErr)) != 0 ||
@@ -321,7 +348,7 @@ void Core::mainLoop()
 			retV = poll(Core::__events, Core::__sockets.size(), timeout);
 			if (retV != 0)
 			{
-				for (int sd = 0; sd < Core::__sockNum; sd++)
+				for (int sd = 0; sd < Core::__sockNum; sd++) // remember to add sd < retV
 				{
 					if (wsu::__criticalOverLoad == true)
 						retV = Core::__sockNum;

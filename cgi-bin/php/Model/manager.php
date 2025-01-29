@@ -5,15 +5,24 @@ function getData()
     static $data = [
         "leader"=> [
             "name" => "tarik amehri",
-            "image" => "tamehri"
+            "image" => "tamehri",
+            "github" => "tarikkudesu",
+            "linkdein" => "tarik-amehri",
+            "task" => "Core builder"
         ],
 		"member1"=>[
-            "name" => "otman oulcaid",
-            "image" => "ooulcaid"
+			"name" => "otman oulcaid",
+            "image" => "ooulcaid",
+			"github" => "otmanoulcaid",
+            "linkdein" => "otmanoulcaid",
+			"task" => "CGI Manager"
         ],
 		"member2"=>[
-            "name" => "omar ghazi",
-            "image" => "omghazi"
+			"name" => "omar ghazi",
+            "image" => "omghazi",
+			"github" => "Om7gh",
+            "linkdein" => "oamr-ghazi0",
+			"task" => "Response builder"
         ]
     ];
 

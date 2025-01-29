@@ -7,6 +7,7 @@ class Headers
 {
 	private:
 		void						clear();
+		void						cookie( std::map< String, String > &headers );
 		void						contentType( std::map< String, String > &headers );
 		void						hostAndPort( std::map< String, String > &headers );
 		void						contentLength( std::map< String, String > &headers );
@@ -18,6 +19,7 @@ class Headers
 	public:
 		int							__port;
 		String						__host;
+		String						__cookie;
 		String						__boundary;
 		String						__contentType;
 		size_t						__contentLength;

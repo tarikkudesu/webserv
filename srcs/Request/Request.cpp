@@ -15,8 +15,8 @@ Request &Request::operator=(const Request &assign)
 		this->__method = assign.__method;
 		this->__headers = assign.__headers;
 		this->__protocole = assign.__protocole;
-		this->__headerFeilds = assign.__headerFeilds;
         this->__queryString = assign.__queryString;
+		this->__headerFeilds = assign.__headerFeilds;
 	}
 	return *this;
 }

@@ -41,10 +41,12 @@ Location &Location::operator=(const Location &assign)
 		b__r = assign.b__r;
 		__root = assign.__root;
 		__index = assign.__index;
+		__return = assign.__return;
 		__cgiPass = assign.__cgiPass;
 		__autoindex = assign.__autoindex;
 		__errorPages = assign.__errorPages;
 		__allowMethods = assign.__allowMethods;
+		__authenticate = assign.__authenticate;
 		__clientBodyBufferSize = assign.__clientBodyBufferSize;
 	}
 	return *this;
@@ -58,7 +60,7 @@ Location::~Location()
 }
 
 /**************************************************************************************************************
- *                                           PROCCESSING DIRECTIVES                                           *
+ *											 PROCCESSING DIRECTIVES 										  *
  **************************************************************************************************************/
 
 void Location::proccessRootDirective(t_svec &tokens)
@@ -80,6 +82,12 @@ void Location::proccessAutoindexDirective(t_svec &tokens)
 		this->__autoindex = true;
 	else if (tokens.at(1) != "off")
 		throw std::runtime_error(tokens.at(0) + " invalid value, it must be \"on\" or \"off\"");
+}
+void Location::proccessAuthenticateDirective(t_svec &tokens)
+{
+	if (tokens.size() != 2)
+		throw std::runtime_error(tokens.at(0) + " invalid number of arguments");
+	this->__authenticate = tokens.at(1);
 }
 void Location::proccessErrorPageDirective(t_svec &tokens)
 {
@@ -156,15 +164,18 @@ void Location::proccessToken(t_svec &tokens)
 		key != "autoindex" &&
 		key != "error_page" &&
 		key != "server_name" &&
+		key != "authenticate" &&
 		key != "allow_methods" &&
 		key != "client_body_buffer_size")
 		throw std::runtime_error(key + ": unknown directive");
 	if (b__r == false &&
 		key != "root" &&
 		key != "index" &&
+		key != "return" &&
 		key != "cgi_pass" &&
 		key != "autoindex" &&
 		key != "error_page" &&
+		key != "authenticate" &&
 		key != "allow_methods" &&
 		key != "client_body_buffer_size")
 		throw std::runtime_error(key + ": invalid context");
@@ -180,6 +191,8 @@ void Location::proccessToken(t_svec &tokens)
 		proccessCgiPassDirective(tokens);
 	else if (key == "error_page")
 		proccessErrorPageDirective(tokens);
+	else if (key == "authenticate")
+		proccessAuthenticateDirective(tokens);
 	else if (key == "allow_methods")
 		proccessAllowMethodsDirective(tokens);
 	else if (key == "client_body_buffer_size")
@@ -303,10 +316,11 @@ std::ostream &operator<<(std::ostream &o, const Location &loc)
 	loc.__autoindex ? std::cout << "on\n" : std::cout << "off\n";
 	std::cout << "\t\tcgi_pass: " << loc.__cgiPass << "\n";
 	std::cout << "\t\treturn: " << loc.__return << "\n";
-	std::cout << "\t\tallow_methods: ";
+	std::cout << "\t\tallow_methods: \n";
+	std::cout << "\t\tauthenticate: " << loc.__authenticate << std::endl;
 	for (std::vector<t_method>::const_iterator it = loc.__allowMethods.begin(); it != loc.__allowMethods.end(); it++)
 	{
-		std::cout << methodToString(*it) << " ";
+		std::cout << "\t\t" << methodToString(*it) << " ";
 	}
 	std::cout << "\n";
 	std::cout << "\t\terror_pages: ";

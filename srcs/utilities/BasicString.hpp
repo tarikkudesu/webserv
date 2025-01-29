@@ -1,7 +1,7 @@
 #ifndef BasicString_HPP
 #define BasicString_HPP
 
-#include "../webserv.hpp"
+#include "WSU.hpp"
 
 class BasicString
 {

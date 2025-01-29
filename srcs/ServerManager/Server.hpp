@@ -29,6 +29,7 @@ class Server
 	public:
 		bool							__valid; // temporary usage
 		std::vector< int >				__ports; // temporary usage
+		std::map<String, String>		__tokenDB;
 		std::vector< Location >			__locations;
 		t_svec							__serverNames;
 
@@ -39,6 +40,7 @@ class Server
 		const String					&getServerHost() const;
 		int								getServerPort() const;
 		void							setPort(int port);
+		void							LoadUsers();
 		void							setup();
 
 

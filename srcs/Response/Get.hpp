@@ -1,29 +1,22 @@
 #pragma once
 
-# include "Delete.hpp"
+#include "Delete.hpp"
 
 class Get
 {
-        private:
+    private:
+        bool                            isIndexing;
+        RessourceHandler&               explorer;
+        std::vector< BasicString >      &body;
+    
+        void                            readFile(void);
+        void                            autoIndexing(void);
+    
+    public:
 
-                bool                    isIndexing;
-                RessourceHandler&       explorer;
-                String                  body;
 
-                void                 readFile( void );
-                void                 autoIndexing( void );
-
-        public:
-
-                /*         constructors      */
-
-                Get(bool isIndexing, RessourceHandler &explorer);
-		Get(const Get &copy);
-		Get &operator=(const Get &assign);
-		~Get();
-
-                /*         class logic      */
-
-                String          getBody();
-
+        Get(bool isIndexing, RessourceHandler &explorer, std::vector<BasicString> &body);
+        Get(const Get &copy);
+        Get &operator=(const Get &assign);
+        ~Get();
 };

@@ -14,7 +14,8 @@ SRC		=	srcs/main.cpp \
 			srcs/ServerManager/Server.cpp \
 			srcs/ServerManager/ServerManager.cpp \
 			srcs/utilities/BasicString.cpp \
-			srcs/utilities/WSU.cpp
+			srcs/utilities/Token.cpp \
+			srcs/utilities/WSU.cpp 
 OBJ		=	$(SRC:.cpp=.o)
 NAME	=	webserv
 
@@ -38,8 +39,9 @@ $(NAME): $(OBJ)
 			srcs/ServerManager/Server.hpp \
 			srcs/ServerManager/ServerManager.hpp \
 			srcs/utilities/BasicString.hpp \
+			srcs/utilities/Token.hpp \
 			srcs/utilities/WSU.hpp \
-			srcs/webserv.hpp
+			srcs/webserv.hpp 
 	@c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
 
 mkdir:

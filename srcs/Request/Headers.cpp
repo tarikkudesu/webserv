@@ -2,7 +2,7 @@
 
 Headers::Headers() : __contentLength(0),
 					 __connectionType(KEEP_ALIVE),
-					__transferType(NONE)
+					 __transferType(NONE)
 {
 }
 Headers::Headers(const Headers &copy)
@@ -15,6 +15,7 @@ Headers &Headers::operator=(const Headers &assign)
 	{
 		this->__host = assign.__host;
 		this->__port = assign.__port;
+		this->__cookie = assign.__cookie;
 		this->__contentType = assign.__contentType;
 		this->__transferType = assign.__transferType;
 		this->__contentLength = assign.__contentLength;
@@ -31,6 +32,7 @@ void Headers::clear()
 {
 	this->__port = 8080;
 	this->__host.clear();
+	this->__cookie.clear();
 	this->__boundary.clear();
 	this->__contentLength = 0;
 	this->__contentType.clear();
@@ -63,7 +65,7 @@ void Headers::contentType(std::map<String, String> &headers)
 	try
 	{
 		this->__contentType = getHeaderFeildValue("CONTENT-TYPE", headers);
-		t_svec	  tmp = wsu::splitByChar(this->__contentType, ';');
+		t_svec tmp = wsu::splitByChar(this->__contentType, ';');
 		if (tmp.size() > 1)
 		{
 			if (tmp.at(0) == "multipart/form-data")
@@ -88,6 +90,16 @@ void Headers::connectionType(std::map<String, String> &headers)
 		String value = getHeaderFeildValue("CONNECTION", headers);
 		if (value == "close")
 			this->__connectionType = CLOSE;
+	}
+	catch (std::exception &e)
+	{
+	}
+}
+void Headers::cookie(std::map<String, String> &headers)
+{
+	try
+	{
+		this->__cookie = getHeaderFeildValue("COOKIE", headers);
 	}
 	catch (std::exception &e)
 	{
@@ -136,15 +148,17 @@ void Headers::parseHeaders(std::map<String, String> &headers)
 	contentLength(headers);
 	transferEncoding(headers);
 	contentType(headers);
+	cookie(headers);
 }
 
-std::ostream& operator<<(std::ostream &os, const Headers &obj)
+std::ostream &operator<<(std::ostream &os, const Headers &obj)
 {
-    os << "\t\tPort: " << obj.__port << std::endl;
-    os << "\t\tHost: " << obj.__host << std::endl;
-    os << "\t\tBoundary: " << obj.__boundary << std::endl;
-    os << "\t\tContent-Type: " << obj.__contentType << std::endl;
-    os << "\t\tContent-Length: " << obj.__contentLength << std::endl;
-    os << "\t\tTransfer-Encoding: " << obj.__transferEncoding;
-    return os;
+	os << "\t\tPort: " << obj.__port << std::endl;
+	os << "\t\tHost: " << obj.__host << std::endl;
+	os << "\t\tBoundary: " << obj.__boundary << std::endl;
+	os << "\t\tContent-Type: " << obj.__contentType << std::endl;
+	os << "\t\tContent-Length: " << obj.__contentLength << std::endl;
+	os << "\t\tTransfer-Encoding: " << obj.__transferEncoding << "\n";
+	os << "\t\tCookie: " << obj.__cookie << std::endl;
+	return os;
 }

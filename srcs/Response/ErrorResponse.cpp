@@ -12,6 +12,12 @@ ErrorResponse::ErrorResponse(int code, Location &location, String indication) : 
 {
 	this->constructErrorPage();
 }
+ErrorResponse::ErrorResponse(int code, String redirection, Location &location) : __code(code),
+																				__location(&location),
+																				__redirection(redirection)
+{
+	this->constructErrorPage();
+}
 ErrorResponse::ErrorResponse(const ErrorResponse &copy)
 {
 	(void)copy;
@@ -30,6 +36,7 @@ ErrorResponse::~ErrorResponse()
 
 BasicString ErrorResponse::getResponse() const
 {
+	std::cout << this->__StatusLine << this->__headers << this->__Body << "\n";
 	return this->__StatusLine + this->__headers + this->__Body;
 }
 
@@ -38,8 +45,11 @@ BasicString ErrorResponse::getResponse() const
  *****************************************************************************/
 void ErrorResponse::buildResponseBody()
 {
+	if (!this->__redirection.empty())
+		return ;
 	try
 	{
+        throw std::runtime_error("");
 		if (this->__page.empty())
 			throw std::runtime_error("");
 		std::fstream fS;
@@ -75,6 +85,8 @@ void ErrorResponse::buildHeaderFeilds()
 	this->__headers += "Content-Type: text/html; charset=UTF-8\r\n";
 	this->__headers += "Server: Webserv\r\n";
 	this->__headers += "Date: " + wsu::buildIMFDate() + "\r\n";
+	if (!this->__redirection.empty())
+		this->__headers += "Location: " + this->__redirection + "\r\n";
 	this->__headers += "\r\n";
 }
 void ErrorResponse::buildStatusLine()

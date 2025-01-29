@@ -1,7 +1,7 @@
 #ifndef __LOCATION_HPP__
 # define __LOCATION_HPP__
 
-# include "../utilities/WSU.hpp"
+# include "../utilities/Token.hpp"
 
 class Location
 {
@@ -10,6 +10,7 @@ class Location
 
 		void								proccessClientBodyBufferSizeToken( t_svec &tokens );
 		void								proccessAllowMethodsDirective( t_svec &tokens );
+		void								proccessAuthenticateDirective(t_svec &tokens);
 		void								proccessErrorPageDirective( t_svec &tokens );
 		void								proccessAutoindexDirective( t_svec &tokens );
 		void								proccessCgiPassDirective( t_svec &tokens );
@@ -35,6 +36,7 @@ class Location
 		std::deque< String >				__directives;
 		std::map< int16_t, String >			__errorPages;
 		std::vector< t_method >				__allowMethods;
+		String								__authenticate;
 		long								__clientBodyBufferSize;
 
 

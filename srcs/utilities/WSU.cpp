@@ -18,7 +18,6 @@ bool wsu::__info = false;
 bool wsu::__warn = false;
 bool wsu::__error = false;
 bool wsu::__fatal = false;
-
 wsu::persist::persist(void) {}
 const char *wsu::persist::what(void) const throw() { return "persist"; }
 
@@ -167,6 +166,22 @@ void wsu::terr(String __error_message)
 /*************************************************************************************************
  *                                           UTILITIES                                           *
  *************************************************************************************************/
+String wsu::generateTokenId()
+{
+    String tokenId;
+	std::string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	std::string specialChars = "123456789";
+	static int sed = 0;
+	for (int i = 0; i < 10; i++)
+	{
+		std::srand(static_cast<unsigned int>(std::time(0) + sed++));
+		int randomAlphabetIndex = std::rand() % alphabet.size();
+		int randomSpecialIndex = std::rand() % specialChars.size();
+		tokenId += alphabet[randomAlphabetIndex];
+		tokenId += specialChars[randomSpecialIndex];
+	}
+    return tokenId;
+}
 String wsu::logDate()
 {
 	char buffer[30];

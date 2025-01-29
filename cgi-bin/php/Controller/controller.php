@@ -23,10 +23,6 @@ function postAction()
 	render("vPost.php", $_POST);
 }
 
-function formAction()
-{
-	render("vForm.php");
-}
 
 function setSuperGlobal(&$arr)
 {

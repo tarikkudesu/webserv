@@ -3,7 +3,7 @@
 Server::Server()
 {
 	wsu::debug("Server default constructor");
-	throw std::runtime_error(": can not initiate server without port and server_name");
+	throw std::runtime_error(": can not initiate empty server");
 }
 Server::Server(String line) : __sd(-1),
 							  __port(-1),
@@ -22,6 +22,7 @@ Server::Server(String line) : __sd(-1),
 	if (__host.empty())
 		__host = "0.0.0.0";
 	__directives.clear();
+    LoadUsers();
 }
 Server::Server(const Server &copy)
 {
@@ -37,6 +38,7 @@ Server &Server::operator=(const Server &assign)
 		__port = assign.__port;
 		__host = assign.__host;
 		__ports = assign.__ports;
+		__tokenDB = assign.__tokenDB;
 		__locations = assign.__locations;
 		__directives = assign.__directives;
 		__serverNames = assign.__serverNames;
@@ -56,6 +58,16 @@ Server::~Server()
  *                               MINI METHODS                               *
  ****************************************************************************/
 
+void Server::LoadUsers()
+{
+	String line;
+	std::ifstream __sessionFile("essentials/sessionDB.csv");
+	if (!__sessionFile.is_open())
+		return ;
+	while (std::getline(__sessionFile, line))
+		__tokenDB.insert(std::make_pair(wsu::generateTokenId(), line));
+	__sessionFile.close();
+}
 int Server::getServerSocket() const
 {
 	return this->__sd;
@@ -223,6 +235,7 @@ void Server::proccessToken(t_svec &tokens)
 		key != "autoindex" &&
 		key != "error_page" &&
 		key != "server_name" &&
+		key != "authenticate" &&
 		key != "allow_methods" &&
 		key != "client_body_buffer_size")
 		throw std::runtime_error(key + ": unknown directive");
@@ -365,14 +378,12 @@ std::ostream &operator<<(std::ostream &o, const Server &ser)
 	std::cout << "server: " << ser.serverIdentity() << "\n";
 	std::cout << "\tserver_name: ";
 	for (t_svec::const_iterator it = ser.__serverNames.begin(); it != ser.__serverNames.end(); it++)
-	{
 		std::cout << *it << " ";
-	}
 	std::cout << "\n";
+	for (std::map<String, String>::const_iterator it = ser.__tokenDB.begin(); it != ser.__tokenDB.end(); it++)
+		std::cout << "\t" << it->first << " " << it->second << "\n";
 	for (std::vector<Location>::const_iterator it = ser.__locations.begin(); it != ser.__locations.end(); it++)
-	{
 		std::cout << *it;
-	}
 	std::cout << "\n";
 	return o;
 }

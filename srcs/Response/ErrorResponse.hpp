@@ -13,6 +13,7 @@ class ErrorResponse
 		Location							*__location;
 		String								__StatusLine;
 		String 								__indication;
+		String 								__redirection;
 		String								__reasonPhrase;
 		static String						__errPage;
 
@@ -28,6 +29,7 @@ class ErrorResponse
 
 		ErrorResponse( int code, String indication );
 		ErrorResponse( int code, Location &location, String indication );
+		ErrorResponse( int code, String redirection , Location &location);
 		ErrorResponse( const ErrorResponse &copy );
 		ErrorResponse	&operator=( const ErrorResponse &assign );
 		~ErrorResponse();

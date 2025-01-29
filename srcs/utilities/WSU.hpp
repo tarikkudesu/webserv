@@ -1,7 +1,7 @@
 #ifndef __WSU_HPP__
 #define __WSU_HPP__
 
-#include "BasicString.hpp"
+#include "../webserv.hpp"
 
 class wsu
 {
@@ -44,6 +44,7 @@ public:
 	static void loadMimeTypes();
 	static void loadErrorCodes();
 	static String buildIMFDate();
+    static String generateTokenId();
 	static void trimSpaces(String &str);
 	static String intToString(int number);
 	static int hexToInt(const String &str);
