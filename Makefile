@@ -22,7 +22,7 @@ NAME	=	webserv
 all: mkdir $(NAME)
 
 $(NAME): $(OBJ)
-	@c++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME) -g -fsanitize=address
+	@g++ -Wall -Wextra -Werror -std=c++98 $(OBJ) -o $(NAME) -g -fsanitize=address
 
 %.o: %.cpp	srcs/Request/Connection.hpp \
 			srcs/Request/Headers.hpp \
@@ -42,7 +42,7 @@ $(NAME): $(OBJ)
 			srcs/utilities/Token.hpp \
 			srcs/utilities/WSU.hpp \
 			srcs/webserv.hpp 
-	@c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
+	@g++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
 
 mkdir:
 	@mkdir -p .temp

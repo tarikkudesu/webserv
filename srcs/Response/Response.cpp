@@ -133,12 +133,12 @@ void Response::executeGet()
 
 String	readFielContent(String fileName)
 {
-    String userInfo;
-    String buffer;
-    std::ifstream file(fileName.c_str());
+	String userInfo;
+	String buffer;
+	std::ifstream file(fileName.c_str());
 	
-    while (std::getline(file, buffer))
-        userInfo.append(buffer);
+	while (std::getline(file, buffer))
+		userInfo.append(buffer);
 	return userInfo;
 }
 
@@ -150,7 +150,10 @@ void Response::executePost()
 		String cook;
 		String id = readFielContent(__request.__body[0]._fileName);
 		if (!token.authentified(id))
+		{
+			__server.__tokenDB.insert(std::make_pair(id, token.generateTokenId()));
 			cook = token.addUserInDb(id, __server.serverIdentity());
+		}
 		else
 			cook = token.getCookie(id);
 		throw ErrorResponse(explorer.__fullPath, cook);

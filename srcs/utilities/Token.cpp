@@ -40,7 +40,7 @@ Token	&Token::operator=( const Token &assign )
 String    Token::addUserInDb(String userInfo, String serverFile)
 {
 	String cookie("");
-	std::ofstream file( "essentials/" + serverFile ,std::ios::app); // Open file for appending
+	std::ofstream file( ("essentials/" + serverFile).c_str() ,std::ios::app); // Open file for appending
 
 	if (file.is_open())
 	{
