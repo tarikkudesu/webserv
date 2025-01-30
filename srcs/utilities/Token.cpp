@@ -10,8 +10,7 @@ Token::Token(const std::vector< s_body > &body, const std::map<String, String> &
 	wsu::debug("Token Default constructor called");
 }
 
-Token::Token( const Token &copy ) : token(copy.token),
-									tokenId(copy.tokenId)
+Token::Token( const Token &copy ) : token(copy.token)
 {
 	wsu::debug("Token copy constructor called");
 	(void) copy;
@@ -28,7 +27,6 @@ Token	&Token::operator=( const Token &assign )
 	if (this != &assign)
 	{
 		this->token = assign.token;
-		this->tokenId = assign.tokenId;
 	}
 	return *this;
 }
@@ -37,28 +35,23 @@ Token	&Token::operator=( const Token &assign )
  *                              METHODS                              *
  *********************************************************************/
 
-String    Token::UserInDb() const
+String    Token::addUserInDb(String userInfo, String serverFile)
 {
-    char    buffer[1024];
-    String userInfo;
-    if (!this->body.size())
-        return "";
-    std::ifstream file(this->body[0]._fileName.c_str());
-    while (!file.eof())
-    {
-        file.read(buffer, 1024);
-        userInfo.append(buffer);
-        bzero(buffer, 1024);
-    }
-    for (std::map<String, String>::const_iterator it = tokenDB.begin(); it != tokenDB.end(); it++)
-    {
-        if (it->second.compare(userInfo))
-            return it->first;
-    }
-    return "";
+	String cookie("");
+	std::ofstream file( "essentials/" + serverFile); // Open file for appending
+
+	if (file.is_open())
+	{
+		cookie = generateTokenId();
+		file << userInfo + " " + cookie  << "\n";
+		file.close();
+	}
+	return cookie;
 }
-void Token::generateTokenId()
+
+String Token::generateTokenId()
 {
+	String tokenId;
 	std::string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	std::string specialChars = "123456789";
 	static int sed = 0;
@@ -70,15 +63,9 @@ void Token::generateTokenId()
 		tokenId += alphabet[randomAlphabetIndex];
 		tokenId += specialChars[randomSpecialIndex];
 	}
+	return tokenId;
 }
-void Token::decryptData(const String &token)
-{
-	std::size_t pos = token.find_last_of(" ");
-	if (pos == std::string::npos)
-		throw std::runtime_error("Invalid token format");
-	this->tokenId = token.substr(pos + 1);
-	this->token = token.substr(0, pos);
-}
+
 bool Token::authentified(const String &id)
 {
 	if (tokenDB.find(id) != tokenDB.end())
@@ -89,7 +76,4 @@ String Token::getToken() const
 {
 	return token;
 }
-String Token::getTokenId() const
-{
-	return tokenId;
-}
+

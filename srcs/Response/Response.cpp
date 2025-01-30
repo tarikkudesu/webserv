@@ -91,7 +91,7 @@ bool	Response::authenticated()
 		t_svec cook = wsu::splitByChar(*it, '=');
 		if (cook.size() == 2 && token.authentified(cook[1]))
 			return true;
-	}	
+	}
 	return false;
 }
 
@@ -131,18 +131,15 @@ void Response::executeGet()
 	code = 200;
 }
 
-void readFielContent(String fileName)
+String	readFielContent(String fileName)
 {
-	char    buffer[1024];
     String userInfo;
+    String buffer;
     std::ifstream file(fileName.c_str());
 	
-    while (!file.eof())
-    {
-        file.read(buffer, 1024);
+    while (std::getline(file, buffer))
         userInfo.append(buffer);
-        bzero(buffer, 1024);
-    }
+	return userInfo;
 }
 
 void Response::executePost()
@@ -150,10 +147,11 @@ void Response::executePost()
 	//verify if the post content shouldnt be reconstructed;  
 	if (__request.__headers.__transferType != MULTIPART)
 	{
-		readFielContent(__request.__body[0]._fileName);
-		String cook = token.UserInDb();
-		if (cook.empty())
-			throw ErrorResponse(301, __location.__authenticate, __location);
+		String cook = readFielContent(__request.__body[0]._fileName);
+		if (!token.authentified(cook))
+			cook = token.addUserInDb(cook, __server.serverIdentity());
+		// if (cook.empty())
+		// 	throw ErrorResponse(301, __location.__authenticate, __location);
 		throw ErrorResponse(explorer.__fullPath, cook);
 	}
 	Post post(explorer, __request);

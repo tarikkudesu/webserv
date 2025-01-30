@@ -36,7 +36,7 @@ class Server
 		bool							amITheServerYouAreLookingFor( const String &sN );
 		Location						&identifyLocation( const String &URI );
 		int								getServerSocket() const;
-		String							serverIdentity() const;
+		String							serverIdentity();
 		const String					&getServerHost() const;
 		int								getServerPort() const;
 		void							setPort(int port);
@@ -50,6 +50,6 @@ class Server
 		~Server();
 };
 
-std::ostream &operator<<( std::ostream &o, const Server &ser );
+std::ostream &operator<<( std::ostream &o, Server &ser );
 
 #endif

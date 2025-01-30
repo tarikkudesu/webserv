@@ -64,8 +64,23 @@ void Server::LoadUsers()
 	std::ifstream __sessionFile("essentials/sessionDB.csv");
 	if (!__sessionFile.is_open())
 		return ;
-	while (std::getline(__sessionFile, line))
-		__tokenDB.insert(std::make_pair(wsu::generateTokenId(), line));
+	std::ifstream dataBase(("essentials/" + this->serverIdentity()).c_str());
+	if (!dataBase.is_open())
+	{
+		// std::cout << ("essentials/" + this->serverIdentity()).c_str() << "file not found\n";
+		return ;
+	}
+	while (std::getline(dataBase, line))
+	{
+		size_t pos = line.find_last_of(' ');
+		if (pos != std::string::npos) {
+			std::string beforeLastSpace = line.substr(0, pos);
+			std::string lastChunk = line.substr(pos + 1);  
+			__tokenDB.insert(std::make_pair(lastChunk, beforeLastSpace));
+		}
+	}
+	// for (std::map<String, String>::const_iterator it = __tokenDB.begin(); it != __tokenDB.end(); it++)
+	// 	std::cout << "user info : " << it->first << " | user token : " << it->second << std::endl;
 	__sessionFile.close();
 }
 int Server::getServerSocket() const
@@ -93,7 +108,7 @@ bool Server::amITheServerYouAreLookingFor(const String &sN)
 	}
 	return false;
 }
-String Server::serverIdentity() const
+String Server::serverIdentity()
 {
 	return String(__host + ":" + wsu::intToString(__port));
 }
@@ -373,17 +388,17 @@ void Server::parseServerDirectives(String line)
 	proccessServerDirectives();
 }
 
-std::ostream &operator<<(std::ostream &o, const Server &ser)
+std::ostream &operator<<(std::ostream &o, Server &ser)
 {
 	std::cout << "server: " << ser.serverIdentity() << "\n";
-	std::cout << "\tserver_name: ";
-	for (t_svec::const_iterator it = ser.__serverNames.begin(); it != ser.__serverNames.end(); it++)
-		std::cout << *it << " ";
-	std::cout << "\n";
-	for (std::map<String, String>::const_iterator it = ser.__tokenDB.begin(); it != ser.__tokenDB.end(); it++)
-		std::cout << "\t" << it->first << " " << it->second << "\n";
-	for (std::vector<Location>::const_iterator it = ser.__locations.begin(); it != ser.__locations.end(); it++)
-		std::cout << *it;
-	std::cout << "\n";
+	// std::cout << "\tserver_name: ";
+	// for (t_svec::const_iterator it = ser.__serverNames.begin(); it != ser.__serverNames.end(); it++)
+	// 	std::cout << *it << " ";
+	// std::cout << "\n";
+	// for (std::map<String, String>::const_iterator it = ser.__tokenDB.begin(); it != ser.__tokenDB.end(); it++)
+	// 	std::cout << "\t" << it->first << " " << it->second << "\n";
+	// for (std::vector<Location>::const_iterator it = ser.__locations.begin(); it != ser.__locations.end(); it++)
+	// 	std::cout << *it;
+	// std::cout << "\n";
 	return o;
 }

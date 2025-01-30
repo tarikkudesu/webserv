@@ -7,19 +7,15 @@ class Token
 {
 	private :
 		String						token;
-		String						tokenId;
 		std::map<String, String>	tokenDB;
 		std::vector< s_body >		body;
-
-		void						decryptData(const String &token);
 		Token();
 
 	public:
 		bool						authentified(const String &id);
-		String						getTokenId() const;
-		void						generateTokenId();
+		String						generateTokenId();
 		String						getToken() const;
-		String						UserInDb() const;
+		String						addUserInDb(String userInfo, String serverFile);
 
 		Token(const std::vector< s_body > &body, const std::map<String, String> &tokenDb);
 		Token( const Token &copy );
