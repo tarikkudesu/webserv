@@ -22,7 +22,6 @@ Server::Server(String line) : __sd(-1),
 	if (__host.empty())
 		__host = "0.0.0.0";
 	__directives.clear();
-    LoadUsers();
 }
 Server::Server(const Server &copy)
 {
@@ -66,21 +65,16 @@ void Server::LoadUsers()
 		return ;
 	std::ifstream dataBase(("essentials/" + this->serverIdentity()).c_str());
 	if (!dataBase.is_open())
-	{
-		// std::cout << ("essentials/" + this->serverIdentity()).c_str() << "file not found\n";
 		return ;
-	}
 	while (std::getline(dataBase, line))
 	{
 		size_t pos = line.find_last_of(' ');
 		if (pos != std::string::npos) {
 			std::string beforeLastSpace = line.substr(0, pos);
 			std::string lastChunk = line.substr(pos + 1);  
-			__tokenDB.insert(std::make_pair(lastChunk, beforeLastSpace));
+			__tokenDB.insert(std::make_pair(beforeLastSpace, lastChunk));
 		}
 	}
-	// for (std::map<String, String>::const_iterator it = __tokenDB.begin(); it != __tokenDB.end(); it++)
-	// 	std::cout << "user info : " << it->first << " | user token : " << it->second << std::endl;
 	__sessionFile.close();
 }
 int Server::getServerSocket() const
@@ -173,6 +167,7 @@ void Server::setup()
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to bind socket");
 	if (-1 == listen(this->__sd, 10))
 		throw std::runtime_error(serverIdentity() + ": non functional: failed to listen for connections");
+    LoadUsers();
 }
 
 /**************************************************************************************************************

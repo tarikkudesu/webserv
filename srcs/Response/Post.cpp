@@ -53,7 +53,6 @@ void Post::getCurr_file(void)
                     {
                         std::string fileName = request.__body[i]._headers[j].substr(startPos, endPos - startPos);
                         curr_file.push_back(fileName);
-                        std::cout << "Extracted file: " << fileName << std::endl;
                     }
                 }
             }
@@ -65,7 +64,6 @@ void Post::writeFile(void)
 {
     std::vector<s_body>::iterator it1 = request.__body.begin();
     t_svec::iterator it2 = curr_file.begin();
-	std::cout << curr_file.size() << std::endl;
     while (it1 != request.__body.end() && it2 != curr_file.end())
     {
         try
@@ -76,11 +74,11 @@ void Post::writeFile(void)
             std::ifstream readFrom(it1->_fileName.c_str(), std::ios_base::binary);
             std::ofstream writeTo(fullPath.c_str());
             if (!readFrom.is_open())
-                throw std::runtime_error("Can´t open file");
+                throw std::runtime_error("Can't open file: " + it1->_fileName);
             if (!writeTo.is_open())
             {
                 readFrom.close();
-                throw std::runtime_error("Can´t open file");
+                throw std::runtime_error("Can't open file: " + fullPath);
             }
             while (readFrom.read(buff, READ_SIZE) || readFrom.gcount() > 0)
             {
@@ -95,7 +93,7 @@ void Post::writeFile(void)
         }
         catch (const std::exception &e)
         {
-            std::cerr << e.what() << '\n';
+            wsu::error(e.what());
         }
         it1++;
         it2++;

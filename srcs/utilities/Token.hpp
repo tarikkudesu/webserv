@@ -6,7 +6,6 @@
 class Token
 {
 	private :
-		String						token;
 		std::map<String, String>	tokenDB;
 		std::vector< s_body >		body;
 		Token();
@@ -14,7 +13,7 @@ class Token
 	public:
 		bool						authentified(const String &id);
 		String						generateTokenId();
-		String						getToken() const;
+		String						getCookie(String& id);
 		String						addUserInDb(String userInfo, String serverFile);
 
 		Token(const std::vector< s_body > &body, const std::map<String, String> &tokenDb);
@@ -22,7 +21,5 @@ class Token
 		Token	&operator=( const Token &assign );
 		~Token();
 };
-
-std::ostream &operator<<( std::ostream &o, const Token &ser );
 
 #endif

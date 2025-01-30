@@ -10,7 +10,8 @@ Token::Token(const std::vector< s_body > &body, const std::map<String, String> &
 	wsu::debug("Token Default constructor called");
 }
 
-Token::Token( const Token &copy ) : token(copy.token)
+Token::Token( const Token &copy ) : tokenDB(copy.tokenDB),
+									body(copy.body)
 {
 	wsu::debug("Token copy constructor called");
 	(void) copy;
@@ -26,7 +27,8 @@ Token	&Token::operator=( const Token &assign )
 	wsu::debug("Token Copy assignment operator called");
 	if (this != &assign)
 	{
-		this->token = assign.token;
+		this->tokenDB = assign.tokenDB;
+		this->body = assign.body;
 	}
 	return *this;
 }
@@ -38,7 +40,7 @@ Token	&Token::operator=( const Token &assign )
 String    Token::addUserInDb(String userInfo, String serverFile)
 {
 	String cookie("");
-	std::ofstream file( "essentials/" + serverFile); // Open file for appending
+	std::ofstream file( "essentials/" + serverFile ,std::ios::app); // Open file for appending
 
 	if (file.is_open())
 	{
@@ -47,6 +49,14 @@ String    Token::addUserInDb(String userInfo, String serverFile)
 		file.close();
 	}
 	return cookie;
+}
+
+String	Token::getCookie(String& id)
+{
+	std::map<String, String>::iterator element = this->tokenDB.find(id);
+	if (element == tokenDB.end())
+		return "";
+	return element->second;
 }
 
 String Token::generateTokenId()
@@ -72,8 +82,5 @@ bool Token::authentified(const String &id)
 		return true;
 	return false;
 }
-String Token::getToken() const
-{
-	return token;
-}
+
 

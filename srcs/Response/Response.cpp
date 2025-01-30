@@ -145,13 +145,14 @@ String	readFielContent(String fileName)
 void Response::executePost()
 {
 	//verify if the post content shouldnt be reconstructed;  
-	if (__request.__headers.__transferType != MULTIPART)
+	if (__request.__headers.__transferType != MULTIPART && !__location.__authenticate.empty())
 	{
-		String cook = readFielContent(__request.__body[0]._fileName);
-		if (!token.authentified(cook))
-			cook = token.addUserInDb(cook, __server.serverIdentity());
-		// if (cook.empty())
-		// 	throw ErrorResponse(301, __location.__authenticate, __location);
+		String cook;
+		String id = readFielContent(__request.__body[0]._fileName);
+		if (!token.authentified(id))
+			cook = token.addUserInDb(id, __server.serverIdentity());
+		else
+			cook = token.getCookie(id);
 		throw ErrorResponse(explorer.__fullPath, cook);
 	}
 	Post post(explorer, __request);
