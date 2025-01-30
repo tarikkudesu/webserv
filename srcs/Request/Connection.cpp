@@ -66,6 +66,7 @@ Server *Connection::identifyServer()
  ***************************************************************************/
 void Connection::processResponse()
 {
+    std::cout << __request << "\n";
     wsu::info("COMPLETE");
     Server *server = identifyServer();
     Location &location = server->identifyLocation(__request.__URI);
@@ -78,6 +79,7 @@ void Connection::processResponse()
 /***************************************************************************
  *                             BODY PROCESSING                             *
  ***************************************************************************/
+
 void Connection::processCunkedBody()
 {
     static size_t chunkSize;
@@ -89,8 +91,12 @@ void Connection::processCunkedBody()
             if (pos == String::npos)
                 throw wsu::persist();
             BasicString hex = __data.substr(0, pos);
+            size_t extPos = hex.find(";");
+            if (extPos != String::npos)
+                hex = hex.substr(0, extPos);
             chunkSize = wsu::hexToInt(hex.to_string());
             __data.erase(0, pos + 2);
+            this->__request.__bodySize += pos + 2;
             if (chunkSize == 0)
             {
                 Connection::__fs.close();
@@ -100,15 +106,18 @@ void Connection::processCunkedBody()
         }
         if (chunkSize < __data.length())
         {
-            BasicString tmp = __data.substr(0, chunkSize);
-            Connection::__fs << tmp;
+            BasicString data = __data.substr(0, chunkSize);
+            Connection::__fs << data;
             __data.erase(0, chunkSize);
-            chunkSize -= tmp.length();
+            this->__request.__bodySize += chunkSize;
+            chunkSize -= data.length();
         }
         else
         {
             Connection::__fs << __data;
-            chunkSize -= __data.length();
+            size_t  len = __data.length();
+            chunkSize -= len;
+            this->__request.__bodySize += len;
             __data.clear();
             break;
         }
@@ -118,14 +127,16 @@ void Connection::processDefinedBody()
 {
     if (__request.__headers.__contentLength < __data.length())
     {
-        BasicString tmp = __data.substr(0, __request.__headers.__contentLength);
-        __request.__headers.__contentLength -= tmp.length();
-        __data.erase(0, tmp.length());
-        Connection::__fs << tmp;
+        BasicString data = __data.substr(0, __request.__headers.__contentLength);
+        __request.__headers.__contentLength -= data.length();
+        __data.erase(0, data.length());
+        Connection::__fs << data;
+        this->__request.__bodySize += data.length();
     }
     else
     {
         Connection::__fs << __data;
+        this->__request.__bodySize += __data.length();
         __request.__headers.__contentLength -= __data.length();
         __data.clear();
     }
@@ -146,10 +157,7 @@ void Connection::mpHeaders(t_multipartsection &part)
         body._fileName = wsu::generateTimeBasedFileName();
         Connection::__fs.open(body._fileName.c_str());
         if (!Connection::__fs.good())
-        {
-            wsu::warn("could no create temporary file: " + body._fileName);
             continue ;
-        }
         __request.__body.push_back(body);
         part = MP_BODY;
         break;
@@ -162,8 +170,10 @@ void Connection::mpHeaders(t_multipartsection &part)
         BasicString header = __data.substr(0, p);
         __request.__body.back()._headers.push_back(header.to_string());
         __data.erase(0, p + 2);
+        this->__request.__bodySize += p + 2;
     } while (true);
     __data.erase(0, 2);
+    this->__request.__bodySize += 2;
 }
 void Connection::mpBody(t_multipartsection &part)
 {
@@ -177,6 +187,7 @@ void Connection::mpBody(t_multipartsection &part)
         BasicString data = __data.substr(0, __data.length() - len);
         Connection::__fs << data;
         __data.erase(0, data.length());
+        this->__request.__bodySize += data.length();
     }
     else if (pos != String::npos)
     {
@@ -185,6 +196,7 @@ void Connection::mpBody(t_multipartsection &part)
         Connection::__fs << data;
         Connection::__fs.close();
         __data.erase(0, pos + len);
+        this->__request.__bodySize += pos + len;
         part = MP_HEADERS;
     }
     else if (end != String::npos)
@@ -194,6 +206,7 @@ void Connection::mpBody(t_multipartsection &part)
         Connection::__fs << data;
         Connection::__fs.close();
         __data.erase(0, end + len);
+        this->__request.__bodySize += end + len;
         __request.__phase = COMPLETE;
         part = MP_HEADERS;
     }
@@ -307,10 +320,6 @@ void Connection::proccessData(BasicString input)
     {
         this->__responseQueue.push(e.getResponse());
         __request.__phase = NEWREQUEST;
-    }
-    catch (Request &e)
-    {
-        processResponse();
     }
     catch (wsu::persist &e)
     {

@@ -16,6 +16,7 @@ class Request
 		e_requestPhase					__phase;
 		t_method						__method;
 		Headers							__headers;
+		size_t							__bodySize;
 		String							__fragement;
 		String							__protocole;
 		String							__queryString;
